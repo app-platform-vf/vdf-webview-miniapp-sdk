@@ -11,7 +11,11 @@
           "required": false,
           "description": "Thong tin request",
           "fields": {
-            "user_id": { "type": "string", "required": false, "description": "ID nguoi dung (bo trong de lay user hien tai)" }
+            "user_id": {
+              "type": "string",
+              "required": false,
+              "description": "ID nguoi dung (bo trong de lay user hien tai)"
+            }
           }
         }
       },
@@ -20,11 +24,26 @@
           "meta_data": "object",
           "description": "Thong tin nguoi dung",
           "fields": {
-            "user_id": { "type": "string", "description": "ID nguoi dung" },
-            "full_name": { "type": "string", "description": "Ho va ten" },
-            "phone": { "type": "string", "description": "So dien thoai" },
-            "email": { "type": "string", "description": "Email" },
-            "avatar": { "type": "string", "description": "URL anh dai dien" }
+            "user_id": {
+              "type": "string",
+              "description": "ID nguoi dung"
+            },
+            "full_name": {
+              "type": "string",
+              "description": "Ho va ten"
+            },
+            "phone": {
+              "type": "string",
+              "description": "So dien thoai"
+            },
+            "email": {
+              "type": "string",
+              "description": "Email"
+            },
+            "avatar": {
+              "type": "string",
+              "description": "URL anh dai dien"
+            }
           }
         }
       }
@@ -38,8 +57,18 @@
           "required": false,
           "description": "Tuy chon vi tri",
           "fields": {
-            "type": { "type": "string", "required": false, "description": "Loai toa do: wgs84 | gcj02", "default": "wgs84" },
-            "high_accuracy": { "type": "boolean", "required": false, "description": "Bat do chinh xac cao", "default": false }
+            "type": {
+              "type": "string",
+              "required": false,
+              "description": "Loai toa do: wgs84 | gcj02",
+              "default": "wgs84"
+            },
+            "high_accuracy": {
+              "type": "boolean",
+              "required": false,
+              "description": "Bat do chinh xac cao",
+              "default": false
+            }
           }
         }
       },
@@ -48,10 +77,22 @@
           "meta_data": "object",
           "description": "Toa do vi tri",
           "fields": {
-            "latitude": { "type": "number", "description": "Vi do" },
-            "longitude": { "type": "number", "description": "Kinh do" },
-            "accuracy": { "type": "number", "description": "Do chinh xac (met)" },
-            "speed": { "type": "number", "description": "Toc do (m/s)" }
+            "latitude": {
+              "type": "number",
+              "description": "Vi do"
+            },
+            "longitude": {
+              "type": "number",
+              "description": "Kinh do"
+            },
+            "accuracy": {
+              "type": "number",
+              "description": "Do chinh xac (met)"
+            },
+            "speed": {
+              "type": "number",
+              "description": "Toc do (m/s)"
+            }
           }
         }
       }
@@ -65,7 +106,12 @@
           "required": false,
           "description": "Tuy chon quet",
           "fields": {
-            "scan_type": { "type": "string", "required": false, "description": "Loai ma: qr | barcode | all", "default": "qr" }
+            "scan_type": {
+              "type": "string",
+              "required": false,
+              "description": "Loai ma: qr | barcode | all",
+              "default": "qr"
+            }
           }
         }
       },
@@ -74,8 +120,14 @@
           "meta_data": "object",
           "description": "Ket qua quet",
           "fields": {
-            "code": { "type": "string", "description": "Noi dung ma da quet" },
-            "format": { "type": "string", "description": "Dinh dang ma: QR_CODE | EAN_13 | ..." }
+            "code": {
+              "type": "string",
+              "description": "Noi dung ma da quet"
+            },
+            "format": {
+              "type": "string",
+              "description": "Dinh dang ma: QR_CODE | EAN_13 | ..."
+            }
           }
         }
       }
@@ -89,13 +141,34 @@
           "meta_data": "object",
           "description": "Thong tin thiet bi",
           "fields": {
-            "platform": { "type": "string", "description": "android | ios" },
-            "os_version": { "type": "string", "description": "Phien ban OS" },
-            "brand": { "type": "string", "description": "Hang san xuat" },
-            "model": { "type": "string", "description": "Ten thiet bi" },
-            "sdk_version": { "type": "string", "description": "Phien ban SDK native" },
-            "screen_width": { "type": "number", "description": "Chieu rong man hinh (px)" },
-            "screen_height": { "type": "number", "description": "Chieu cao man hinh (px)" }
+            "platform": {
+              "type": "string",
+              "description": "android | ios"
+            },
+            "os_version": {
+              "type": "string",
+              "description": "Phien ban OS"
+            },
+            "brand": {
+              "type": "string",
+              "description": "Hang san xuat"
+            },
+            "model": {
+              "type": "string",
+              "description": "Ten thiet bi"
+            },
+            "sdk_version": {
+              "type": "string",
+              "description": "Phien ban SDK native"
+            },
+            "screen_width": {
+              "type": "number",
+              "description": "Chieu rong man hinh (px)"
+            },
+            "screen_height": {
+              "type": "number",
+              "description": "Chieu cao man hinh (px)"
+            }
           }
         }
       }
@@ -109,8 +182,16 @@
           "required": true,
           "description": "Du lieu luu tru (se duoc stringify)",
           "fields": {
-            "key": { "type": "string", "required": true, "description": "Key luu tru" },
-            "value": { "type": "any", "required": true, "description": "Gia tri can luu" }
+            "key": {
+              "type": "string",
+              "required": true,
+              "description": "Key luu tru"
+            },
+            "value": {
+              "type": "any",
+              "required": true,
+              "description": "Gia tri can luu"
+            }
           }
         }
       },
@@ -119,7 +200,10 @@
           "meta_data": "object",
           "description": "Ket qua",
           "fields": {
-            "success": { "type": "boolean", "description": "Ket qua luu tru" }
+            "success": {
+              "type": "boolean",
+              "description": "Ket qua luu tru"
+            }
           }
         }
       }
@@ -133,7 +217,11 @@
           "required": true,
           "description": "Thong tin key",
           "fields": {
-            "key": { "type": "string", "required": true, "description": "Key can doc" }
+            "key": {
+              "type": "string",
+              "required": true,
+              "description": "Key can doc"
+            }
           }
         }
       },
@@ -142,8 +230,14 @@
           "meta_data": "object",
           "description": "Du lieu doc duoc",
           "fields": {
-            "key": { "type": "string", "description": "Key da doc" },
-            "value": { "type": "any", "description": "Gia tri" }
+            "key": {
+              "type": "string",
+              "description": "Key da doc"
+            },
+            "value": {
+              "type": "any",
+              "description": "Gia tri"
+            }
           }
         }
       }
@@ -157,7 +251,11 @@
           "required": true,
           "description": "Thong tin key",
           "fields": {
-            "key": { "type": "string", "required": true, "description": "Key can xoa" }
+            "key": {
+              "type": "string",
+              "required": true,
+              "description": "Key can xoa"
+            }
           }
         }
       },
@@ -166,7 +264,10 @@
           "meta_data": "object",
           "description": "Ket qua",
           "fields": {
-            "success": { "type": "boolean", "description": "Ket qua xoa" }
+            "success": {
+              "type": "boolean",
+              "description": "Ket qua xoa"
+            }
           }
         }
       }
@@ -180,9 +281,23 @@
           "required": true,
           "description": "Noi dung toast",
           "fields": {
-            "title": { "type": "string", "required": true, "description": "Noi dung hien thi" },
-            "icon": { "type": "string", "required": false, "description": "Icon: success | error | loading | none", "default": "none" },
-            "duration": { "type": "number", "required": false, "description": "Thoi gian hien thi (ms)", "default": 2000 }
+            "title": {
+              "type": "string",
+              "required": true,
+              "description": "Noi dung hien thi"
+            },
+            "icon": {
+              "type": "string",
+              "required": false,
+              "description": "Icon: success | error | loading | none",
+              "default": "none"
+            },
+            "duration": {
+              "type": "number",
+              "required": false,
+              "description": "Thoi gian hien thi (ms)",
+              "default": 2000
+            }
           }
         }
       },
@@ -197,8 +312,18 @@
           "required": false,
           "description": "Tuy chon loading",
           "fields": {
-            "title": { "type": "string", "required": false, "description": "Noi dung loading", "default": "" },
-            "mask": { "type": "boolean", "required": false, "description": "Hien thi lop phu", "default": false }
+            "title": {
+              "type": "string",
+              "required": false,
+              "description": "Noi dung loading",
+              "default": ""
+            },
+            "mask": {
+              "type": "boolean",
+              "required": false,
+              "description": "Hien thi lop phu",
+              "default": false
+            }
           }
         }
       },
@@ -219,11 +344,34 @@
           "required": true,
           "description": "Noi dung dialog",
           "fields": {
-            "title": { "type": "string", "required": false, "description": "Tieu de" },
-            "content": { "type": "string", "required": true, "description": "Noi dung" },
-            "confirm_text": { "type": "string", "required": false, "description": "Text nut xac nhan", "default": "OK" },
-            "cancel_text": { "type": "string", "required": false, "description": "Text nut huy", "default": "Huy" },
-            "show_cancel": { "type": "boolean", "required": false, "description": "Hien nut huy", "default": true }
+            "title": {
+              "type": "string",
+              "required": false,
+              "description": "Tieu de"
+            },
+            "content": {
+              "type": "string",
+              "required": true,
+              "description": "Noi dung"
+            },
+            "confirm_text": {
+              "type": "string",
+              "required": false,
+              "description": "Text nut xac nhan",
+              "default": "OK"
+            },
+            "cancel_text": {
+              "type": "string",
+              "required": false,
+              "description": "Text nut huy",
+              "default": "Huy"
+            },
+            "show_cancel": {
+              "type": "boolean",
+              "required": false,
+              "description": "Hien nut huy",
+              "default": true
+            }
           }
         }
       },
@@ -232,8 +380,14 @@
           "meta_data": "object",
           "description": "Ket qua chon",
           "fields": {
-            "confirm": { "type": "boolean", "description": "Nguoi dung nhan xac nhan" },
-            "cancel": { "type": "boolean", "description": "Nguoi dung nhan huy" }
+            "confirm": {
+              "type": "boolean",
+              "description": "Nguoi dung nhan xac nhan"
+            },
+            "cancel": {
+              "type": "boolean",
+              "description": "Nguoi dung nhan huy"
+            }
           }
         }
       }
@@ -247,8 +401,16 @@
           "required": true,
           "description": "Thong tin dieu huong",
           "fields": {
-            "url": { "type": "string", "required": true, "description": "Duong dan trang" },
-            "params": { "type": "object", "required": false, "description": "Tham so truyen theo" }
+            "url": {
+              "type": "string",
+              "required": true,
+              "description": "Duong dan trang"
+            },
+            "params": {
+              "type": "object",
+              "required": false,
+              "description": "Tham so truyen theo"
+            }
           }
         }
       },
@@ -257,7 +419,10 @@
           "meta_data": "object",
           "description": "Ket qua",
           "fields": {
-            "success": { "type": "boolean", "description": "Ket qua dieu huong" }
+            "success": {
+              "type": "boolean",
+              "description": "Ket qua dieu huong"
+            }
           }
         }
       }
@@ -271,7 +436,12 @@
           "required": false,
           "description": "Tuy chon",
           "fields": {
-            "delta": { "type": "number", "required": false, "description": "So trang quay lai", "default": 1 }
+            "delta": {
+              "type": "number",
+              "required": false,
+              "description": "So trang quay lai",
+              "default": 1
+            }
           }
         }
       },
@@ -280,7 +450,10 @@
           "meta_data": "object",
           "description": "Ket qua",
           "fields": {
-            "success": { "type": "boolean", "description": "Ket qua" }
+            "success": {
+              "type": "boolean",
+              "description": "Ket qua"
+            }
           }
         }
       }
@@ -294,8 +467,14 @@
           "meta_data": "object",
           "description": "Token info",
           "fields": {
-            "access_token": { "type": "string", "description": "Access token" },
-            "expires_in": { "type": "number", "description": "Thoi gian het han (giay)" }
+            "access_token": {
+              "type": "string",
+              "description": "Access token"
+            },
+            "expires_in": {
+              "type": "number",
+              "description": "Thoi gian het han (giay)"
+            }
           }
         }
       }
@@ -309,8 +488,16 @@
           "required": true,
           "description": "Thong tin deep link",
           "fields": {
-            "url": { "type": "string", "required": true, "description": "Deep link URL" },
-            "fallback_url": { "type": "string", "required": false, "description": "URL du phong neu khong mo duoc" }
+            "url": {
+              "type": "string",
+              "required": true,
+              "description": "Deep link URL"
+            },
+            "fallback_url": {
+              "type": "string",
+              "required": false,
+              "description": "URL du phong neu khong mo duoc"
+            }
           }
         }
       },
@@ -319,7 +506,10 @@
           "meta_data": "object",
           "description": "Ket qua",
           "fields": {
-            "success": { "type": "boolean", "description": "Mo thanh cong hay khong" }
+            "success": {
+              "type": "boolean",
+              "description": "Mo thanh cong hay khong"
+            }
           }
         }
       }
@@ -333,10 +523,26 @@
           "required": true,
           "description": "Noi dung chia se",
           "fields": {
-            "title": { "type": "string", "required": true, "description": "Tieu de chia se" },
-            "description": { "type": "string", "required": false, "description": "Mo ta" },
-            "image_url": { "type": "string", "required": false, "description": "URL anh" },
-            "link": { "type": "string", "required": false, "description": "Link chia se" }
+            "title": {
+              "type": "string",
+              "required": true,
+              "description": "Tieu de chia se"
+            },
+            "description": {
+              "type": "string",
+              "required": false,
+              "description": "Mo ta"
+            },
+            "image_url": {
+              "type": "string",
+              "required": false,
+              "description": "URL anh"
+            },
+            "link": {
+              "type": "string",
+              "required": false,
+              "description": "Link chia se"
+            }
           }
         }
       },
@@ -345,8 +551,14 @@
           "meta_data": "object",
           "description": "Ket qua chia se",
           "fields": {
-            "success": { "type": "boolean", "description": "Chia se thanh cong" },
-            "channel": { "type": "string", "description": "Kenh chia se: facebook | zalo | copy | ..." }
+            "success": {
+              "type": "boolean",
+              "description": "Chia se thanh cong"
+            },
+            "channel": {
+              "type": "string",
+              "description": "Kenh chia se: facebook | zalo | copy | ..."
+            }
           }
         }
       }

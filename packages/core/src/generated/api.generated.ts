@@ -45,9 +45,8 @@ import type {
 
 const SENDER = 'MINIAPP_WEBVIEW';
 
-let _requestIdCounter = 0;
 function generateRequestId(): string {
-  return `req_${Date.now()}_${++_requestIdCounter}`;
+  return `req_${Date.now()}_${Math.random().toString(36).slice(8)}`;
 }
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */

@@ -36,10 +36,25 @@ function toPascalCase(str) {
   return camel.charAt(0).toUpperCase() + camel.slice(1)
 }
 
-/** Map type tu JSON sang TypeScript */
+/** Map type tu JSON sang TypeScript (kieu don, khong co items) */
 function toTsType(jsonType) {
-  const map = { string: "string", number: "number", boolean: "boolean", object: "Record<string, any>", any: "any" }
+  const map = { string: "string", number: "number", boolean: "boolean", object: "Record<string, any>", array: "any[]", any: "any" }
   return map[jsonType] || "any"
+}
+
+/**
+ * Gen TypeScript type cho mang: dua vao items va fields
+ * - items: "string" -> string[]
+ * - items: "object" + fields -> { ... }[]
+ * - items: "number" -> number[]
+ * - khong co items -> any[]
+ */
+function genArrayType(def, indent) {
+  const items = def.items || "any"
+  if (items === "object" && def.fields && Object.keys(def.fields).length > 0) {
+    return genInlineType(def.fields, indent || 2) + "[]"
+  }
+  return toTsType(items) + "[]"
 }
 
 /** Gen inline object type tu nested fields (de quy) */
@@ -49,7 +64,9 @@ function genInlineType(fields, indent) {
   const lines = Object.entries(fields).map(([key, def]) => {
     const optional = def.required === false ? "?" : ""
     let tsType
-    if (def.type === "object" && def.fields && Object.keys(def.fields).length > 0) {
+    if (def.type === "array") {
+      tsType = genArrayType(def, indent + 2)
+    } else if (def.type === "object" && def.fields && Object.keys(def.fields).length > 0) {
       tsType = genInlineType(def.fields, indent + 2)
     } else {
       tsType = toTsType(def.type)
@@ -64,8 +81,13 @@ function genInlineType(fields, indent) {
  * Gen interface tu section definition (request hoac response).
  * Moi truong co meta_data dinh nghia kieu.
  *
- * @param {string} name - Ten interface (e.g. "GetUserInfoRequest")
- * @param {object} sectionDef - { fieldName: { meta_data, required, description, fields? }, ... }
+ * meta_data:
+ *   "object"    -> object voi fields
+ *   "stringify"  -> object/array voi fields, JSON.stringify khi gui
+ *     + co items -> mang (VD: stringify array of objects)
+ *     + khong items -> object (VD: stringify object)
+ *   "array"     -> mang, items dinh nghia kieu phan tu
+ *   "string"/"number"/"boolean"/"any" -> kieu don
  */
 function genInterface(name, sectionDef) {
   const entries = Object.entries(sectionDef || {})
@@ -77,8 +99,23 @@ function genInterface(name, sectionDef) {
     const comment = def.description ? ` // ${def.description}` : ""
 
     let tsType
-    if (meta === "object" || meta === "stringify") {
+    if (meta === "array") {
+      // Mang: items dinh nghia kieu phan tu
+      tsType = genArrayType(def, 2)
+    } else if (meta === "object") {
+      // Object voi fields
       if (def.fields && Object.keys(def.fields).length > 0) {
+        tsType = genInlineType(def.fields, 2)
+      } else {
+        tsType = "Record<string, any>"
+      }
+    } else if (meta === "stringify") {
+      // Stringify: co the la object hoac array
+      if (def.items) {
+        // Stringify mang
+        tsType = genArrayType(def, 2)
+      } else if (def.fields && Object.keys(def.fields).length > 0) {
+        // Stringify object
         tsType = genInlineType(def.fields, 2)
       } else {
         tsType = "Record<string, any>"
@@ -212,9 +249,8 @@ function genApi(config) {
   lines.push("")
 
   // Request ID generator
-  lines.push("let _requestIdCounter = 0;")
   lines.push("function generateRequestId(): string {")
-  lines.push("  return `req_${Date.now()}_${++_requestIdCounter}`;")
+  lines.push("  return `req_${Date.now()}_${Math.random().toString(36).slice(8)}`;")
   lines.push("}")
   lines.push("")
 
