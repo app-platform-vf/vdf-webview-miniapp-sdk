@@ -155,8 +155,8 @@
 let config = null, selectedIndex = -1;
 const expanded = new Set(); // "section.fieldName"
 
-const META_TYPES = ['object','stringify','string','number','boolean','any'];
-const FIELD_TYPES = ['string','number','boolean','object','any'];
+const META_TYPES = ['object','stringify','string','number','boolean','array','any'];
+const FIELD_TYPES = ['string','number','boolean','object','array','any'];
 
 const DEFAULT_EVENT = {
   event: "NEW_EVENT", description: "Mo ta event moi",
@@ -185,13 +185,107 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function handleFileLoad(e) { const f=e.target.files[0]; if(f) loadFile(f); e.target.value=''; }
+
+/**
+ * Migrate 1 section (request/response) tu format cu sang format moi (meta_data).
+ *
+ * Format cu:
+ *   { data_mode?: "stringify", data: "string" | { field: { type, required, ... } } }
+ *
+ * Format moi:
+ *   { fieldName: { meta_data: "object"|"stringify"|"string"|..., required?, description?, fields? } }
+ */
+function migrateSection(sectionDef) {
+  if (!sectionDef || typeof sectionDef !== 'object') return {};
+  const entries = Object.entries(sectionDef);
+  if (entries.length === 0) return {};
+
+  // Kiem tra da la format moi chua (co meta_data tren bat ky truong nao)
+  if (entries.some(([k, v]) => v && typeof v === 'object' && v.meta_data)) return sectionDef;
+
+  // --- Format cu: co "data" va co the co "data_mode" ---
+  const dataMode = sectionDef.data_mode; // "stringify" | undefined
+  const data = sectionDef.data;
+
+  // Khong co truong data -> section rong
+  if (data === undefined || data === null) return {};
+
+  // data la kieu don: "string", "number", ...
+  if (typeof data === 'string') {
+    return { data: { meta_data: data } };
+  }
+
+  // data la object
+  if (typeof data === 'object') {
+    const fieldEntries = Object.entries(data);
+
+    // Object rong
+    if (fieldEntries.length === 0) return {};
+
+    // Kiem tra co phai la fields cu khong (co "type" property tren cac entry)
+    const looksLikeOldFields = fieldEntries.some(([_, v]) => v && typeof v === 'object' && v.type && !v.meta_data);
+
+    if (looksLikeOldFields) {
+      const meta = dataMode === 'stringify' ? 'stringify' : 'object';
+      // Chuyen cac field cu thanh sub-fields cua truong "data"
+      const fields = {};
+      fieldEntries.forEach(([key, def]) => {
+        // Giu nguyen cac thuoc tinh: type, required, description, default, fields
+        fields[key] = { ...def };
+      });
+      const result = { data: { meta_data: meta, fields } };
+
+      // Tim xem co truong required nao khong de set required cho data
+      const hasRequired = fieldEntries.some(([_, v]) => v.required !== false);
+      if (hasRequired) result.data.required = true;
+
+      return result;
+    }
+
+    // Truong hop khac: tra ve nguyen
+    return sectionDef;
+  }
+
+  return sectionDef;
+}
+
+/** Migrate toan bo config tu format cu sang format moi */
+function migrateConfig(cfg) {
+  if (!cfg || !cfg.events) return cfg;
+  let migrated = 0;
+  cfg.events.forEach(evt => {
+    ['request', 'response'].forEach(section => {
+      if (!evt[section]) { evt[section] = {}; return; }
+      const original = JSON.stringify(evt[section]);
+      evt[section] = migrateSection(evt[section]);
+      if (JSON.stringify(evt[section]) !== original) migrated++;
+    });
+  });
+  return migrated;
+}
+
 function loadFile(file) {
   const r = new FileReader();
   r.onload = e => {
-    try { const d=JSON.parse(e.target.result); if(!d.events) { toast('Dinh dang khong hop le','error'); return; }
-      config=d; selectedIndex=d.events.length>0?0:-1; expanded.clear(); renderAll(); toast('Da tai '+d.events.length+' events','success');
+    try {
+      const d = JSON.parse(e.target.result);
+      if (!d.events || !Array.isArray(d.events)) { toast('Dinh dang khong hop le','error'); return; }
+
+      // Migrate format cu -> format moi (meta_data)
+      const migratedCount = migrateConfig(d);
+
+      config = d;
+      selectedIndex = d.events.length > 0 ? 0 : -1;
+      expanded.clear();
+      expandCurrentEvent();
+      renderAll();
+
+      let msg = 'Da tai ' + d.events.length + ' events';
+      if (migratedCount > 0) msg += ` (da chuyen doi ${migratedCount} section sang format moi)`;
+      toast(msg, 'success');
     } catch(err) { toast('Loi JSON: '+err.message,'error'); }
-  }; r.readAsText(file);
+  };
+  r.readAsText(file);
 }
 function createNew() { config={version:"1.0.0",sender:"MINIAPP_WEBVIEW",events:[]}; selectedIndex=-1; expanded.clear(); renderAll(); toast('Da tao moi','success'); }
 function saveFile() {
@@ -258,31 +352,55 @@ function renderEditor() {
   `;
 }
 
+const ITEMS_TYPES = ['string','number','boolean','object','array','any'];
+
+/** Kiem tra truong co sub-fields khong (de expand) */
+function hasSubFields(meta, def) {
+  if (meta === 'object') return true;
+  if (meta === 'stringify') {
+    // Stringify object (khong co items) -> co sub-fields
+    if (!def.items) return true;
+    // Stringify array of objects -> co sub-fields
+    return def.items === 'object';
+  }
+  if (meta === 'array') return def.items === 'object';
+  return false;
+}
+
+/** Kiem tra truong co hien items dropdown khong */
+function showsItems(meta) {
+  return meta === 'array' || meta === 'stringify';
+}
+
 /** Render section (request hoac response) voi cac truong dong */
 function renderSection(section, sectionDef) {
   const entries = Object.entries(sectionDef || {});
   const label = section === 'request' ? 'Request' : 'Response';
-  const fieldInfo = entries.map(([n,d])=> `${n}:${d.meta_data||'?'}`).join(', ') || 'trong';
+  const fieldInfo = entries.map(([n,d])=> {
+    let info = `${n}:${d.meta_data||'?'}`;
+    if (d.items) info += `<${d.items}>`;
+    return info;
+  }).join(', ') || 'trong';
 
   let html = '';
 
-  // Column labels
   if (entries.length > 0) {
     html += `<div class="tl-meta-label"><span></span><span>Ten truong</span><span>meta_data</span><span style="text-align:center">Req</span><span>Mo ta</span><span></span></div>`;
   }
 
   entries.forEach(([fieldName, fieldDef]) => {
     const meta = fieldDef.meta_data || 'any';
-    const isExpandable = meta === 'object' || meta === 'stringify';
+    const items = fieldDef.items;
+    const canExpand = hasSubFields(meta, fieldDef);
     const expandKey = section + '.' + fieldName;
     const isExp = expanded.has(expandKey);
-    const subCount = isExpandable ? countSubFields(fieldDef.fields) : 0;
+    const subCount = canExpand ? countSubFields(fieldDef.fields) : 0;
 
     html += `<div class="tl-field" data-section="${section}" data-field="${esc(fieldName)}">`;
 
     // Header row
     html += `<div class="tl-field-header">`;
-    if (isExpandable) {
+    if (canExpand) {
       html += `<button class="expand-btn" onclick="toggleExpand('${section}','${esc(fieldName)}')"><span class="arrow ${isExp?'open':''}">&#9654;</span></button>`;
     } else {
       html += `<span class="no-expand"></span>`;
@@ -292,9 +410,37 @@ function renderSection(section, sectionDef) {
       ${META_TYPES.map(t=>`<option value="${t}" ${meta===t?'selected':''}>${t}</option>`).join('')}
     </select>`;
     html += `<div style="text-align:center"><input type="checkbox" ${fieldDef.required!==false?'checked':''} data-section="${section}" data-field="${esc(fieldName)}" data-prop="required"></div>`;
-    html += `<input value="${esc(fieldDef.description||'')}" data-section="${section}" data-field="${esc(fieldName)}" data-prop="description" placeholder="${isExpandable?subCount+' sub-fields':''}">`;
+    html += `<input value="${esc(fieldDef.description||'')}" data-section="${section}" data-field="${esc(fieldName)}" data-prop="description" placeholder="${canExpand?subCount+' sub-fields':''}">`;
     html += `<button class="btn-icon danger" onclick="removeTlField('${section}','${esc(fieldName)}')" title="Xoa">&#10005;</button>`;
     html += `</div>`; // end header
+
+    // Items selector row (cho array va stringify)
+    if (showsItems(meta)) {
+      const curItems = items || (meta === 'array' ? 'any' : '');
+      html += `<div style="padding:4px 12px 4px 42px;display:flex;align-items:center;gap:8px">`;
+      if (meta === 'stringify') {
+        // Stringify: checkbox "La mang?"
+        const isArr = !!items;
+        html += `<label style="font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:4px;cursor:pointer">
+          <input type="checkbox" ${isArr?'checked':''} data-section="${section}" data-field="${esc(fieldName)}" data-prop="is_array"
+                 onchange="onStringifyArrayToggle(this)" style="width:14px;height:14px;accent-color:var(--primary)">
+          La mang</label>`;
+        if (isArr) {
+          html += `<span style="font-size:11px;color:var(--text-muted)">items:</span>`;
+          html += `<select data-section="${section}" data-field="${esc(fieldName)}" data-prop="items" onchange="onItemsChange(this)" style="width:100px;padding:3px 6px;font-size:11px">
+            ${ITEMS_TYPES.map(t=>`<option value="${t}" ${curItems===t?'selected':''}>${t}</option>`).join('')}
+          </select>`;
+        }
+      } else {
+        // Array: luon hien items
+        html += `<span style="font-size:11px;color:var(--text-muted)">items:</span>`;
+        html += `<select data-section="${section}" data-field="${esc(fieldName)}" data-prop="items" onchange="onItemsChange(this)" style="width:100px;padding:3px 6px;font-size:11px">
+          ${ITEMS_TYPES.map(t=>`<option value="${t}" ${curItems===t?'selected':''}>${t}</option>`).join('')}
+        </select>`;
+        html += `<span class="mono" style="font-size:11px;color:var(--primary)">${curItems}[]</span>`;
+      }
+      html += `</div>`;
+    }
 
     // Stringify note
     if (meta === 'stringify') {
@@ -302,9 +448,9 @@ function renderSection(section, sectionDef) {
       html += `<div class="stringify-note">${note}</div>`;
     }
 
-    // Sub-fields body (only for object/stringify when expanded)
-    if (isExpandable && isExp) {
-      html += `<div class="tl-field-body">`;
+    // Sub-fields body — luon render khi co the expand
+    if (canExpand) {
+      html += `<div class="tl-field-body" style="${isExp?'':'display:none'}">`;
       html += renderSubFields(fieldDef.fields || {}, section, fieldName);
       html += `</div>`;
     }
@@ -320,16 +466,23 @@ function renderSection(section, sectionDef) {
   </div>`;
 }
 
-/** Render sub-fields table cho 1 truong object/stringify */
+/** Render sub-fields table cho 1 truong object/stringify/array(object) */
 function renderSubFields(fields, section, parentField) {
   const entries = Object.entries(fields || {});
-  let html = `<div class="sf-header"><span>Ten</span><span>Kieu</span><span class="ctr">Req</span><span>Mo ta</span><span>Default</span><span></span></div>`;
+  let html = `<div class="sf-header"><span>Ten</span><span>Kieu</span><span class="ctr">items</span><span>Mo ta</span><span>Default</span><span></span></div>`;
 
   entries.forEach(([key, def], i) => {
+    const isArr = def.type === 'array';
     html += `<div class="sf-row" data-section="${section}" data-parent="${esc(parentField)}" data-idx="${i}">`;
     html += `<input class="mono" value="${esc(key)}" data-prop="key">`;
     html += `<select data-prop="type">${FIELD_TYPES.map(t=>`<option value="${t}" ${def.type===t?'selected':''}>${t}</option>`).join('')}</select>`;
-    html += `<div class="ctr"><input type="checkbox" ${def.required!==false?'checked':''} data-prop="required"></div>`;
+    // Cot 3: hien items dropdown khi type=array, hoac checkbox required khi khac
+    if (isArr) {
+      const curItems = def.items || 'any';
+      html += `<select data-prop="items" style="font-size:11px;padding:3px">${ITEMS_TYPES.map(t=>`<option value="${t}" ${curItems===t?'selected':''}>${t}</option>`).join('')}</select>`;
+    } else {
+      html += `<div class="ctr"><input type="checkbox" ${def.required!==false?'checked':''} data-prop="required"></div>`;
+    }
     html += `<input value="${esc(def.description||'')}" data-prop="description">`;
     html += `<input value="${def.default!==undefined?esc(String(def.default)):''}" data-prop="default" placeholder="—">`;
     html += `<button class="btn-icon danger" onclick="removeSubField('${section}','${esc(parentField)}',${i})" title="Xoa">&#10005;</button>`;
@@ -340,15 +493,28 @@ function renderSubFields(fields, section, parentField) {
   return html;
 }
 
+/** Auto-expand tat ca truong co sub-fields cua event hien tai */
+function expandCurrentEvent() {
+  if (!config || selectedIndex < 0 || selectedIndex >= config.events.length) return;
+  const evt = config.events[selectedIndex];
+  ['request','response'].forEach(section => {
+    Object.entries(evt[section] || {}).forEach(([name, def]) => {
+      if (hasSubFields(def.meta_data, def)) {
+        expanded.add(section + '.' + name);
+      }
+    });
+  });
+}
+
 // ═══════════════ Event Actions ═══════════════
-function selectEvent(i) { sync(); selectedIndex=i; renderSidebar(); renderEditor(); }
+function selectEvent(i) { sync(); selectedIndex=i; expandCurrentEvent(); renderSidebar(); renderEditor(); }
 
 function addEvent() {
   if(!config) createNew();
   sync(); let name='NEW_EVENT',c=1; const ns=config.events.map(e=>e.event);
   while(ns.includes(name)) name='NEW_EVENT_'+c++;
   const evt=JSON.parse(JSON.stringify(DEFAULT_EVENT)); evt.event=name;
-  config.events.push(evt); selectedIndex=config.events.length-1; renderAll(); toast('Da them: '+name,'success');
+  config.events.push(evt); selectedIndex=config.events.length-1; expandCurrentEvent(); renderAll(); toast('Da them: '+name,'success');
   setTimeout(()=>{const i=document.getElementById('f_event');if(i){i.focus();i.select();}},50);
 }
 
@@ -356,7 +522,7 @@ function duplicateEvent(i) {
   sync(); const cp=JSON.parse(JSON.stringify(config.events[i])); cp.event+='_COPY';
   const ns=config.events.map(e=>e.event); let c=1;
   while(ns.includes(cp.event)) cp.event=config.events[i].event+'_COPY_'+c++;
-  config.events.splice(i+1,0,cp); selectedIndex=i+1; renderAll(); toast('Da nhan ban','success');
+  config.events.splice(i+1,0,cp); selectedIndex=i+1; expandCurrentEvent(); renderAll(); toast('Da nhan ban','success');
 }
 
 function confirmDeleteEvent(i) {
@@ -382,29 +548,125 @@ function removeTlField(section, fieldName) {
 }
 
 function toggleExpand(section, fieldName) {
-  sync(); const k=section+'.'+fieldName;
-  if(expanded.has(k)) expanded.delete(k); else expanded.add(k);
+  const k=section+'.'+fieldName;
+  const card = document.querySelector(`.tl-field[data-section="${section}"][data-field="${fieldName}"]`);
+  if (!card) return;
+  const body = card.querySelector('.tl-field-body');
+  const arrow = card.querySelector('.expand-btn .arrow');
+
+  if (expanded.has(k)) {
+    expanded.delete(k);
+    if (body) body.style.display = 'none';
+    if (arrow) arrow.classList.remove('open');
+  } else {
+    expanded.add(k);
+    if (body) body.style.display = '';
+    if (arrow) arrow.classList.add('open');
+  }
+}
+
+/** Tim def tu section va field, ho tro truong hop field name da doi */
+function findDef(section, field, el) {
+  const evt = config.events[selectedIndex];
+  let def = evt[section] && evt[section][field];
+  if (!def) {
+    const keys = Object.keys(evt[section] || {});
+    const card = el.closest('.tl-field');
+    const allCards = document.querySelectorAll(`.tl-field[data-section="${section}"]`);
+    const idx = Array.from(allCards).indexOf(card);
+    if (idx >= 0 && idx < keys.length) def = evt[section][keys[idx]];
+  }
+  return def;
+}
+
+/** Khi thay doi items type cua array/stringify */
+function onItemsChange(el) {
+  sync();
+  const section = el.dataset.section, field = el.dataset.field;
+  const def = findDef(section, field, el);
+  if (!def) { renderEditor(); return; }
+
+  const newItems = el.value;
+  def.items = newItems;
+
+  if (newItems === 'object') {
+    if (!def.fields) def.fields = {};
+    expanded.add(section + '.' + field);
+  } else {
+    if (def.fields && countSubFields(def.fields) > 0) {
+      showDialog('Xoa sub-fields?', `Doi items se xoa ${countSubFields(def.fields)} sub-fields. Tiep tuc?`, () => {
+        delete def.fields; expanded.delete(section+'.'+field); renderEditor();
+      });
+      el.value = 'object'; return;
+    }
+    delete def.fields; expanded.delete(section+'.'+field);
+  }
+  renderEditor();
+}
+
+/** Toggle stringify giua object va array */
+function onStringifyArrayToggle(el) {
+  sync();
+  const section = el.dataset.section, field = el.dataset.field;
+  const def = findDef(section, field, el);
+  if (!def) { renderEditor(); return; }
+
+  if (el.checked) {
+    def.items = 'object';
+    if (!def.fields) def.fields = {};
+    expanded.add(section + '.' + field);
+  } else {
+    delete def.items;
+  }
   renderEditor();
 }
 
 function onMetaChange(el) {
-  sync(); const section=el.dataset.section, field=el.dataset.field, newMeta=el.value;
-  const evt=config.events[selectedIndex];
-  const def = evt[section][field];
+  const section = el.dataset.section, field = el.dataset.field, newMeta = el.value;
+
+  // Sync truoc nhung tam giu lai meta cu de khong bi loi
+  // (vi sync doc meta tu DOM - da la gia tri moi)
+  sync();
+
+  const evt = config.events[selectedIndex];
+  // Tim def: co the field name da doi trong sync
+  let def = evt[section][field];
+  if (!def) {
+    // Field name bi doi -> tim theo vi tri
+    const keys = Object.keys(evt[section] || {});
+    const card = el.closest('.tl-field');
+    const allCards = document.querySelectorAll(`.tl-field[data-section="${section}"]`);
+    const idx = Array.from(allCards).indexOf(card);
+    if (idx >= 0 && idx < keys.length) def = evt[section][keys[idx]];
+    if (!def) { renderEditor(); return; }
+  }
+
   const oldMeta = def.meta_data;
   def.meta_data = newMeta;
 
-  if (newMeta==='object'||newMeta==='stringify') {
+  if (newMeta === 'object') {
     if (!def.fields) def.fields = {};
+    delete def.items;
     expanded.add(section+'.'+field);
+  } else if (newMeta === 'stringify') {
+    // Stringify object mac dinh, giu fields cu neu co
+    if (!def.fields) def.fields = {};
+    delete def.items; // mac dinh khong phai mang
+    expanded.add(section+'.'+field);
+  } else if (newMeta === 'array') {
+    if (!def.items) def.items = 'any';
+    // Chi giu fields khi items la object
+    if (def.items !== 'object') { delete def.fields; }
+    expanded.delete(section+'.'+field);
   } else {
+    // Kieu don: xoa fields va items
     if (def.fields && countSubFields(def.fields) > 0) {
       showDialog('Xoa sub-fields?', `Doi meta_data se xoa ${countSubFields(def.fields)} sub-fields. Tiep tuc?`, ()=>{
-        delete def.fields; expanded.delete(section+'.'+field); renderEditor();
+        delete def.fields; delete def.items; expanded.delete(section+'.'+field); renderEditor();
       });
-      def.meta_data = oldMeta; return; // revert
+      def.meta_data = oldMeta; return;
     }
-    delete def.fields; expanded.delete(section+'.'+field);
+    delete def.fields; delete def.items; expanded.delete(section+'.'+field);
   }
   renderEditor();
 }
@@ -455,8 +717,19 @@ function sync() {
       if (reqCheck) def.required = reqCheck.checked;
       if (descInput && descInput.value) def.description = descInput.value;
 
-      // Sync sub-fields for object/stringify
-      if (meta === 'object' || meta === 'stringify') {
+      // Sync items property (array / stringify)
+      const itemsSelect = card.querySelector('select[data-prop="items"]');
+      if (itemsSelect) def.items = itemsSelect.value;
+
+      // Sync is_array for stringify
+      const isArrCheck = card.querySelector('input[data-prop="is_array"]');
+      if (meta === 'stringify' && isArrCheck && !isArrCheck.checked) {
+        delete def.items;
+      }
+
+      // Sync sub-fields (object, stringify, array with items=object)
+      const canHaveFields = meta === 'object' || meta === 'stringify' || (meta === 'array' && def.items === 'object');
+      if (canHaveFields) {
         const subRows = card.querySelectorAll('.sf-row');
         const fields = {};
         subRows.forEach((row, i) => {
@@ -465,9 +738,12 @@ function sync() {
           const reqC = row.querySelector('input[data-prop="required"]');
           const descI = row.querySelector('input[data-prop="description"]');
           const defI = row.querySelector('input[data-prop="default"]');
+          const itemsS = row.querySelector('select[data-prop="items"]');
 
           const k = keyIn?(keyIn.value.trim()||'field_'+i):'field_'+i;
           const f = { type: typeS?typeS.value:'string' };
+          // items cho sub-field type=array
+          if (f.type === 'array' && itemsS) f.items = itemsS.value;
           if (reqC) f.required = reqC.checked;
           if (descI && descI.value) f.description = descI.value;
           if (defI && defI.value !== '') {
@@ -475,13 +751,11 @@ function sync() {
             if(raw==='true') f.default=true; else if(raw==='false') f.default=false;
             else if(!isNaN(Number(raw))&&raw!=='') f.default=Number(raw); else f.default=raw;
           }
-          // Handle dup keys
           let fk=k,fc=1; while(fields[fk]) fk=k+'_'+fc++;
           fields[fk] = f;
         });
         def.fields = fields;
 
-        // Update expanded key if name changed
         const oldK = section+'.'+origName, newK = section+'.'+name;
         if (oldK !== newK && expanded.has(oldK)) { expanded.delete(oldK); expanded.add(newK); }
       }

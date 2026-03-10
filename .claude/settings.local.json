@@ -9,7 +9,9 @@
       "Bash(rmdir packages/core/src/sdk)",
       "Bash(rm -f packages/core/src/bridge/WebViewBridge.ts packages/core/src/bridge/EventBus.ts packages/core/src/utils/platform.ts)",
       "Bash(node build-doc.js)",
-      "Bash(node packages/core/src/event.js)"
+      "Bash(node packages/core/src/event.js)",
+      "Bash(node -e \":*)",
+      "Bash(node -e \"const fs=require\\(''''fs''''\\);const c=JSON.parse\\(fs.readFileSync\\(''''packages/core/src/events.json'''',''''utf8''''\\)\\);c.events=c.events.filter\\(e=>e.event!=''''TEST_ARRAY''''\\);fs.writeFileSync\\(''''packages/core/src/events.json'''',JSON.stringify\\(c,null,2\\)\\);\")"
     ]
   }
 }
