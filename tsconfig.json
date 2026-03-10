@@ -1,0 +1,18 @@
+{
+ "compilerOptions":{
+   "target":"ES6",
+   "module":"ESNext",
+   "lib":["ES2017","DOM"],
+   "moduleResolution":"node",
+   "declaration":true,
+   "outDir":"dist",
+   "strict":true,
+   "esModuleInterop":true,
+   "skipLibCheck":true,
+   "baseUrl":".",
+   "paths":{
+     "@webview-sdk/core":["packages/core/src"]
+   }
+ },
+ "include":["packages/*/src/**/*.ts"]
+}

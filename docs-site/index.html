@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super MiniApp SDK - Demo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f5;--card:#fff;--primary:#1677ff;--success:#52c41a;
+  --warning:#faad14;--error:#ff4d4f;--text:#1f1f1f;--text2:#666;
+  --border:#e8e8e8;--radius:12px;--shadow:0 2px 8px rgba(0,0,0,.08);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+
+/* Header */
+.header{background:linear-gradient(135deg,#1677ff,#0958d9);color:#fff;padding:32px 24px;text-align:center}
+.header h1{font-size:28px;font-weight:700;margin-bottom:8px}
+.header p{opacity:.85;font-size:15px}
+.badge{display:inline-block;background:rgba(255,255,255,.2);padding:4px 12px;border-radius:20px;font-size:12px;margin:4px}
+
+/* Layout */
+.container{max-width:1100px;margin:0 auto;padding:24px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:768px){.grid{grid-template-columns:1fr}}
+
+/* Card */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px}
+.card-body{padding:20px}
+.card-header .icon{font-size:18px}
+
+/* Phone mockup */
+.phone{width:320px;margin:0 auto;border:3px solid #333;border-radius:32px;overflow:hidden;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.phone-notch{height:28px;background:#333;border-radius:0 0 16px 16px;width:120px;margin:0 auto}
+.phone-screen{height:520px;display:flex;flex-direction:column;overflow:hidden}
+.phone-statusbar{height:32px;background:#1677ff;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600}
+.phone-content{flex:1;overflow-y:auto;padding:16px}
+.phone-tabbar{height:50px;background:#fff;border-top:1px solid var(--border);display:flex}
+.phone-tabbar .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:var(--text2);cursor:pointer;transition:.2s}
+.phone-tabbar .tab.active{color:var(--primary)}
+.phone-tabbar .tab .tab-icon{font-size:18px;margin-bottom:2px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:13px;transition:all .2s;font-family:inherit}
+.btn:hover{border-color:var(--primary);color:var(--primary)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn-primary:hover{background:#4096ff;color:#fff}
+.btn-success{background:var(--success);color:#fff;border-color:var(--success)}
+.btn-success:hover{background:#73d13d;color:#fff}
+.btn-group{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+
+/* Console log */
+.console{background:#1e1e1e;border-radius:8px;padding:12px;max-height:320px;overflow-y:auto;font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;line-height:1.8}
+.console::-webkit-scrollbar{width:6px}
+.console::-webkit-scrollbar-thumb{background:#555;border-radius:3px}
+.log-entry{padding:2px 0;border-bottom:1px solid #2a2a2a}
+.log-entry.send{color:#69dbff}
+.log-entry.receive{color:#b5f5a5}
+.log-entry.event{color:#ffd666}
+.log-entry.error{color:#ff6b6b}
+.log-entry.info{color:#aaa}
+.log-time{color:#666;margin-right:8px}
+.log-tag{padding:1px 6px;border-radius:3px;font-size:10px;margin-right:6px;font-weight:600}
+.log-tag.req{background:#1677ff33;color:#69dbff}
+.log-tag.res{background:#52c41a33;color:#b5f5a5}
+.log-tag.evt{background:#faad1433;color:#ffd666}
+.log-tag.err{background:#ff4d4f33;color:#ff6b6b}
+
+/* Toast overlay */
+.toast-overlay{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:1000;pointer-events:none}
+.toast{background:rgba(0,0,0,.75);color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;display:flex;align-items:center;gap:8px;animation:fadeIn .3s}
+.toast .toast-icon{font-size:20px}
+
+/* Dialog overlay */
+.dialog-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:1000}
+.dialog{background:#fff;border-radius:12px;width:280px;overflow:hidden;animation:scaleIn .25s}
+.dialog-title{padding:20px 20px 8px;text-align:center;font-weight:600;font-size:16px}
+.dialog-content{padding:4px 20px 20px;text-align:center;color:var(--text2);font-size:14px}
+.dialog-actions{display:flex;border-top:1px solid var(--border)}
+.dialog-actions button{flex:1;padding:12px;border:none;background:none;font-size:15px;cursor:pointer;font-family:inherit}
+.dialog-actions button:first-child{border-right:1px solid var(--border);color:var(--text2)}
+.dialog-actions button:last-child{color:var(--primary);font-weight:600}
+
+/* Loading */
+.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:1000}
+.loading-box{background:rgba(0,0,0,.75);color:#fff;padding:24px 32px;border-radius:12px;text-align:center}
+.spinner{width:32px;height:32px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 12px}
+
+/* Action Sheet */
+.action-sheet-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:1000}
+.action-sheet{background:#f0f0f0;border-radius:12px 12px 0 0;width:100%;max-width:400px;animation:slideUp .3s}
+.action-sheet button{display:block;width:100%;padding:14px;border:none;background:#fff;font-size:15px;cursor:pointer;font-family:inherit;border-bottom:1px solid #eee}
+.action-sheet button:first-child{border-radius:12px 12px 0 0}
+.action-sheet button.cancel{margin-top:8px;color:var(--error);font-weight:600;border-radius:0 0 0 0}
+.action-sheet button:hover{background:#f5f5f5}
+
+/* Nav stack */
+.nav-stack{display:flex;gap:4px;flex-wrap:wrap}
+.nav-page{background:#e6f4ff;border:1px solid #91caff;padding:4px 10px;border-radius:6px;font-size:12px;color:#1677ff}
+.nav-page.current{background:#1677ff;color:#fff}
+
+/* Storage table */
+.storage-table{width:100%;border-collapse:collapse;font-size:13px}
+.storage-table th,.storage-table td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.storage-table th{background:#fafafa;font-weight:600;color:var(--text2)}
+
+/* Section title */
+.section-title{font-size:18px;font-weight:700;margin:28px 0 16px;display:flex;align-items:center;gap:8px}
+.section-title:first-child{margin-top:0}
+
+/* Info */
+.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-label{color:var(--text2)}
+.info-value{font-weight:600}
+
+/* Lifecycle indicator */
+.lifecycle{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.lifecycle-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.lifecycle-item{display:flex;align-items:center;gap:4px;font-size:12px;padding:4px 10px;background:#f5f5f5;border-radius:16px}
+.lifecycle-item.active{background:#e6fffb;color:#13c2c2}
+.lifecycle-item.active .lifecycle-dot{background:#13c2c2;animation:pulse 1.5s infinite}
+
+@keyframes fadeIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Full width section */
+.full-width{grid-column:1/-1}
+
+/* code */
+.code-block{background:#1e1e1e;color:#d4d4d4;padding:16px;border-radius:8px;font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;overflow-x:auto;line-height:1.7}
+.code-block .kw{color:#569cd6}
+.code-block .fn{color:#dcdcaa}
+.code-block .str{color:#ce9178}
+.code-block .cm{color:#6a9955}
+.code-block .num{color:#b5cea8}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Super MiniApp SDK</h1>
+  <p>WebView &harr; Native Bridge - Interactive Demo</p>
+  <div style="margin-top:12px">
+    <span class="badge">v1.0.0</span>
+    <span class="badge" id="platformBadge">web</span>
+    <span class="badge" id="statusBadge">not ready</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Phone + Console -->
+  <div class="grid">
+    <div>
+      <div class="section-title">Thiet bi mo phong</div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-statusbar" id="phoneTitle">MiniApp Demo</div>
+          <div class="phone-content" id="phoneContent">
+            <div style="text-align:center;padding:40px 20px;color:var(--text2)">
+              <div style="font-size:48px;margin-bottom:12px">&#128241;</div>
+              <p>Nhan <strong>Ready</strong> de khoi dong SDK</p>
+            </div>
+          </div>
+          <div class="phone-tabbar" id="phoneTabbar">
+            <div class="tab active" onclick="handleTabClick(0)">
+              <span class="tab-icon">&#127968;</span>Home
+            </div>
+            <div class="tab" onclick="handleTabClick(1)">
+              <span class="tab-icon">&#128230;</span>Storage
+            </div>
+            <div class="tab" onclick="handleTabClick(2)">
+              <span class="tab-icon">&#128196;</span>Pages
+            </div>
+            <div class="tab" onclick="handleTabClick(3)">
+              <span class="tab-icon">&#9881;</span>Info
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Bridge Console</div>
+      <div class="card">
+        <div class="card-header"><span class="icon">&#128225;</span> Message Log</div>
+        <div class="console" id="consoleLog">
+          <div class="log-entry info"><span class="log-time">--:--:--</span>SDK chua duoc khoi tao. Nhan Ready de bat dau.</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="sdkReady()">Ready</button>
+        <button class="btn" onclick="clearConsole()">Xoa log</button>
+        <button class="btn" onclick="sdkDestroy()" style="color:var(--error);border-color:var(--error)">Destroy</button>
+      </div>
+
+      <div style="margin-top:20px">
+        <div class="card">
+          <div class="card-header"><span class="icon">&#9889;</span> Lifecycle</div>
+          <div class="card-body">
+            <div class="lifecycle" id="lifecycleIndicators">
+              <div class="lifecycle-item" id="lc-ready"><span class="lifecycle-dot" style="background:#ccc"></span>ready</div>
+              <div class="lifecycle-item" id="lc-show"><span class="lifecycle-dot" style="background:#ccc"></span>show</div>
+              <div class="lifecycle-item" id="lc-hide"><span class="lifecycle-dot" style="background:#ccc"></span>hide</div>
+              <div class="lifecycle-item" id="lc-error"><span class="lifecycle-dot" style="background:#ccc"></span>error</div>
+              <div class="lifecycle-item" id="lc-destroy"><span class="lifecycle-dot" style="background:#ccc"></span>destroy</div>
+            </div>
+            <div class="btn-group">
+              <button class="btn" onclick="simulateLifecycle('show')">Show</button>
+              <button class="btn" onclick="simulateLifecycle('hide')">Hide</button>
+              <button class="btn" onclick="simulateLifecycle('error')">Error</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API Demo -->
+  <div class="section-title" style="margin-top:36px">API Demo</div>
+  <div class="grid">
+
+    <!-- Invoke -->
+    <div class="card">
+      <div class="card-header"><span class="icon">&#128640;</span> invoke(api, data)</div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Goi native API va cho ket qua tra ve</p>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="demoInvoke('getLocation',{type:'gcj02'})">getLocation</button>
+          <button class="btn btn-primary" onclick="demoInvoke('getUserInfo',{})">getUserInfo</button>
+          <button class="btn btn-primary" onclick="demoInvoke('scanQRCode',{})">scanQRCode</button>
+          <button class="btn btn-primary" onclick="demoInvoke('getSystemInfo',{})">getSystemInfo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Emit / On -->
+    <div class="card">
+      <div class="card-header"><span class="icon">&#128227;</span> emit(event) / on(event)</div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Gui va nhan su kien 1 chieu</p>
+        <div class="btn-group">
+          <button class="btn" onclick="demoEmit('analytics.track',{action:'click'})">emit: analytics</button>
+          <button class="btn" onclick="demoEmit('log',{level:'info',msg:'hello'})">emit: log</button>
+          <button class="btn btn-success" onclick="simulateNativeEvent('pushNotification',{title:'Tin nhan moi',body:'Noi dung...'})">Native: push</button>
+          <button class="btn btn-success" onclick="simulateNativeEvent('locationChange',{lat:10.762,lng:106.66})">Native: location</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- UI -->
+    <div class="card">
+      <div class="card-header"><span class="icon">&#127912;</span> UI API</div>
+      <div class="card-body">
+        <div class="btn-group">
+          <button class="btn" onclick="demoToast('success')">Toast: success</button>
+          <button class="btn" onclick="demoToast('error')">Toast: error</button>
+          <button class="btn" onclick="demoLoading()">Loading</button>
+          <button class="btn" onclick="demoDialog()">Dialog</button>
+          <button class="btn" onclick="demoActionSheet()">ActionSheet</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigator -->
+    <div class="card">
+      <div class="card-header"><span class="icon">&#128506;</span> Navigator API</div>
+      <div class="card-body">
+        <div style="margin-bottom:12px">
+          <span style="font-size:12px;color:var(--text2)">Navigation Stack:</span>
+          <div class="nav-stack" id="navStack" style="margin-top:6px">
+            <span class="nav-page current">/home</span>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn" onclick="demoNavPush()">push</button>
+          <button class="btn" onclick="demoNavPop()">pop</button>
+          <button class="btn" onclick="demoNavRedirect()">redirect</button>
+          <button class="btn" onclick="demoNavReLaunch()">reLaunch</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Storage -->
+    <div class="card">
+      <div class="card-header"><span class="icon">&#128451;</span> Storage API</div>
+      <div class="card-body">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input id="storageKey" placeholder="key" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px">
+          <input id="storageVal" placeholder="value" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px">
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="demoStorageSet()">set</button>
+          <button class="btn" onclick="demoStorageGet()">get</button>
+          <button class="btn" onclick="demoStorageRemove()">remove</button>
+          <button class="btn" onclick="demoStorageClear()">clear</button>
+        </div>
+        <table class="storage-table" style="margin-top:12px">
+          <thead><tr><th>Key</th><th>Value</th></tr></thead>
+          <tbody id="storageTable"><tr><td colspan="2" style="color:var(--text2);text-align:center">Trong</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Middleware & Plugin -->
+    <div class="card">
+      <div class="card-header"><span class="icon">&#128268;</span> Middleware & Plugin</div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Middleware va plugin duoc tich hop san</p>
+        <div class="btn-group">
+          <button class="btn" onclick="toggleMiddleware('logger')" id="mw-logger">Logger MW: OFF</button>
+          <button class="btn" onclick="toggleMiddleware('token')" id="mw-token">Token MW: OFF</button>
+          <button class="btn btn-success" onclick="installPlugin()">Install Plugin</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Code example -->
+  <div class="section-title" style="margin-top:36px">Code vi du</div>
+  <div class="card full-width">
+    <div class="card-header"><span class="icon">&#128187;</span> Su dung voi cac framework</div>
+    <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+      <div>
+        <div style="font-weight:600;margin-bottom:8px;font-size:13px">Core (Vanilla JS)</div>
+        <div class="code-block">
+<span class="kw">import</span> { <span class="fn">createMiniApp</span> } <span class="kw">from</span> <span class="str">'@webview-sdk/core'</span>
+
+<span class="kw">const</span> app = <span class="fn">createMiniApp</span>({
+  appId: <span class="str">'com.demo'</span>,
+  debug: <span class="num">true</span>
+})
+
+<span class="kw">const</span> loc = <span class="kw">await</span> app.<span class="fn">invoke</span>(<span class="str">'getLocation'</span>)
+<span class="kw">await</span> app.ui.<span class="fn">showToast</span>({ title: <span class="str">'OK'</span> })
+app.<span class="fn">ready</span>()</div>
+      </div>
+      <div>
+        <div style="font-weight:600;margin-bottom:8px;font-size:13px">React</div>
+        <div class="code-block">
+<span class="kw">import</span> { <span class="fn">useMiniApp</span> } <span class="kw">from</span> <span class="str">'@webview-sdk/react'</span>
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> { invoke, ui, ready }
+    = <span class="fn">useMiniApp</span>()
+
+  <span class="fn">useEffect</span>(() =&gt; <span class="fn">ready</span>(), [])
+
+  <span class="kw">return</span> &lt;button
+    onClick={() =&gt; <span class="fn">invoke</span>(<span class="str">'scan'</span>)}
+  &gt;Scan&lt;/button&gt;
+}</div>
+      </div>
+      <div>
+        <div style="font-weight:600;margin-bottom:8px;font-size:13px">Vue 3</div>
+        <div class="code-block">
+<span class="kw">import</span> { <span class="fn">useMiniApp</span> } <span class="kw">from</span> <span class="str">'@webview-sdk/vue'</span>
+
+<span class="kw">const</span> { invoke, ui, ready }
+  = <span class="fn">useMiniApp</span>()
+
+<span class="fn">onMounted</span>(() =&gt; <span class="fn">ready</span>())
+
+<span class="kw">async function</span> <span class="fn">scan</span>() {
+  <span class="kw">const</span> r = <span class="kw">await</span> <span class="fn">invoke</span>(<span class="str">'scan'</span>)
+  <span class="kw">await</span> ui.<span class="fn">showToast</span>({
+    title: r.code })
+}</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="text-align:center;padding:32px;color:var(--text2);font-size:13px">
+  Super MiniApp SDK &copy; 2026 &mdash; Demo Page
+</div>
+
+<!-- Overlay containers -->
+<div id="overlayContainer"></div>
+
+<script>
+// ==================================================================
+// Mo phong Native Bridge
+// SDK chay tren trinh duyet, native duoc gia lap bang JS
+// ==================================================================
+
+// State
+let isReady = false;
+const storage = {};
+const navPages = ['/home'];
+let requestId = 0;
+const middlewares = { logger: false, token: false };
+let pluginInstalled = false;
+
+// Console log
+const consoleEl = document.getElementById('consoleLog');
+
+function logTime() {
+  const d = new Date();
+  return [d.getHours(), d.getMinutes(), d.getSeconds()].map(n => String(n).padStart(2, '0')).join(':');
+}
+
+function addLog(type, tag, text) {
+  const entry = document.createElement('div');
+  entry.className = 'log-entry ' + type;
+  const tagMap = { req: 'REQ', res: 'RES', evt: 'EVT', err: 'ERR' };
+  entry.innerHTML = '<span class="log-time">' + logTime() + '</span>'
+    + '<span class="log-tag ' + tag + '">' + (tagMap[tag] || 'LOG') + '</span>'
+    + text;
+  consoleEl.appendChild(entry);
+  consoleEl.scrollTop = consoleEl.scrollHeight;
+}
+
+function clearConsole() {
+  consoleEl.innerHTML = '';
+  addLog('info', '', 'Console cleared');
+}
+
+// ==================================================================
+// SDK Ready / Destroy
+// ==================================================================
+
+function sdkReady() {
+  if (isReady) { addLog('info', '', 'SDK da san sang roi'); return; }
+  isReady = true;
+  document.getElementById('statusBadge').textContent = 'ready';
+  document.getElementById('platformBadge').textContent = 'web (demo)';
+  addLog('send', 'evt', 'emit __miniapp_ready { appId: "com.demo" }');
+  addLog('info', '', 'MessageQueue flushed - SDK san sang');
+  activateLifecycle('ready');
+  updatePhone();
+}
+
+function sdkDestroy() {
+  if (!isReady) return;
+  isReady = false;
+  document.getElementById('statusBadge').textContent = 'destroyed';
+  addLog('info', '', 'SDK destroyed - da don dep tai nguyen');
+  activateLifecycle('destroy');
+  // reset all
+  setTimeout(() => {
+    document.querySelectorAll('.lifecycle-item').forEach(el => el.classList.remove('active'));
+  }, 1500);
+}
+
+// ==================================================================
+// invoke() demo
+// ==================================================================
+
+function demoInvoke(api, data) {
+  if (!checkReady()) return;
+  const id = String(++requestId);
+
+  // MW logging
+  let mwPrefix = '';
+  if (middlewares.logger) mwPrefix += '[LoggerMW] ';
+  if (middlewares.token) { data.token = 'tk_demo_abc123'; mwPrefix += '[TokenMW] '; }
+
+  addLog('send', 'req', mwPrefix + 'invoke <strong>' + api + '</strong> id=' + id + ' ' + JSON.stringify(data));
+
+  // Simulate native response
+  setTimeout(() => {
+    const response = simulateNativeResponse(api);
+    addLog('receive', 'res', 'response id=' + id + ' ' + JSON.stringify(response));
+    showPhoneResult(api, response);
+  }, 300 + Math.random() * 500);
+}
+
+function simulateNativeResponse(api) {
+  const responses = {
+    getLocation: { lat: 10.7626, lng: 106.6602, accuracy: 15 },
+    getUserInfo: { name: 'Nguyen Van A', avatar: 'https://i.pravatar.cc/80', phone: '0901234567' },
+    scanQRCode: { code: 'https://miniapp.example.com/item/12345', format: 'QR_CODE' },
+    getSystemInfo: { platform: 'android', version: '13', brand: 'Samsung', model: 'Galaxy S24', sdkVersion: '1.0.0' },
+  };
+  return responses[api] || { success: true };
+}
+
+// ==================================================================
+// emit() / on() demo
+// ==================================================================
+
+function demoEmit(event, data) {
+  if (!checkReady()) return;
+  addLog('send', 'evt', 'emit <strong>' + event + '</strong> ' + JSON.stringify(data));
+}
+
+function simulateNativeEvent(event, data) {
+  if (!checkReady()) return;
+  addLog('receive', 'evt', 'native event <strong>' + event + '</strong> ' + JSON.stringify(data));
+  showPhoneResult(event, data);
+}
+
+// ==================================================================
+// Lifecycle
+// ==================================================================
+
+function simulateLifecycle(name) {
+  if (!checkReady()) return;
+  addLog('receive', 'evt', 'lifecycle: <strong>' + name + '</strong>');
+  activateLifecycle(name);
+}
+
+function activateLifecycle(name) {
+  const el = document.getElementById('lc-' + name);
+  if (el) {
+    el.classList.add('active');
+    if (name === 'error') {
+      setTimeout(() => el.classList.remove('active'), 2000);
+    }
+  }
+}
+
+// ==================================================================
+// UI API demos
+// ==================================================================
+
+function demoToast(icon) {
+  if (!checkReady()) return;
+  const title = icon === 'success' ? 'Thao tac thanh cong!' : 'Co loi xay ra!';
+  addLog('send', 'req', 'invoke <strong>ui.showToast</strong> ' + JSON.stringify({ title, icon }));
+
+  const iconChar = icon === 'success' ? '&#10004;' : '&#10008;';
+  const overlay = document.getElementById('overlayContainer');
+  overlay.innerHTML = '<div class="toast-overlay"><div class="toast"><span class="toast-icon">' + iconChar + '</span>' + title + '</div></div>';
+  addLog('receive', 'res', 'toast displayed');
+  setTimeout(() => overlay.innerHTML = '', 2000);
+}
+
+function demoLoading() {
+  if (!checkReady()) return;
+  addLog('send', 'req', 'invoke <strong>ui.showLoading</strong> { title: "Dang tai..." }');
+
+  const overlay = document.getElementById('overlayContainer');
+  overlay.innerHTML = '<div class="loading-overlay" onclick="this.remove()"><div class="loading-box"><div class="spinner"></div>Dang tai...</div></div>';
+  addLog('receive', 'res', 'loading displayed (click de dong)');
+}
+
+function demoDialog() {
+  if (!checkReady()) return;
+  addLog('send', 'req', 'invoke <strong>ui.showDialog</strong>');
+
+  const overlay = document.getElementById('overlayContainer');
+  overlay.innerHTML = '<div class="dialog-overlay"><div class="dialog">'
+    + '<div class="dialog-title">Xac nhan</div>'
+    + '<div class="dialog-content">Ban co muon thuc hien thao tac nay khong?</div>'
+    + '<div class="dialog-actions">'
+    + '<button onclick="closeDialog(false)">Huy</button>'
+    + '<button onclick="closeDialog(true)">Dong y</button>'
+    + '</div></div></div>';
+}
+
+function closeDialog(confirm) {
+  document.getElementById('overlayContainer').innerHTML = '';
+  addLog('receive', 'res', 'dialog result: { confirm: ' + confirm + ', cancel: ' + !confirm + ' }');
+}
+
+function demoActionSheet() {
+  if (!checkReady()) return;
+  addLog('send', 'req', 'invoke <strong>ui.showActionSheet</strong>');
+
+  const overlay = document.getElementById('overlayContainer');
+  overlay.innerHTML = '<div class="action-sheet-overlay"><div class="action-sheet">'
+    + '<button onclick="closeActionSheet(0)">Chup anh</button>'
+    + '<button onclick="closeActionSheet(1)">Chon tu thu vien</button>'
+    + '<button onclick="closeActionSheet(2)">Chon tu file</button>'
+    + '<button class="cancel" onclick="closeActionSheet(-1)">Huy</button>'
+    + '</div></div>';
+}
+
+function closeActionSheet(index) {
+  document.getElementById('overlayContainer').innerHTML = '';
+  if (index >= 0) addLog('receive', 'res', 'actionSheet result: { tapIndex: ' + index + ' }');
+  else addLog('receive', 'res', 'actionSheet cancelled');
+}
+
+// ==================================================================
+// Navigator API demo
+// ==================================================================
+
+const pageNames = ['/detail', '/profile', '/settings', '/about', '/order', '/payment'];
+let pageIndex = 0;
+
+function demoNavPush() {
+  if (!checkReady()) return;
+  const page = pageNames[pageIndex++ % pageNames.length];
+  navPages.push(page);
+  addLog('send', 'req', 'invoke <strong>navigator.push</strong> { url: "' + page + '" }');
+  addLog('receive', 'res', 'navigated to ' + page);
+  renderNavStack();
+}
+
+function demoNavPop() {
+  if (!checkReady()) return;
+  if (navPages.length <= 1) { addLog('error', 'err', 'Khong the pop - da o trang goc'); return; }
+  const popped = navPages.pop();
+  addLog('send', 'req', 'invoke <strong>navigator.pop</strong>');
+  addLog('receive', 'res', 'popped ' + popped + ' -> ' + navPages[navPages.length - 1]);
+  renderNavStack();
+}
+
+function demoNavRedirect() {
+  if (!checkReady()) return;
+  const page = '/redirect-page';
+  navPages[navPages.length - 1] = page;
+  addLog('send', 'req', 'invoke <strong>navigator.redirect</strong> { url: "' + page + '" }');
+  addLog('receive', 'res', 'redirected to ' + page);
+  renderNavStack();
+}
+
+function demoNavReLaunch() {
+  if (!checkReady()) return;
+  navPages.length = 0;
+  navPages.push('/home');
+  addLog('send', 'req', 'invoke <strong>navigator.reLaunch</strong> { url: "/home" }');
+  addLog('receive', 'res', 'reLaunched to /home');
+  renderNavStack();
+}
+
+function renderNavStack() {
+  const el = document.getElementById('navStack');
+  el.innerHTML = navPages.map((p, i) =>
+    '<span class="nav-page' + (i === navPages.length - 1 ? ' current' : '') + '">' + p + '</span>'
+  ).join('');
+  document.getElementById('phoneTitle').textContent = navPages[navPages.length - 1];
+}
+
+// ==================================================================
+// Storage API demo
+// ==================================================================
+
+function demoStorageSet() {
+  if (!checkReady()) return;
+  const key = document.getElementById('storageKey').value || 'myKey';
+  const val = document.getElementById('storageVal').value || 'myValue';
+  storage[key] = val;
+  addLog('send', 'req', 'invoke <strong>storage.set</strong> { key: "' + key + '", data: "' + val + '" }');
+  addLog('receive', 'res', 'storage.set OK');
+  renderStorage();
+}
+
+function demoStorageGet() {
+  if (!checkReady()) return;
+  const key = document.getElementById('storageKey').value || 'myKey';
+  const val = storage[key];
+  addLog('send', 'req', 'invoke <strong>storage.get</strong> { key: "' + key + '" }');
+  if (val !== undefined) addLog('receive', 'res', '{ data: "' + val + '" }');
+  else addLog('error', 'err', 'Key "' + key + '" khong ton tai');
+}
+
+function demoStorageRemove() {
+  if (!checkReady()) return;
+  const key = document.getElementById('storageKey').value || 'myKey';
+  delete storage[key];
+  addLog('send', 'req', 'invoke <strong>storage.remove</strong> { key: "' + key + '" }');
+  addLog('receive', 'res', 'removed');
+  renderStorage();
+}
+
+function demoStorageClear() {
+  if (!checkReady()) return;
+  Object.keys(storage).forEach(k => delete storage[k]);
+  addLog('send', 'req', 'invoke <strong>storage.clear</strong>');
+  addLog('receive', 'res', 'cleared');
+  renderStorage();
+}
+
+function renderStorage() {
+  const el = document.getElementById('storageTable');
+  const keys = Object.keys(storage);
+  if (keys.length === 0) {
+    el.innerHTML = '<tr><td colspan="2" style="color:var(--text2);text-align:center">Trong</td></tr>';
+    return;
+  }
+  el.innerHTML = keys.map(k => '<tr><td><strong>' + k + '</strong></td><td>' + storage[k] + '</td></tr>').join('');
+}
+
+// ==================================================================
+// Middleware & Plugin
+// ==================================================================
+
+function toggleMiddleware(name) {
+  middlewares[name] = !middlewares[name];
+  const btn = document.getElementById('mw-' + name);
+  const label = name.charAt(0).toUpperCase() + name.slice(1);
+  btn.textContent = label + ' MW: ' + (middlewares[name] ? 'ON' : 'OFF');
+  btn.style.background = middlewares[name] ? 'var(--primary)' : '';
+  btn.style.color = middlewares[name] ? '#fff' : '';
+  btn.style.borderColor = middlewares[name] ? 'var(--primary)' : '';
+  addLog('info', '', 'Middleware ' + label + ' ' + (middlewares[name] ? 'ENABLED' : 'DISABLED'));
+}
+
+function installPlugin() {
+  if (pluginInstalled) { addLog('info', '', 'Plugin "analytics" da cai roi (chong trung lap)'); return; }
+  pluginInstalled = true;
+  addLog('info', '', 'Plugin <strong>analytics</strong> installed');
+  addLog('info', '', '&nbsp;&nbsp;-> Listening to "navigate" events for page tracking');
+}
+
+// ==================================================================
+// Phone screen
+// ==================================================================
+
+function updatePhone() {
+  const content = document.getElementById('phoneContent');
+  content.innerHTML = '<div style="padding:8px">'
+    + '<div style="font-size:16px;font-weight:600;margin-bottom:12px">MiniApp Demo</div>'
+    + '<div style="color:var(--text2);font-size:13px;margin-bottom:16px">SDK da san sang. Thu cac API o panel ben canh.</div>'
+    + '<div id="phoneResult" style="font-size:13px"></div>'
+    + '</div>';
+}
+
+function showPhoneResult(api, data) {
+  const el = document.getElementById('phoneResult');
+  if (!el) return;
+  const card = document.createElement('div');
+  card.style.cssText = 'background:#f6f8fa;padding:10px;border-radius:8px;margin-bottom:8px;font-size:12px;animation:fadeIn .3s';
+  card.innerHTML = '<div style="font-weight:600;color:var(--primary);margin-bottom:4px">' + api + '</div>'
+    + '<pre style="margin:0;white-space:pre-wrap;color:var(--text2)">' + JSON.stringify(data, null, 2) + '</pre>';
+  el.insertBefore(card, el.firstChild);
+  if (el.children.length > 5) el.removeChild(el.lastChild);
+}
+
+function handleTabClick(index) {
+  document.querySelectorAll('.phone-tabbar .tab').forEach((t, i) => t.classList.toggle('active', i === index));
+  const tabs = ['/home', '/storage', '/pages', '/info'];
+  addLog('send', 'req', 'invoke <strong>navigator.switchTab</strong> { url: "' + tabs[index] + '" }');
+}
+
+// ==================================================================
+// Helpers
+// ==================================================================
+
+function checkReady() {
+  if (!isReady) {
+    addLog('error', 'err', 'SDK chua ready! Goi ready() truoc.');
+    return false;
+  }
+  return true;
+}
+</script>
+
+</body>
+</html>

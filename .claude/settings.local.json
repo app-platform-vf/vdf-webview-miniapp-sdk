@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install typescript --save-dev)",
+      "Bash(npx tsc --noEmit --moduleResolution node packages/core/src/index.ts packages/core/src/MiniApp.ts packages/core/src/types.ts packages/core/src/bridge/Transport.ts packages/core/src/modules/EventBus.ts packages/core/src/modules/RequestManager.ts packages/core/src/modules/MessageQueue.ts packages/core/src/modules/MiddlewareManager.ts packages/core/src/plugins/PluginManager.ts packages/core/src/apis/Storage.ts packages/core/src/apis/UI.ts packages/core/src/apis/Navigator.ts packages/core/src/utils/logger.ts packages/core/src/utils/timeout.ts packages/core/src/utils/retry.ts)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npm install --save-dev @types/react)",
+      "Bash(rm -f packages/core/src/sdk/WebViewSDK.ts)",
+      "Bash(rmdir packages/core/src/sdk)",
+      "Bash(rm -f packages/core/src/bridge/WebViewBridge.ts packages/core/src/bridge/EventBus.ts packages/core/src/utils/platform.ts)",
+      "Bash(node build-doc.js)",
+      "Bash(node packages/core/src/event.js)"
+    ]
+  }
+}

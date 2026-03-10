@@ -1,0 +1,11 @@
+{
+  "entryPoints": [
+    "packages/core/src/index.ts"
+  ],
+  "out": "docs",
+  "name": "WebView SDK Documentation",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "includeVersion": true,
+  "categorizeByGroup": true
+}

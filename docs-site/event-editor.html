@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiniApp Event Editor</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #242836; --surface3: #2e3344;
+    --border: #3a3f52; --border-focus: #6c7ae0;
+    --primary: #6c7ae0; --primary-hover: #7b88f0;
+    --danger: #e05c6c; --danger-hover: #f06c7c;
+    --success: #4caf7d; --success-hover: #5cbf8d;
+    --warn: #e0a84c;
+    --text: #e2e4ea; --text-dim: #8a8fa3; --text-muted: #5a5f73;
+    --radius: 8px; --radius-sm: 5px; --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+  .header { background:var(--surface); border-bottom:1px solid var(--border); padding:16px 24px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+  .header h1 { font-size:18px; font-weight:600; display:flex; align-items:center; gap:10px; }
+  .header h1 span { font-size:22px; }
+  .header-actions { display:flex; gap:10px; align-items:center; }
+  .badge { background:var(--surface3); color:var(--text-dim); padding:4px 12px; border-radius:20px; font-size:12px; }
+
+  button { border:none; cursor:pointer; font-family:inherit; font-size:13px; border-radius:var(--radius-sm); padding:8px 16px; font-weight:500; transition:all .15s; display:inline-flex; align-items:center; gap:6px; }
+  .btn-primary { background:var(--primary); color:#fff; } .btn-primary:hover { background:var(--primary-hover); }
+  .btn-success { background:var(--success); color:#fff; } .btn-success:hover { background:var(--success-hover); }
+  .btn-danger { background:var(--danger); color:#fff; } .btn-danger:hover { background:var(--danger-hover); }
+  .btn-ghost { background:transparent; color:var(--text-dim); border:1px solid var(--border); } .btn-ghost:hover { background:var(--surface3); color:var(--text); }
+  .btn-sm { padding:5px 10px; font-size:12px; } .btn-xs { padding:3px 8px; font-size:11px; }
+  .btn-icon { width:28px; height:28px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; background:transparent; color:var(--text-dim); }
+  .btn-icon:hover { background:var(--surface3); color:var(--text); }
+  .btn-icon.danger:hover { background:rgba(224,92,108,.15); color:var(--danger); }
+
+  .container { display:flex; height:calc(100vh - 57px); }
+  .sidebar { width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; }
+  .sidebar-header { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .sidebar-header span { font-size:13px; color:var(--text-dim); font-weight:500; }
+  .event-list { flex:1; overflow-y:auto; padding:8px; }
+  .event-item { padding:10px 14px; border-radius:var(--radius-sm); cursor:pointer; margin-bottom:2px; transition:all .1s; display:flex; align-items:center; justify-content:space-between; }
+  .event-item:hover { background:var(--surface2); } .event-item.active { background:var(--primary); color:#fff; }
+  .event-item .name { font-size:13px; font-weight:500; font-family:'Cascadia Code','Fira Code',monospace; }
+  .event-item .desc { font-size:11px; color:var(--text-dim); margin-top:2px; } .event-item.active .desc { color:rgba(255,255,255,.7); }
+  .event-item .idx { font-size:10px; color:var(--text-muted); min-width:18px; text-align:center; } .event-item.active .idx { color:rgba(255,255,255,.6); }
+
+  .main { flex:1; overflow-y:auto; padding:24px 32px; }
+  .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--text-muted); gap:16px; }
+  .drop-zone { border:2px dashed var(--border); border-radius:var(--radius); padding:40px; text-align:center; cursor:pointer; transition:all .2s; max-width:450px; }
+  .drop-zone:hover,.drop-zone.dragover { border-color:var(--primary); background:rgba(108,122,224,.05); }
+  .drop-zone .icon { font-size:36px; margin-bottom:12px; } .drop-zone p { color:var(--text-dim); font-size:13px; margin-top:8px; }
+
+  .section { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:20px; }
+  .section-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:600; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px; }
+  .section-body { padding:18px; }
+  .field-count { font-size:11px; color:var(--text-muted); font-weight:400; text-transform:none; letter-spacing:0; }
+
+  .form-row { display:flex; gap:14px; margin-bottom:14px; } .form-group { flex:1; }
+  .form-group label { display:block; font-size:12px; color:var(--text-dim); margin-bottom:5px; font-weight:500; }
+  input,select,textarea { width:100%; padding:8px 12px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-family:inherit; font-size:13px; transition:border-color .15s; }
+  input:focus,select:focus { outline:none; border-color:var(--border-focus); }
+  input.mono,.mono { font-family:'Cascadia Code','Fira Code',monospace; }
+
+  /* ── Top-level field card ── */
+  .tl-field { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:10px; }
+  .tl-field-header { display:grid; grid-template-columns:auto 1fr 120px 50px 1fr 36px; gap:8px; padding:10px 12px; align-items:center; }
+  .tl-field-header .expand-btn { width:22px; height:22px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; background:transparent; color:var(--primary); font-size:10px; cursor:pointer; border:1px solid var(--primary); flex-shrink:0; }
+  .tl-field-header .expand-btn:hover { background:rgba(108,122,224,.15); }
+  .tl-field-header .expand-btn .arrow { display:inline-block; transition:transform .15s; } .tl-field-header .expand-btn .arrow.open { transform:rotate(90deg); }
+  .tl-field-header .no-expand { width:22px; flex-shrink:0; }
+  .tl-field-header input,.tl-field-header select { padding:6px 8px; font-size:12px; }
+  .tl-field-header input[type="checkbox"] { width:16px; height:16px; accent-color:var(--primary); cursor:pointer; }
+  .tl-meta-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; padding:0 12px 4px; display:grid; grid-template-columns:auto 1fr 120px 50px 1fr 36px; gap:8px; }
+  .tl-meta-label span { font-size:10px; }
+
+  /* ── Sub-fields (nested) ── */
+  .tl-field-body { border-top:1px solid var(--border); padding:10px 12px 6px 34px; }
+  .sf-header { display:grid; grid-template-columns:1fr 100px 50px 1fr 90px 36px; gap:6px; padding:2px 0 8px; font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.3px; }
+  .sf-header .ctr { text-align:center; }
+  .sf-row { display:grid; grid-template-columns:1fr 100px 50px 1fr 90px 36px; gap:6px; padding:3px 0; align-items:center; border-bottom:1px solid rgba(58,63,82,.2); }
+  .sf-row:last-of-type { border-bottom:none; }
+  .sf-row input,.sf-row select { padding:5px 7px; font-size:12px; }
+  .sf-row input.mono { font-size:12px; }
+  .sf-row .ctr { text-align:center; }
+  .sf-row input[type="checkbox"] { width:15px; height:15px; accent-color:var(--primary); cursor:pointer; }
+  .sf-add { padding:6px 0 2px; }
+
+  .stringify-note { padding:6px 12px; font-size:11px; color:var(--warn); background:rgba(224,168,76,.08); border-radius:var(--radius-sm); margin:0 12px 8px 34px; }
+  .stringify-note code { font-family:'Cascadia Code','Fira Code',monospace; background:rgba(224,168,76,.15); padding:1px 5px; border-radius:3px; }
+
+  .event-editor-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .event-editor-header h2 { font-size:20px; font-weight:600; font-family:'Cascadia Code','Fira Code',monospace; }
+
+  .json-preview { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:16px; font-family:'Cascadia Code','Fira Code',monospace; font-size:12px; line-height:1.6; white-space:pre-wrap; word-break:break-all; max-height:400px; overflow-y:auto; color:var(--text-dim); }
+
+  .toast { position:fixed; bottom:24px; right:24px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:12px 20px; font-size:13px; box-shadow:var(--shadow); z-index:999; transform:translateY(100px); opacity:0; transition:all .3s; }
+  .toast.show { transform:translateY(0); opacity:1; } .toast.success { border-left:3px solid var(--success); } .toast.error { border-left:3px solid var(--danger); }
+
+  .overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center; z-index:200; }
+  .dialog { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; width:380px; box-shadow:var(--shadow); }
+  .dialog h3 { font-size:16px; margin-bottom:12px; } .dialog p { font-size:13px; color:var(--text-dim); margin-bottom:20px; }
+  .dialog-actions { display:flex; gap:10px; justify-content:flex-end; }
+
+  ::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:transparent; } ::-webkit-scrollbar-thumb { background:var(--surface3); border-radius:3px; }
+  .event-item.dragging { opacity:.4; } .event-item.drag-over { border-top:2px solid var(--primary); margin-top:-2px; }
+
+  @media (max-width:900px) {
+    .container { flex-direction:column; }
+    .sidebar { width:100%; min-width:0; max-height:250px; border-right:none; border-bottom:1px solid var(--border); }
+    .main { padding:16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span>{ }</span> MiniApp Event Editor</h1>
+  <div class="header-actions">
+    <span class="badge" id="eventCount">0 events</span>
+    <button class="btn-ghost" onclick="showJsonPreview()">JSON Preview</button>
+    <button class="btn-ghost" onclick="document.getElementById('fileInput').click()">Mo file</button>
+    <button class="btn-success" onclick="saveFile()">Luu file</button>
+    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFileLoad(event)">
+  </div>
+</div>
+
+<div class="container">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <span>EVENTS</span>
+      <button class="btn-primary btn-sm" onclick="addEvent()">+ Them</button>
+    </div>
+    <div class="event-list" id="eventList"></div>
+  </div>
+  <div class="main" id="mainPanel">
+    <div class="empty-state" id="emptyState">
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <div class="icon">&#128194;</div>
+        <div><strong>Mo file events.json</strong></div>
+        <p>Keo tha file vao day hoac click de chon</p>
+      </div>
+      <p>hoac</p>
+      <button class="btn-primary" onclick="createNew()">Tao moi events.json</button>
+    </div>
+    <div id="editorPanel" style="display:none"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="overlay" id="overlay" style="display:none"></div>
+
+<script>
+// ═══════════════ State ═══════════════
+let config = null, selectedIndex = -1;
+const expanded = new Set(); // "section.fieldName"
+
+const META_TYPES = ['object','stringify','string','number','boolean','any'];
+const FIELD_TYPES = ['string','number','boolean','object','any'];
+
+const DEFAULT_EVENT = {
+  event: "NEW_EVENT", description: "Mo ta event moi",
+  request: { data: { meta_data: "object", required: true, description: "Du lieu", fields: { param1: { type: "string", required: true, description: "Tham so 1" } } } },
+  response: { data: { meta_data: "object", description: "Ket qua", fields: { success: { type: "boolean", description: "Thanh cong" } } } }
+};
+
+// ═══════════════ Helpers ═══════════════
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const toCamelCase = s => s.toLowerCase().replace(/_([a-z])/g,(_,c)=>c.toUpperCase());
+const toPascalCase = s => { const c=toCamelCase(s); return c[0].toUpperCase()+c.slice(1); };
+
+function countSubFields(fields) {
+  if (!fields) return 0;
+  let n = 0;
+  for (const d of Object.values(fields)) { n++; if (d.type==='object' && d.fields) n += countSubFields(d.fields); }
+  return n;
+}
+
+// ═══════════════ File I/O ═══════════════
+document.addEventListener('DOMContentLoaded', () => {
+  const dz = document.getElementById('dropZone');
+  ['dragenter','dragover'].forEach(e => { document.body.addEventListener(e, ev=>ev.preventDefault()); if(dz) dz.addEventListener(e, ev=>{ev.preventDefault();dz.classList.add('dragover')}); });
+  ['dragleave','drop'].forEach(e => { if(dz) dz.addEventListener(e, ()=>dz.classList.remove('dragover')); });
+  document.body.addEventListener('drop', ev => { ev.preventDefault(); const f=ev.dataTransfer.files[0]; if(f&&f.name.endsWith('.json')) loadFile(f); });
+});
+
+function handleFileLoad(e) { const f=e.target.files[0]; if(f) loadFile(f); e.target.value=''; }
+function loadFile(file) {
+  const r = new FileReader();
+  r.onload = e => {
+    try { const d=JSON.parse(e.target.result); if(!d.events) { toast('Dinh dang khong hop le','error'); return; }
+      config=d; selectedIndex=d.events.length>0?0:-1; expanded.clear(); renderAll(); toast('Da tai '+d.events.length+' events','success');
+    } catch(err) { toast('Loi JSON: '+err.message,'error'); }
+  }; r.readAsText(file);
+}
+function createNew() { config={version:"1.0.0",sender:"MINIAPP_WEBVIEW",events:[]}; selectedIndex=-1; expanded.clear(); renderAll(); toast('Da tao moi','success'); }
+function saveFile() {
+  if(!config){toast('Chua co du lieu','error');return;} sync();
+  const j=JSON.stringify(config,null,2), b=new Blob([j],{type:'application/json'}), u=URL.createObjectURL(b), a=document.createElement('a');
+  a.href=u; a.download='events.json'; a.click(); URL.revokeObjectURL(u); toast('Da luu events.json','success');
+}
+
+// ═══════════════ Render ═══════════════
+function renderAll() {
+  document.getElementById('emptyState').style.display = config?'none':'flex';
+  document.getElementById('editorPanel').style.display = config?'block':'none';
+  renderSidebar(); renderEditor();
+  document.getElementById('eventCount').textContent = (config?config.events.length:0)+' events';
+}
+
+function renderSidebar() {
+  const l = document.getElementById('eventList');
+  if(!config){l.innerHTML='';return;}
+  l.innerHTML = config.events.map((evt,i) => `
+    <div class="event-item ${i===selectedIndex?'active':''}" onclick="selectEvent(${i})"
+         draggable="true" ondragstart="onDragStart(event,${i})" ondragover="onDragOver(event,${i})"
+         ondragleave="onDragLeave(event)" ondrop="onDrop(event,${i})">
+      <div><div class="name">${esc(evt.event)}</div><div class="desc">${esc(evt.description)}</div></div>
+      <span class="idx">${i+1}</span>
+    </div>`).join('');
+}
+
+function renderEditor() {
+  const p = document.getElementById('editorPanel');
+  if(!config||selectedIndex<0||selectedIndex>=config.events.length) { p.innerHTML=config?'<div class="empty-state" style="height:300px"><p>Chon event hoac them moi</p></div>':''; return; }
+  const evt = config.events[selectedIndex];
+  p.innerHTML = `
+    <div class="event-editor-header">
+      <h2>${esc(evt.event)}</h2>
+      <div style="display:flex;gap:10px">
+        <button class="btn-ghost btn-sm" onclick="duplicateEvent(${selectedIndex})">Nhan ban</button>
+        <button class="btn-danger btn-sm" onclick="confirmDeleteEvent(${selectedIndex})">Xoa event</button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">Thong tin event</div>
+      <div class="section-body">
+        <div class="form-row">
+          <div class="form-group" style="flex:1.2"><label>Event name</label>
+            <input class="mono" id="f_event" value="${esc(evt.event)}" oninput="onEventNameInput(this)">
+          </div>
+          <div class="form-group" style="flex:2"><label>Mo ta</label>
+            <input id="f_desc" value="${esc(evt.description)}">
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <div class="form-group"><label>Ham API</label>
+            <input class="mono" readonly value="${toCamelCase(evt.event)}()" style="color:var(--primary);background:var(--bg)">
+          </div>
+          <div class="form-group"><label>Types</label>
+            <input class="mono" readonly value="${toPascalCase(evt.event)}Request / ${toPascalCase(evt.event)}Response" style="color:var(--warn);background:var(--bg)">
+          </div>
+        </div>
+      </div>
+    </div>
+    ${renderSection('request', evt.request)}
+    ${renderSection('response', evt.response)}
+  `;
+}
+
+/** Render section (request hoac response) voi cac truong dong */
+function renderSection(section, sectionDef) {
+  const entries = Object.entries(sectionDef || {});
+  const label = section === 'request' ? 'Request' : 'Response';
+  const fieldInfo = entries.map(([n,d])=> `${n}:${d.meta_data||'?'}`).join(', ') || 'trong';
+
+  let html = '';
+
+  // Column labels
+  if (entries.length > 0) {
+    html += `<div class="tl-meta-label"><span></span><span>Ten truong</span><span>meta_data</span><span style="text-align:center">Req</span><span>Mo ta</span><span></span></div>`;
+  }
+
+  entries.forEach(([fieldName, fieldDef]) => {
+    const meta = fieldDef.meta_data || 'any';
+    const isExpandable = meta === 'object' || meta === 'stringify';
+    const expandKey = section + '.' + fieldName;
+    const isExp = expanded.has(expandKey);
+    const subCount = isExpandable ? countSubFields(fieldDef.fields) : 0;
+
+    html += `<div class="tl-field" data-section="${section}" data-field="${esc(fieldName)}">`;
+
+    // Header row
+    html += `<div class="tl-field-header">`;
+    if (isExpandable) {
+      html += `<button class="expand-btn" onclick="toggleExpand('${section}','${esc(fieldName)}')"><span class="arrow ${isExp?'open':''}">&#9654;</span></button>`;
+    } else {
+      html += `<span class="no-expand"></span>`;
+    }
+    html += `<input class="mono" value="${esc(fieldName)}" data-section="${section}" data-field="${esc(fieldName)}" data-prop="name">`;
+    html += `<select data-section="${section}" data-field="${esc(fieldName)}" data-prop="meta_data" onchange="onMetaChange(this)">
+      ${META_TYPES.map(t=>`<option value="${t}" ${meta===t?'selected':''}>${t}</option>`).join('')}
+    </select>`;
+    html += `<div style="text-align:center"><input type="checkbox" ${fieldDef.required!==false?'checked':''} data-section="${section}" data-field="${esc(fieldName)}" data-prop="required"></div>`;
+    html += `<input value="${esc(fieldDef.description||'')}" data-section="${section}" data-field="${esc(fieldName)}" data-prop="description" placeholder="${isExpandable?subCount+' sub-fields':''}">`;
+    html += `<button class="btn-icon danger" onclick="removeTlField('${section}','${esc(fieldName)}')" title="Xoa">&#10005;</button>`;
+    html += `</div>`; // end header
+
+    // Stringify note
+    if (meta === 'stringify') {
+      const note = section==='request' ? 'Truong nay se duoc <code>JSON.stringify()</code> truoc khi gui' : 'Truong nay se duoc <code>JSON.parse()</code> khi nhan';
+      html += `<div class="stringify-note">${note}</div>`;
+    }
+
+    // Sub-fields body (only for object/stringify when expanded)
+    if (isExpandable && isExp) {
+      html += `<div class="tl-field-body">`;
+      html += renderSubFields(fieldDef.fields || {}, section, fieldName);
+      html += `</div>`;
+    }
+
+    html += `</div>`; // end tl-field
+  });
+
+  html += `<div style="padding:4px 0"><button class="btn-ghost btn-xs" onclick="addTlField('${section}')">+ Them truong vao ${label}</button></div>`;
+
+  return `<div class="section">
+    <div class="section-header"><span>${label}</span><span class="field-count">${fieldInfo}</span></div>
+    <div class="section-body" style="padding:12px">${html}</div>
+  </div>`;
+}
+
+/** Render sub-fields table cho 1 truong object/stringify */
+function renderSubFields(fields, section, parentField) {
+  const entries = Object.entries(fields || {});
+  let html = `<div class="sf-header"><span>Ten</span><span>Kieu</span><span class="ctr">Req</span><span>Mo ta</span><span>Default</span><span></span></div>`;
+
+  entries.forEach(([key, def], i) => {
+    html += `<div class="sf-row" data-section="${section}" data-parent="${esc(parentField)}" data-idx="${i}">`;
+    html += `<input class="mono" value="${esc(key)}" data-prop="key">`;
+    html += `<select data-prop="type">${FIELD_TYPES.map(t=>`<option value="${t}" ${def.type===t?'selected':''}>${t}</option>`).join('')}</select>`;
+    html += `<div class="ctr"><input type="checkbox" ${def.required!==false?'checked':''} data-prop="required"></div>`;
+    html += `<input value="${esc(def.description||'')}" data-prop="description">`;
+    html += `<input value="${def.default!==undefined?esc(String(def.default)):''}" data-prop="default" placeholder="—">`;
+    html += `<button class="btn-icon danger" onclick="removeSubField('${section}','${esc(parentField)}',${i})" title="Xoa">&#10005;</button>`;
+    html += `</div>`;
+  });
+
+  html += `<div class="sf-add"><button class="btn-ghost btn-xs" onclick="addSubField('${section}','${esc(parentField)}')">+ Them truong</button></div>`;
+  return html;
+}
+
+// ═══════════════ Event Actions ═══════════════
+function selectEvent(i) { sync(); selectedIndex=i; renderSidebar(); renderEditor(); }
+
+function addEvent() {
+  if(!config) createNew();
+  sync(); let name='NEW_EVENT',c=1; const ns=config.events.map(e=>e.event);
+  while(ns.includes(name)) name='NEW_EVENT_'+c++;
+  const evt=JSON.parse(JSON.stringify(DEFAULT_EVENT)); evt.event=name;
+  config.events.push(evt); selectedIndex=config.events.length-1; renderAll(); toast('Da them: '+name,'success');
+  setTimeout(()=>{const i=document.getElementById('f_event');if(i){i.focus();i.select();}},50);
+}
+
+function duplicateEvent(i) {
+  sync(); const cp=JSON.parse(JSON.stringify(config.events[i])); cp.event+='_COPY';
+  const ns=config.events.map(e=>e.event); let c=1;
+  while(ns.includes(cp.event)) cp.event=config.events[i].event+'_COPY_'+c++;
+  config.events.splice(i+1,0,cp); selectedIndex=i+1; renderAll(); toast('Da nhan ban','success');
+}
+
+function confirmDeleteEvent(i) {
+  showDialog('Xoa event?', `Xoa "${config.events[i].event}"?`, ()=>{
+    config.events.splice(i,1); if(selectedIndex>=config.events.length) selectedIndex=config.events.length-1;
+    renderAll(); toast('Da xoa','success');
+  });
+}
+
+// ═══════════════ Top-level Field Actions ═══════════════
+function addTlField(section) {
+  sync(); const evt=config.events[selectedIndex];
+  evt[section] = evt[section] || {};
+  let name='new_field',c=1; while(evt[section][name]) name='new_field_'+c++;
+  evt[section][name] = { meta_data: 'string', required: false, description: '' };
+  renderEditor();
+}
+
+function removeTlField(section, fieldName) {
+  sync(); const evt=config.events[selectedIndex];
+  delete evt[section][fieldName]; expanded.delete(section+'.'+fieldName);
+  renderEditor();
+}
+
+function toggleExpand(section, fieldName) {
+  sync(); const k=section+'.'+fieldName;
+  if(expanded.has(k)) expanded.delete(k); else expanded.add(k);
+  renderEditor();
+}
+
+function onMetaChange(el) {
+  sync(); const section=el.dataset.section, field=el.dataset.field, newMeta=el.value;
+  const evt=config.events[selectedIndex];
+  const def = evt[section][field];
+  const oldMeta = def.meta_data;
+  def.meta_data = newMeta;
+
+  if (newMeta==='object'||newMeta==='stringify') {
+    if (!def.fields) def.fields = {};
+    expanded.add(section+'.'+field);
+  } else {
+    if (def.fields && countSubFields(def.fields) > 0) {
+      showDialog('Xoa sub-fields?', `Doi meta_data se xoa ${countSubFields(def.fields)} sub-fields. Tiep tuc?`, ()=>{
+        delete def.fields; expanded.delete(section+'.'+field); renderEditor();
+      });
+      def.meta_data = oldMeta; return; // revert
+    }
+    delete def.fields; expanded.delete(section+'.'+field);
+  }
+  renderEditor();
+}
+
+// ═══════════════ Sub-field Actions ═══════════════
+function addSubField(section, parentField) {
+  sync(); const evt=config.events[selectedIndex];
+  const parent = evt[section][parentField];
+  if (!parent.fields) parent.fields = {};
+  let name='new_field',c=1; while(parent.fields[name]) name='new_field_'+c++;
+  parent.fields[name] = { type:'string', required:false, description:'' };
+  expanded.add(section+'.'+parentField);
+  renderEditor();
+}
+
+function removeSubField(section, parentField, idx) {
+  sync(); const evt=config.events[selectedIndex];
+  const fields = evt[section][parentField].fields;
+  const keys = Object.keys(fields); if(idx<keys.length) delete fields[keys[idx]];
+  renderEditor();
+}
+
+// ═══════════════ Sync DOM -> State ═══════════════
+function sync() {
+  if(!config||selectedIndex<0||selectedIndex>=config.events.length) return;
+  const evtIn=document.getElementById('f_event'), descIn=document.getElementById('f_desc');
+  if(!evtIn||!descIn) return;
+  const evt=config.events[selectedIndex];
+  evt.event = evtIn.value.trim().toUpperCase().replace(/[^A-Z0-9_]/g,'_') || evt.event;
+  evt.description = descIn.value;
+
+  // Sync top-level fields
+  ['request','response'].forEach(section => {
+    const cards = document.querySelectorAll(`.tl-field[data-section="${section}"]`);
+    if (cards.length === 0 && Object.keys(evt[section]||{}).length === 0) return;
+
+    const newSection = {};
+    cards.forEach(card => {
+      const origName = card.dataset.field;
+      const nameInput = card.querySelector('input[data-prop="name"]');
+      const metaSelect = card.querySelector('select[data-prop="meta_data"]');
+      const reqCheck = card.querySelector('input[data-prop="required"]');
+      const descInput = card.querySelector('input[data-prop="description"]');
+
+      const name = nameInput ? (nameInput.value.trim()||origName) : origName;
+      const meta = metaSelect ? metaSelect.value : 'any';
+      const def = { meta_data: meta };
+      if (reqCheck) def.required = reqCheck.checked;
+      if (descInput && descInput.value) def.description = descInput.value;
+
+      // Sync sub-fields for object/stringify
+      if (meta === 'object' || meta === 'stringify') {
+        const subRows = card.querySelectorAll('.sf-row');
+        const fields = {};
+        subRows.forEach((row, i) => {
+          const keyIn = row.querySelector('input[data-prop="key"]');
+          const typeS = row.querySelector('select[data-prop="type"]');
+          const reqC = row.querySelector('input[data-prop="required"]');
+          const descI = row.querySelector('input[data-prop="description"]');
+          const defI = row.querySelector('input[data-prop="default"]');
+
+          const k = keyIn?(keyIn.value.trim()||'field_'+i):'field_'+i;
+          const f = { type: typeS?typeS.value:'string' };
+          if (reqC) f.required = reqC.checked;
+          if (descI && descI.value) f.description = descI.value;
+          if (defI && defI.value !== '') {
+            const raw=defI.value;
+            if(raw==='true') f.default=true; else if(raw==='false') f.default=false;
+            else if(!isNaN(Number(raw))&&raw!=='') f.default=Number(raw); else f.default=raw;
+          }
+          // Handle dup keys
+          let fk=k,fc=1; while(fields[fk]) fk=k+'_'+fc++;
+          fields[fk] = f;
+        });
+        def.fields = fields;
+
+        // Update expanded key if name changed
+        const oldK = section+'.'+origName, newK = section+'.'+name;
+        if (oldK !== newK && expanded.has(oldK)) { expanded.delete(oldK); expanded.add(newK); }
+      }
+
+      // Handle dup top-level names
+      let fn=name,fc=1; while(newSection[fn]) fn=name+'_'+fc++;
+      newSection[fn] = def;
+    });
+    evt[section] = newSection;
+  });
+}
+
+function onEventNameInput(el) {
+  const pos=el.selectionStart, val=el.value.toUpperCase().replace(/[^A-Z0-9_]/g,'_');
+  if(el.value!==val){el.value=val;el.setSelectionRange(pos,pos);}
+}
+
+// ═══════════════ Drag Reorder ═══════════════
+let dragIdx=-1;
+function onDragStart(e,i){dragIdx=i;e.target.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
+function onDragOver(e,i){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function onDragLeave(e){e.currentTarget.classList.remove('drag-over');}
+function onDrop(e,t){e.preventDefault();e.currentTarget.classList.remove('drag-over');if(dragIdx<0||dragIdx===t)return;
+  sync();const[m]=config.events.splice(dragIdx,1);config.events.splice(t,0,m);
+  if(selectedIndex===dragIdx)selectedIndex=t;else if(dragIdx<selectedIndex&&t>=selectedIndex)selectedIndex--;else if(dragIdx>selectedIndex&&t<=selectedIndex)selectedIndex++;
+  dragIdx=-1;renderAll();}
+
+// ═══════════════ Dialog / Toast / Preview ═══════════════
+function showJsonPreview(){if(!config){toast('Chua co du lieu','error');return;}sync();const j=JSON.stringify(config,null,2);
+  const o=document.getElementById('overlay');o.style.display='flex';
+  o.innerHTML=`<div class="dialog" style="width:700px;max-height:80vh;display:flex;flex-direction:column"><h3>JSON Preview</h3><div class="json-preview" style="flex:1;overflow-y:auto;margin-bottom:16px">${esc(j)}</div><div class="dialog-actions"><button class="btn-ghost" onclick="copyJson()">Copy</button><button class="btn-primary" onclick="closeDialog()">Dong</button></div></div>`;}
+function copyJson(){sync();navigator.clipboard.writeText(JSON.stringify(config,null,2)).then(()=>toast('Da copy','success'));}
+function showDialog(t,m,cb){const o=document.getElementById('overlay');o.style.display='flex';o.innerHTML=`<div class="dialog"><h3>${t}</h3><p>${m}</p><div class="dialog-actions"><button class="btn-ghost" onclick="closeDialog()">Huy</button><button class="btn-danger" id="confirmBtn">Xoa</button></div></div>`;document.getElementById('confirmBtn').onclick=()=>{closeDialog();cb();};}
+function closeDialog(){document.getElementById('overlay').style.display='none';}
+function toast(m,t='success'){const e=document.getElementById('toast');e.textContent=m;e.className='toast '+t+' show';clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),2500);}
+</script>
+</body>
+</html>

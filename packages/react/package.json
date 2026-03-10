@@ -1,0 +1,7 @@
+{
+ "name":"@webview-sdk/react",
+ "version":"1.0.0",
+ "peerDependencies":{
+  "react":"^18"
+ }
+}
