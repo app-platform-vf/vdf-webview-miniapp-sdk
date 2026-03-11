@@ -1,6 +1,11 @@
 {
  "name":"@webview-sdk/react",
  "version":"1.0.0",
+ "main":"dist/index.js",
+ "types":"dist/index.d.ts",
+ "scripts": {
+  "build": "tsc -p tsconfig.json"
+ },
  "peerDependencies":{
   "react":"^18"
  }

@@ -3,18 +3,43 @@
   "sender": "MINIAPP_WEBVIEW",
   "events": [
     {
-      "event": "GET_USER_INFO",
-      "description": "Lay thong tin nguoi dung",
+      "event": "APP_OPEN_WEBVIEW",
+      "description": "Mở một WebView mới với URL và cấu hình tùy chỉnh.",
       "request": {
         "data": {
           "meta_data": "object",
-          "required": false,
-          "description": "Thong tin request",
+          "required": true,
+          "description": "Du lieu",
           "fields": {
-            "user_id": {
+            "url": {
+              "type": "string",
+              "required": true,
+              "description": "URL của webview cần mở"
+            },
+            "serviceName": {
               "type": "string",
               "required": false,
-              "description": "ID nguoi dung (bo trong de lay user hien tai)"
+              "description": "Tiêu đề hiển thị trên app bar"
+            },
+            "isPaymentConfirm": {
+              "type": "boolean",
+              "required": false,
+              "description": "false = đóng mini app để sang gateway thanh toán"
+            },
+            "resourceType": {
+              "type": "string",
+              "required": false,
+              "description": "\"HTML\" = mở trong webview, khác = mở browser mặc định"
+            },
+            "returnUrl": {
+              "type": "string",
+              "required": false,
+              "description": "URL trả về khi thành công/thất bại/timeout"
+            },
+            "cancelUrl": {
+              "type": "string",
+              "required": false,
+              "description": "URL trả về khi người dùng cancel"
             }
           }
         }
@@ -22,354 +47,147 @@
       "response": {
         "data": {
           "meta_data": "object",
-          "description": "Thong tin nguoi dung",
+          "required": true,
+          "description": "Ket qua",
           "fields": {
-            "user_id": {
+            "url": {
               "type": "string",
-              "description": "ID nguoi dung"
+              "required": false,
+              "description": "url"
             },
-            "full_name": {
-              "type": "string",
-              "description": "Ho va ten"
-            },
-            "phone": {
-              "type": "string",
-              "description": "So dien thoai"
-            },
-            "email": {
-              "type": "string",
-              "description": "Email"
-            },
-            "avatar": {
-              "type": "string",
-              "description": "URL anh dai dien"
-            }
-          }
-        }
-      }
-    },
-    {
-      "event": "GET_LOCATION",
-      "description": "Lay vi tri hien tai",
-      "request": {
-        "data": {
-          "meta_data": "object",
-          "required": false,
-          "description": "Tuy chon vi tri",
-          "fields": {
             "type": {
               "type": "string",
               "required": false,
-              "description": "Loai toa do: wgs84 | gcj02",
-              "default": "wgs84"
-            },
-            "high_accuracy": {
-              "type": "boolean",
-              "required": false,
-              "description": "Bat do chinh xac cao",
-              "default": false
-            }
-          }
-        }
-      },
-      "response": {
-        "data": {
-          "meta_data": "object",
-          "description": "Toa do vi tri",
-          "fields": {
-            "latitude": {
-              "type": "number",
-              "description": "Vi do"
-            },
-            "longitude": {
-              "type": "number",
-              "description": "Kinh do"
-            },
-            "accuracy": {
-              "type": "number",
-              "description": "Do chinh xac (met)"
-            },
-            "speed": {
-              "type": "number",
-              "description": "Toc do (m/s)"
+              "description": "RETURN - Người dùng hoàn tất và quay lại, kèm theo URL; CANCEL - Người dùng hủy, kèm theo URL; CLOSED - Người dùng tự đóng webview, không có URL"
             }
           }
         }
       }
     },
     {
-      "event": "SCAN_QR_CODE",
-      "description": "Mo camera quet ma QR",
+      "event": "APP_OPEN_STORE",
+      "description": "Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.",
       "request": {
         "data": {
           "meta_data": "object",
-          "required": false,
-          "description": "Tuy chon quet",
+          "required": true,
+          "description": "Du lieu",
           "fields": {
-            "scan_type": {
+            "fallbackUrlAndroid": {
               "type": "string",
               "required": false,
-              "description": "Loai ma: qr | barcode | all",
-              "default": "qr"
+              "description": "URL android"
+            },
+            "fallbackUrlIos": {
+              "type": "string",
+              "required": false,
+              "description": "URL Ios"
             }
           }
         }
       },
-      "response": {
+      "response": {}
+    },
+    {
+      "event": "EXIT",
+      "description": "Đóng Mini App và điều hướng về màn hình khác.",
+      "request": {
         "data": {
           "meta_data": "object",
-          "description": "Ket qua quet",
+          "required": true,
+          "description": "Du lieu",
           "fields": {
-            "code": {
+            "navigationAction": {
               "type": "string",
-              "description": "Noi dung ma da quet"
-            },
-            "format": {
-              "type": "string",
-              "description": "Dinh dang ma: QR_CODE | EAN_13 | ..."
+              "required": false,
+              "description": "RETURN_HOME_APP - Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App"
             }
           }
         }
-      }
+      },
+      "response": {}
     },
     {
-      "event": "GET_SYSTEM_INFO",
-      "description": "Lay thong tin thiet bi va he dieu hanh",
-      "request": {},
-      "response": {
+      "event": "OPEN_EXTERNAL_LINK",
+      "description": "Mở URL bằng browser mặc định của hệ thống.",
+      "request": {
         "data": {
           "meta_data": "object",
-          "description": "Thong tin thiet bi",
+          "required": true,
+          "description": "Du lieu",
           "fields": {
-            "platform": {
+            "uri": {
               "type": "string",
-              "description": "android | ios"
-            },
-            "os_version": {
-              "type": "string",
-              "description": "Phien ban OS"
-            },
-            "brand": {
-              "type": "string",
-              "description": "Hang san xuat"
-            },
-            "model": {
-              "type": "string",
-              "description": "Ten thiet bi"
-            },
-            "sdk_version": {
-              "type": "string",
-              "description": "Phien ban SDK native"
-            },
-            "screen_width": {
-              "type": "number",
-              "description": "Chieu rong man hinh (px)"
-            },
-            "screen_height": {
-              "type": "number",
-              "description": "Chieu cao man hinh (px)"
+              "required": false,
+              "description": "Link Ngoài"
             }
           }
         }
-      }
+      },
+      "response": {}
     },
     {
-      "event": "SET_STORAGE",
-      "description": "Luu du lieu vao storage native",
+      "event": "OPEN_MINI_APP",
+      "description": "Mở một Mini App khác từ Mini App hiện tại.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Du lieu",
+          "fields": {
+            "route": {
+              "type": "object",
+              "required": false,
+              "description": "Định tuyến màn hình trong Mini App - \"route\": {       \"screenName\": \"home\"     }"
+            },
+            "miniappKey": {
+              "type": "string",
+              "required": false,
+              "description": "Key của Mini App cần mở - "
+            },
+            "additional": {
+              "type": "object",
+              "required": false,
+              "description": "Dữ liệu bổ sung truyền cho Mini App - \"additional\": {       \"param1\": \"value1\",       \"param2\": \"value2\"     }"
+            },
+            "launchConfig": {
+              "type": "object",
+              "required": false,
+              "description": "Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)\t;  "
+            },
+            "navStyle": {
+              "type": "object",
+              "required": false,
+              "description": "Style cho navigation bar - {       \"color\": \"#FF0000\",       \"hidden\": \"false\"     }"
+            },
+            "tracking": {
+              "type": "object",
+              "required": false,
+              "description": "Thông tin tracking - {       \"campaign\": \"promotion\",       \"utmSource\": \"miniapp\"     }"
+            }
+          }
+        }
+      },
+      "response": {}
+    },
+    {
+      "event": "REQUEST_MULTIPLE_USER_DATA_PERMISSION",
+      "description": "Yêu cầu nhiều quyền user data cùng một lúc.",
       "request": {
         "data": {
           "meta_data": "stringify",
           "required": true,
-          "description": "Du lieu luu tru (se duoc stringify)",
+          "description": "Du lieu",
           "fields": {
-            "key": {
-              "type": "string",
-              "required": true,
-              "description": "Key luu tru"
+            "permissionCodes": {
+              "type": "array",
+              "items": "string",
+              "description": "Danh sách mã quyền"
             },
-            "value": {
-              "type": "any",
-              "required": true,
-              "description": "Gia tri can luu"
-            }
-          }
-        }
-      },
-      "response": {
-        "data": {
-          "meta_data": "object",
-          "description": "Ket qua",
-          "fields": {
-            "success": {
-              "type": "boolean",
-              "description": "Ket qua luu tru"
-            }
-          }
-        }
-      }
-    },
-    {
-      "event": "GET_STORAGE",
-      "description": "Doc du lieu tu storage native",
-      "request": {
-        "data": {
-          "meta_data": "object",
-          "required": true,
-          "description": "Thong tin key",
-          "fields": {
-            "key": {
-              "type": "string",
-              "required": true,
-              "description": "Key can doc"
-            }
-          }
-        }
-      },
-      "response": {
-        "data": {
-          "meta_data": "object",
-          "description": "Du lieu doc duoc",
-          "fields": {
-            "key": {
-              "type": "string",
-              "description": "Key da doc"
-            },
-            "value": {
-              "type": "any",
-              "description": "Gia tri"
-            }
-          }
-        }
-      }
-    },
-    {
-      "event": "REMOVE_STORAGE",
-      "description": "Xoa du lieu theo key trong storage",
-      "request": {
-        "data": {
-          "meta_data": "object",
-          "required": true,
-          "description": "Thong tin key",
-          "fields": {
-            "key": {
-              "type": "string",
-              "required": true,
-              "description": "Key can xoa"
-            }
-          }
-        }
-      },
-      "response": {
-        "data": {
-          "meta_data": "object",
-          "description": "Ket qua",
-          "fields": {
-            "success": {
-              "type": "boolean",
-              "description": "Ket qua xoa"
-            }
-          }
-        }
-      }
-    },
-    {
-      "event": "SHOW_TOAST",
-      "description": "Hien thi thong bao toast",
-      "request": {
-        "data": {
-          "meta_data": "object",
-          "required": true,
-          "description": "Noi dung toast",
-          "fields": {
-            "title": {
-              "type": "string",
-              "required": true,
-              "description": "Noi dung hien thi"
-            },
-            "icon": {
-              "type": "string",
-              "required": false,
-              "description": "Icon: success | error | loading | none",
-              "default": "none"
-            },
-            "duration": {
-              "type": "number",
-              "required": false,
-              "description": "Thoi gian hien thi (ms)",
-              "default": 2000
-            }
-          }
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "SHOW_LOADING",
-      "description": "Hien thi loading",
-      "request": {
-        "data": {
-          "meta_data": "object",
-          "required": false,
-          "description": "Tuy chon loading",
-          "fields": {
-            "title": {
-              "type": "string",
-              "required": false,
-              "description": "Noi dung loading",
-              "default": ""
-            },
-            "mask": {
+            "useSameReason": {
               "type": "boolean",
               "required": false,
-              "description": "Hien thi lop phu",
-              "default": false
-            }
-          }
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "HIDE_LOADING",
-      "description": "An loading",
-      "request": {},
-      "response": {}
-    },
-    {
-      "event": "SHOW_DIALOG",
-      "description": "Hien thi hop thoai xac nhan",
-      "request": {
-        "data": {
-          "meta_data": "object",
-          "required": true,
-          "description": "Noi dung dialog",
-          "fields": {
-            "title": {
-              "type": "string",
-              "required": false,
-              "description": "Tieu de"
-            },
-            "content": {
-              "type": "string",
-              "required": true,
-              "description": "Noi dung"
-            },
-            "confirm_text": {
-              "type": "string",
-              "required": false,
-              "description": "Text nut xac nhan",
-              "default": "OK"
-            },
-            "cancel_text": {
-              "type": "string",
-              "required": false,
-              "description": "Text nut huy",
-              "default": "Huy"
-            },
-            "show_cancel": {
-              "type": "boolean",
-              "required": false,
-              "description": "Hien nut huy",
+              "description": "useSameReason",
               "default": true
             }
           }
@@ -377,126 +195,715 @@
       },
       "response": {
         "data": {
-          "meta_data": "object",
-          "description": "Ket qua chon",
+          "meta_data": "array",
+          "required": false,
+          "description": "Du lieu",
+          "items": "object",
           "fields": {
-            "confirm": {
-              "type": "boolean",
-              "description": "Nguoi dung nhan xac nhan"
+            "permissionCode": {
+              "type": "string",
+              "required": false,
+              "description": "Mã quyền"
             },
-            "cancel": {
-              "type": "boolean",
-              "description": "Nguoi dung nhan huy"
+            "result": {
+              "type": "string",
+              "required": false,
+              "description": "Granted - Quyền đã được cấp;  Denied -  Quyền bị từ chối; NotFound -  Permission code không tồn tại"
+            },
+            "message": {
+              "type": "string",
+              "required": false,
+              "description": "Nội dung "
             }
           }
         }
       }
     },
     {
-      "event": "NAVIGATE_TO",
-      "description": "Chuyen trang (them vao stack)",
+      "event": "CHECK_MULTIPLE_USER_DATA_PERMISSION",
+      "description": "Kiểm tra trạng thái nhiều quyền user data cùng lúc.",
       "request": {
         "data": {
-          "meta_data": "object",
+          "meta_data": "stringify",
           "required": true,
-          "description": "Thong tin dieu huong",
+          "description": "Du lieu",
           "fields": {
-            "url": {
-              "type": "string",
-              "required": true,
-              "description": "Duong dan trang"
-            },
-            "params": {
-              "type": "object",
-              "required": false,
-              "description": "Tham so truyen theo"
+            "permissionCodes": {
+              "type": "array",
+              "items": "string",
+              "description": "Danh sách mã quyền"
             }
           }
         }
       },
       "response": {
         "data": {
-          "meta_data": "object",
-          "description": "Ket qua",
+          "meta_data": "array",
+          "required": false,
+          "description": "Du lieu",
+          "items": "object",
           "fields": {
-            "success": {
-              "type": "boolean",
-              "description": "Ket qua dieu huong"
+            "permissionCode": {
+              "type": "string",
+              "required": false,
+              "description": "Mã quyền"
+            },
+            "result": {
+              "type": "string",
+              "required": false,
+              "description": "Granted - Quyền đã được cấp;  Denied -  Quyền bị từ chối; NotFound -  Permission code không tồn tại"
+            },
+            "message": {
+              "type": "string",
+              "required": false,
+              "description": "Nội dung "
             }
           }
         }
       }
     },
     {
-      "event": "NAVIGATE_BACK",
-      "description": "Quay lai trang truoc",
+      "event": "REQUEST_PERMISSION_WITH_CODE",
+      "description": "Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Du lieu",
+          "fields": {
+            "permissionCode": {
+              "type": "string",
+              "required": true,
+              "description": "mã quyền"
+            }
+          }
+        }
+      },
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "GET_MULTIPLE_USER_DATA",
+      "description": "Lấy nhiều trường dữ liệu người dùng từ host app.",
+      "request": {
+        "data": {
+          "meta_data": "stringify",
+          "required": true,
+          "description": "Du lieu",
+          "fields": {
+            "dataNames": {
+              "type": "array",
+              "items": "string",
+              "description": "Danh sách data cần lấy"
+            }
+          }
+        }
+      },
+      "response": {
+        "age": {
+          "meta_data": "string",
+          "required": false
+        },
+        "userName": {
+          "meta_data": "string",
+          "required": false
+        },
+        "fullName": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "REQUEST_PERMISSION_WITH_CODE",
+      "description": "Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Du lieu",
+          "fields": {
+            "permissionCode": {
+              "type": "string",
+              "required": true,
+              "description": "Tham so 1"
+            }
+          }
+        }
+      },
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CHECK_PERMISSION_WITH_CODE",
+      "description": "Kiểm tra trạng thái quyền cụ thể.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Du lieu",
+          "fields": {
+            "permissionCode": {
+              "type": "string",
+              "required": true,
+              "description": "Tham so 1"
+            }
+          }
+        }
+      },
+      "response": {}
+    },
+    {
+      "event": "CLEAR_PERMISSION_CACHE",
+      "description": "Xóa tất cả quyền đã cache ở local.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Du lieu",
+          "fields": {}
+        }
+      },
+      "response": {
+        "eventStatus": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "REQUEST_CAMERA_PERMISSION",
+      "description": "Yêu cầu mở camera",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "REQUEST_LOCATION_PERMISSION",
+      "description": "Yêu cầu vị trí",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "REQUEST_PHOTOS_PERMISSION",
+      "description": "Yêu cầu truy cập ảnh trên thiết bị",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "REQUEST_VIDEOS_PERMISSION",
+      "description": "Yêu cầu truy cập video trên thiết bị",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "REQUEST_AUDIO_PERMISSION",
+      "description": "Yêu cầu truy cập audio trên thiết bị",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "REQUEST_RECORD_AUDIO_PERMISSION",
+      "description": "Yêu cầu ghi âm trên thiết bị",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "REQUEST_CONTACTS_PERMISSION",
+      "description": "Yêu cầu truy cập danh bạ trên thiết bị",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "REQUEST_DOCUMENT_PERMISSION",
+      "description": "Yêu cầu truy cập tài liệu trên thiết bị",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "REQUEST_PHONE_CALL_PERMISSION",
+      "description": "Yêu cầu thực hiện cuộc gọi trên thiết bị",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "REQUEST_PAYMENT_PERMISSION",
+      "description": "",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "REQUEST_LOGIN_PERMISSION",
+      "description": "",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "REQUEST_LOCAL_AUTHENTICATION_PERMISSION",
+      "description": "Yêu cầu xác thực sinh trắc học (vân tay, Face ID).",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CHECK_CAMERA_PERMISSION",
+      "description": "Kiểm tra quyền camera",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CHECK_LOCATION_PERMISSION",
+      "description": "Kiểm tra quyền vị trí",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CHECK_PHOTOS_PERMISSION",
+      "description": "Kiểm tra quyền truy cập ảnh",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CHECK_VIDEOS_PERMISSION",
+      "description": "Kiểm tra quyền truy cập video",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CHECK_AUDIO_PERMISSION",
+      "description": "Kiểm tra quyền truy cập file audio",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CHECK_RECORD_AUDIO_PERMISSION",
+      "description": "Kiểm tra quyền ghi âm trên thiết bị",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CHECK_CONTACTS_PERMISSION",
+      "description": "Kiểm tra quyền truy cập danh bạ",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CHECK_DOCUMENT_PERMISSION",
+      "description": "Kiểm tra quyền truy cập file tài liệu",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CHECK_PHONE_CALL_PERMISSION",
+      "description": "Kiểm tra quyền gọi điện",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CHECK_PAYMENT_PERMISSION",
+      "description": "",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CHECK_LOGIN_PERMISSION",
+      "description": "",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CHECK_LOCAL_AUTHENTICATION_PERMISSION",
+      "description": "kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).",
       "request": {
         "data": {
           "meta_data": "object",
           "required": false,
-          "description": "Tuy chon",
           "fields": {
-            "delta": {
-              "type": "number",
-              "required": false,
-              "description": "So trang quay lai",
-              "default": 1
+            "authOptionsParam": {
+              "type": "object",
+              "required": false
             }
           }
         }
       },
       "response": {
-        "data": {
-          "meta_data": "object",
-          "description": "Ket qua",
-          "fields": {
-            "success": {
-              "type": "boolean",
-              "description": "Ket qua"
-            }
-          }
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "description": {
+          "meta_data": "string",
+          "required": false
         }
       }
     },
     {
-      "event": "GET_ACCESS_TOKEN",
-      "description": "Lay access token cua nguoi dung",
+      "event": "GET_LOCAL_AUTHENTICATION_STATUS",
+      "description": " lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).",
       "request": {},
       "response": {
-        "data": {
-          "meta_data": "object",
-          "description": "Token info",
-          "fields": {
-            "access_token": {
-              "type": "string",
-              "description": "Access token"
-            },
-            "expires_in": {
-              "type": "number",
-              "description": "Thoi gian het han (giay)"
-            }
-          }
+        "isHardwareSupportStrongBiometric": {
+          "meta_data": "boolean",
+          "required": false
+        },
+        "isHardwareSupportBiometric": {
+          "meta_data": "boolean",
+          "required": false
+        },
+        "isDeviceSecure": {
+          "meta_data": "boolean",
+          "required": false
+        },
+        "canAuthenticateWithDeviceCredential": {
+          "meta_data": "boolean",
+          "required": false
+        },
+        "canAuthenticateWithBiometrics": {
+          "meta_data": "boolean",
+          "required": false
+        },
+        "canAuthenticateWithStrongBiometrics": {
+          "meta_data": "boolean",
+          "required": false
         }
       }
     },
     {
-      "event": "OPEN_DEEP_LINK",
-      "description": "Mo deep link trong app native",
+      "event": "GET_CONTACTS",
+      "description": "Truy cập danh bạ",
       "request": {
         "data": {
           "meta_data": "object",
-          "required": true,
-          "description": "Thong tin deep link",
+          "required": false,
           "fields": {
-            "url": {
-              "type": "string",
-              "required": true,
-              "description": "Deep link URL"
+            "filter": {
+              "type": "object",
+              "required": false
             },
-            "fallback_url": {
-              "type": "string",
-              "required": false,
-              "description": "URL du phong neu khong mo duoc"
+            "pager": {
+              "type": "object",
+              "required": false
             }
           }
         }
@@ -504,44 +911,40 @@
       "response": {
         "data": {
           "meta_data": "object",
-          "description": "Ket qua",
+          "required": false,
+          "items": "object",
           "fields": {
-            "success": {
-              "type": "boolean",
-              "description": "Mo thanh cong hay khong"
+            "contactList": {
+              "type": "array",
+              "items": "object"
+            },
+            "countContacts": {
+              "type": "number",
+              "required": false
             }
           }
         }
       }
     },
     {
-      "event": "SHARE",
-      "description": "Chia se noi dung",
+      "event": "PICK_FILE",
+      "description": "Mở file tài liệu",
       "request": {
         "data": {
-          "meta_data": "object",
-          "required": true,
-          "description": "Noi dung chia se",
+          "meta_data": "stringify",
+          "required": false,
           "fields": {
-            "title": {
-              "type": "string",
-              "required": true,
-              "description": "Tieu de chia se"
+            "mimeType": {
+              "type": "array",
+              "items": "string"
             },
-            "description": {
-              "type": "string",
-              "required": false,
-              "description": "Mo ta"
+            "isCapture": {
+              "type": "boolean",
+              "required": false
             },
-            "image_url": {
+            "new_field": {
               "type": "string",
-              "required": false,
-              "description": "URL anh"
-            },
-            "link": {
-              "type": "string",
-              "required": false,
-              "description": "Link chia se"
+              "required": false
             }
           }
         }
@@ -549,24 +952,111 @@
       "response": {
         "data": {
           "meta_data": "object",
-          "description": "Ket qua chia se",
+          "required": false,
           "fields": {
-            "success": {
-              "type": "boolean",
-              "description": "Chia se thanh cong"
-            },
-            "channel": {
+            "hostUrl": {
               "type": "string",
-              "description": "Kenh chia se: facebook | zalo | copy | ..."
+              "required": false
             }
           }
         }
       }
     },
     {
-      "event": "CLOSE_MINIAPP",
-      "description": "Dong miniapp va quay ve app native",
+      "event": "GET_LOCATION",
+      "description": "Lấy vị trí thiết bị",
       "request": {},
+      "response": {
+        "latitude": {
+          "meta_data": "any",
+          "required": false
+        },
+        "longgitude": {
+          "meta_data": "any",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "SET_BACKGROUND_STATUS_BAR_COLOR",
+      "description": "Thay đổi màu nền status bar.",
+      "request": {
+        "data": {
+          "meta_data": "stringify",
+          "required": false,
+          "fields": {}
+        },
+        "color": {
+          "meta_data": "string",
+          "required": false
+        }
+      },
+      "response": {}
+    },
+    {
+      "event": "SET_NAVIGATION_BAR_COLOR",
+      "description": "Thay đổi màu nền navigation bar.",
+      "request": {
+        "data": {
+          "meta_data": "stringify",
+          "required": false,
+          "fields": {}
+        },
+        "color": {
+          "meta_data": "string",
+          "required": false
+        }
+      },
+      "response": {}
+    },
+    {
+      "event": "UPDATE_STATUS_BAR_APPEARANCE",
+      "description": "Chuyển đổi status bar giữa dark mode và light mode.",
+      "request": {
+        "data": {
+          "meta_data": "stringify",
+          "required": false,
+          "fields": {}
+        },
+        "appearance": {
+          "meta_data": "string",
+          "required": false,
+          "description": "\"LIGHT\" hoặc \"DARK\""
+        }
+      },
+      "response": {}
+    },
+    {
+      "event": "UPDATE_NAVIGATION_BAR_APPEARANCE",
+      "description": "Chuyển đổi navigation bar giữa dark mode và light mode.",
+      "request": {
+        "data": {
+          "meta_data": "stringify",
+          "required": false,
+          "fields": {}
+        },
+        "appearance": {
+          "meta_data": "string",
+          "required": false,
+          "description": "\"LIGHT\" hoặc \"DARK\""
+        }
+      },
+      "response": {}
+    },
+    {
+      "event": "SHARE_TEXT_CONTENT",
+      "description": "Mở dialog chia sẻ nội dung text.",
+      "request": {
+        "data": {
+          "meta_data": "stringify",
+          "required": false,
+          "fields": {}
+        },
+        "content": {
+          "meta_data": "string",
+          "required": false
+        }
+      },
       "response": {}
     }
   ]

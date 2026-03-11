@@ -1,1 +1,5 @@
 node_modules/
+packages/core/dist/
+packages/angular/dist/
+packages/vue/dist/
+packages/react/dist/
