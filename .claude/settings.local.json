@@ -9,7 +9,23 @@
       "Bash(rmdir packages/core/src/sdk)",
       "Bash(rm -f packages/core/src/bridge/WebViewBridge.ts packages/core/src/bridge/EventBus.ts packages/core/src/utils/platform.ts)",
       "Bash(node build-doc.js)",
-      "Bash(node packages/core/src/event.js)"
+      "Bash(node packages/core/src/event.js)",
+      "Bash(node -e \":*)",
+      "Bash(node -e \"const fs=require\\(''''fs''''\\);const c=JSON.parse\\(fs.readFileSync\\(''''packages/core/src/events.json'''',''''utf8''''\\)\\);c.events=c.events.filter\\(e=>e.event!=''''TEST_ARRAY''''\\);fs.writeFileSync\\(''''packages/core/src/events.json'''',JSON.stringify\\(c,null,2\\)\\);\")",
+      "Bash(npm run:*)",
+      "Bash(mkdir -p d:/SDK/webview-sdk/dist)",
+      "Bash(npm pack:*)",
+      "Bash(find packages/core/src -name \"*.d.ts\" -delete)",
+      "Bash(find packages/core/src -name \"*.js\" ! -name \"event.js\" -delete)",
+      "Bash(node -e \"const m = require\\(''@webview-sdk/core''\\); console.log\\(Object.keys\\(m\\).join\\('', ''\\)\\)\")",
+      "Bash(npx ng:*)",
+      "Bash(timeout 15 tail -f C:/Users/os_caopv/AppData/Local/Temp/claude/d--SDK-webview-sdk/tasks/bn4oqvuud.output)",
+      "Bash(node -e \"try { require\\(''''ng-packagr''''\\); console.log\\(''''ng-packagr found''''\\); } catch\\(e\\) { console.log\\(''''ng-packagr NOT found''''\\); }\")",
+      "Bash(/tmp/test_imports.txt:*)",
+      "Read(//tmp/**)",
+      "Bash(npx tsc:*)",
+      "Bash(npm install:*)",
+      "Bash(node demo/demo.js)"
     ]
   }
 }

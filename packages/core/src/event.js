@@ -36,10 +36,25 @@ function toPascalCase(str) {
   return camel.charAt(0).toUpperCase() + camel.slice(1)
 }
 
-/** Map type tu JSON sang TypeScript */
+/** Map type tu JSON sang TypeScript (kieu don, khong co items) */
 function toTsType(jsonType) {
-  const map = { string: "string", number: "number", boolean: "boolean", object: "Record<string, any>", any: "any" }
+  const map = { string: "string", number: "number", boolean: "boolean", object: "Record<string, any>", array: "any[]", any: "any" }
   return map[jsonType] || "any"
+}
+
+/**
+ * Gen TypeScript type cho mang: dua vao items va fields
+ * - items: "string" -> string[]
+ * - items: "object" + fields -> { ... }[]
+ * - items: "number" -> number[]
+ * - khong co items -> any[]
+ */
+function genArrayType(def, indent) {
+  const items = def.items || "any"
+  if (items === "object" && def.fields && Object.keys(def.fields).length > 0) {
+    return genInlineType(def.fields, indent || 2) + "[]"
+  }
+  return toTsType(items) + "[]"
 }
 
 /** Gen inline object type tu nested fields (de quy) */
@@ -49,7 +64,9 @@ function genInlineType(fields, indent) {
   const lines = Object.entries(fields).map(([key, def]) => {
     const optional = def.required === false ? "?" : ""
     let tsType
-    if (def.type === "object" && def.fields && Object.keys(def.fields).length > 0) {
+    if (def.type === "array") {
+      tsType = genArrayType(def, indent + 2)
+    } else if (def.type === "object" && def.fields && Object.keys(def.fields).length > 0) {
       tsType = genInlineType(def.fields, indent + 2)
     } else {
       tsType = toTsType(def.type)
@@ -64,8 +81,13 @@ function genInlineType(fields, indent) {
  * Gen interface tu section definition (request hoac response).
  * Moi truong co meta_data dinh nghia kieu.
  *
- * @param {string} name - Ten interface (e.g. "GetUserInfoRequest")
- * @param {object} sectionDef - { fieldName: { meta_data, required, description, fields? }, ... }
+ * meta_data:
+ *   "object"    -> object voi fields
+ *   "stringify"  -> object/array voi fields, JSON.stringify khi gui
+ *     + co items -> mang (VD: stringify array of objects)
+ *     + khong items -> object (VD: stringify object)
+ *   "array"     -> mang, items dinh nghia kieu phan tu
+ *   "string"/"number"/"boolean"/"any" -> kieu don
  */
 function genInterface(name, sectionDef) {
   const entries = Object.entries(sectionDef || {})
@@ -77,8 +99,23 @@ function genInterface(name, sectionDef) {
     const comment = def.description ? ` // ${def.description}` : ""
 
     let tsType
-    if (meta === "object" || meta === "stringify") {
+    if (meta === "array") {
+      // Mang: items dinh nghia kieu phan tu
+      tsType = genArrayType(def, 2)
+    } else if (meta === "object") {
+      // Object voi fields
       if (def.fields && Object.keys(def.fields).length > 0) {
+        tsType = genInlineType(def.fields, 2)
+      } else {
+        tsType = "Record<string, any>"
+      }
+    } else if (meta === "stringify") {
+      // Stringify: co the la object hoac array
+      if (def.items) {
+        // Stringify mang
+        tsType = genArrayType(def, 2)
+      } else if (def.fields && Object.keys(def.fields).length > 0) {
+        // Stringify object
         tsType = genInlineType(def.fields, 2)
       } else {
         tsType = "Record<string, any>"
@@ -207,17 +244,6 @@ function genApi(config) {
   lines.push("} from './types.generated';")
   lines.push("")
 
-  // Sender constant
-  lines.push(`const SENDER = '${config.sender}';`)
-  lines.push("")
-
-  // Request ID generator
-  lines.push("let _requestIdCounter = 0;")
-  lines.push("function generateRequestId(): string {")
-  lines.push("  return `req_${Date.now()}_${++_requestIdCounter}`;")
-  lines.push("}")
-  lines.push("")
-
   // Check response success
   lines.push("/** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */")
   lines.push("export function isSuccess(response: MiniAppResponseBase): boolean {")
@@ -225,30 +251,24 @@ function genApi(config) {
   lines.push("}")
   lines.push("")
 
-  // SendMessage function type
-  lines.push("type SendMessageFn = (message: MiniAppRequestBase & Record<string, any>) => Promise<MiniAppResponseBase & Record<string, any>>;")
+  // SendRaw function type — accepts MiniAppRequestBase directly
+  lines.push("type SendRawFn = (message: MiniAppRequestBase) => Promise<any>;")
   lines.push("")
-  lines.push("let _sendMessage: SendMessageFn | null = null;")
+  lines.push("let _sendRaw: SendRawFn | null = null;")
   lines.push("")
   lines.push("/**")
   lines.push(" * Khoi tao module API voi ham gui message")
   lines.push(" * Goi 1 lan khi setup MiniApp SDK")
   lines.push(" */")
-  lines.push("export function initMiniAppAPI(sendFn: SendMessageFn): void {")
-  lines.push("  _sendMessage = sendFn;")
+  lines.push("export function initMiniAppAPI(sendFn: SendRawFn): void {")
+  lines.push("  _sendRaw = sendFn;")
   lines.push("}")
   lines.push("")
 
-  // Internal send helper — spread payload vao message
+  // Internal send helper — creates MiniAppRequestBase directly (flat)
   lines.push("function send<TRes>(event: string, payload: Record<string, any>): Promise<MiniAppResponse<TRes>> {")
-  lines.push("  if (!_sendMessage) throw new Error('MiniApp API chua duoc khoi tao. Goi initMiniAppAPI() truoc.');")
-  lines.push("  const request: MiniAppRequestBase & Record<string, any> = {")
-  lines.push("    event,")
-  lines.push("    sender: SENDER,")
-  lines.push("    request_id: generateRequestId(),")
-  lines.push("    ...payload,")
-  lines.push("  };")
-  lines.push("  return _sendMessage(request) as Promise<MiniAppResponse<TRes>>;")
+  lines.push("  if (!_sendRaw) throw new Error('MiniApp API chua duoc khoi tao. Goi wireToMiniApp() truoc.');")
+  lines.push("  return _sendRaw({ event, sender: '', request_id: '', ...payload }) as Promise<MiniAppResponse<TRes>>;")
   lines.push("}")
   lines.push("")
 
@@ -348,19 +368,16 @@ function genApi(config) {
   lines.push(" * Noi generated API voi MiniApp instance.")
   lines.push(" * Goi 1 lan trong getSharedInstance() hoac constructor cua adapter.")
   lines.push(" */")
-  lines.push("export function wireToMiniApp(app: { invoke(api: string, data?: any): Promise<any> }): void {")
-  lines.push("  initMiniAppAPI((request) => {")
-  lines.push("    const { event: _evt, sender: _s, request_id: _rid, ...payload } = request;")
-  lines.push("    return app.invoke(_evt, payload).then((raw): MiniAppResponseBase & Record<string, any> => {")
-  lines.push("      // Native da tra ve response day du")
+  lines.push("export function wireToMiniApp(app: { sendRaw(msg: MiniAppRequestBase): Promise<any> }): void {")
+  lines.push("  initMiniAppAPI((msg) => {")
+  lines.push("    return app.sendRaw(msg).then((raw): MiniAppResponseBase & Record<string, any> => {")
   lines.push("      if (raw && raw.eventStatus) return raw;")
-  lines.push("      // Wrap raw thanh response")
   lines.push("      const data = typeof raw === 'object' && raw !== null ? raw : { data: raw };")
   lines.push("      return {")
-  lines.push("        event: _evt,")
+  lines.push("        event: msg.event || '',")
   lines.push("        sender: 'MINIAPP_SDK',")
   lines.push("        response_id: '',")
-  lines.push("        request_id: _rid,")
+  lines.push("        request_id: msg.request_id || '',")
   lines.push("        ...data,")
   lines.push("        eventStatus: { errorCode: 'SDK000', errorMessageVN: 'Thanh cong', errorMessageEN: 'Success', realMsg: '' },")
   lines.push("        errorData: '',")

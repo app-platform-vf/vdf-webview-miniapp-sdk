@@ -7,75 +7,148 @@ import type {
   MiniAppRequestBase,
   MiniAppResponseBase,
   MiniAppResponse,
-  GetUserInfoRequest,
-  GetUserInfoResponse,
+  AppOpenWebviewRequest,
+  AppOpenWebviewResponse,
+  AppOpenStoreRequest,
+  AppOpenStoreResponse,
+  ExitRequest,
+  ExitResponse,
+  OpenExternalLinkRequest,
+  OpenExternalLinkResponse,
+  OpenMiniAppRequest,
+  OpenMiniAppResponse,
+  RequestMultipleUserDataPermissionRequest,
+  RequestMultipleUserDataPermissionResponse,
+  CheckMultipleUserDataPermissionRequest,
+  CheckMultipleUserDataPermissionResponse,
+  RequestPermissionWithCodeRequest,
+  RequestPermissionWithCodeResponse,
+  GetMultipleUserDataRequest,
+  GetMultipleUserDataResponse,
+  CheckPermissionWithCodeRequest,
+  CheckPermissionWithCodeResponse,
+  ClearPermissionCacheRequest,
+  ClearPermissionCacheResponse,
+  RequestCameraPermissionRequest,
+  RequestCameraPermissionResponse,
+  RequestLocationPermissionRequest,
+  RequestLocationPermissionResponse,
+  RequestPhotosPermissionRequest,
+  RequestPhotosPermissionResponse,
+  RequestVideosPermissionRequest,
+  RequestVideosPermissionResponse,
+  RequestAudioPermissionRequest,
+  RequestAudioPermissionResponse,
+  RequestRecordAudioPermissionRequest,
+  RequestRecordAudioPermissionResponse,
+  RequestContactsPermissionRequest,
+  RequestContactsPermissionResponse,
+  RequestDocumentPermissionRequest,
+  RequestDocumentPermissionResponse,
+  RequestPhoneCallPermissionRequest,
+  RequestPhoneCallPermissionResponse,
+  RequestPaymentPermissionRequest,
+  RequestPaymentPermissionResponse,
+  RequestLoginPermissionRequest,
+  RequestLoginPermissionResponse,
+  RequestLocalAuthenticationPermissionRequest,
+  RequestLocalAuthenticationPermissionResponse,
+  CheckCameraPermissionRequest,
+  CheckCameraPermissionResponse,
+  CheckLocationPermissionRequest,
+  CheckLocationPermissionResponse,
+  CheckPhotosPermissionRequest,
+  CheckPhotosPermissionResponse,
+  CheckVideosPermissionRequest,
+  CheckVideosPermissionResponse,
+  CheckAudioPermissionRequest,
+  CheckAudioPermissionResponse,
+  CheckRecordAudioPermissionRequest,
+  CheckRecordAudioPermissionResponse,
+  CheckContactsPermissionRequest,
+  CheckContactsPermissionResponse,
+  CheckDocumentPermissionRequest,
+  CheckDocumentPermissionResponse,
+  CheckPhoneCallPermissionRequest,
+  CheckPhoneCallPermissionResponse,
+  CheckPaymentPermissionRequest,
+  CheckPaymentPermissionResponse,
+  CheckLoginPermissionRequest,
+  CheckLoginPermissionResponse,
+  CheckLocalAuthenticationPermissionRequest,
+  CheckLocalAuthenticationPermissionResponse,
+  GetLocalAuthenticationStatusRequest,
+  GetLocalAuthenticationStatusResponse,
+  GetContactsRequest,
+  GetContactsResponse,
+  PickFileRequest,
+  PickFileResponse,
   GetLocationRequest,
   GetLocationResponse,
-  ScanQrCodeRequest,
-  ScanQrCodeResponse,
-  GetSystemInfoRequest,
-  GetSystemInfoResponse,
-  SetStorageRequest,
-  SetStorageResponse,
-  GetStorageRequest,
-  GetStorageResponse,
-  RemoveStorageRequest,
-  RemoveStorageResponse,
-  ShowToastRequest,
-  ShowToastResponse,
-  ShowLoadingRequest,
-  ShowLoadingResponse,
-  HideLoadingRequest,
-  HideLoadingResponse,
-  ShowDialogRequest,
-  ShowDialogResponse,
-  NavigateToRequest,
-  NavigateToResponse,
-  NavigateBackRequest,
-  NavigateBackResponse,
-  GetAccessTokenRequest,
-  GetAccessTokenResponse,
-  OpenDeepLinkRequest,
-  OpenDeepLinkResponse,
-  ShareRequest,
-  ShareResponse,
-  CloseMiniappRequest,
-  CloseMiniappResponse
+  SetBackgroundStatusBarColorRequest,
+  SetBackgroundStatusBarColorResponse,
+  SetNavigationBarColorRequest,
+  SetNavigationBarColorResponse,
+  UpdateStatusBarAppearanceRequest,
+  UpdateStatusBarAppearanceResponse,
+  UpdateNavigationBarAppearanceRequest,
+  UpdateNavigationBarAppearanceResponse,
+  ShareTextContentRequest,
+  ShareTextContentResponse,
+  StorageGetRequest,
+  StorageGetResponse,
+  StorageSetRequest,
+  StorageSetResponse,
+  StorageRemoveRequest,
+  StorageRemoveResponse,
+  StorageClearRequest,
+  StorageClearResponse,
+  StorageInfoRequest,
+  StorageInfoResponse,
+  UiShowToastRequest,
+  UiShowToastResponse,
+  UiHideToastRequest,
+  UiHideToastResponse,
+  UiShowLoadingRequest,
+  UiShowLoadingResponse,
+  UiHideLoadingRequest,
+  UiHideLoadingResponse,
+  UiShowDialogRequest,
+  UiShowDialogResponse,
+  UiShowActionSheetRequest,
+  UiShowActionSheetResponse,
+  NavigatorPushRequest,
+  NavigatorPushResponse,
+  NavigatorPopRequest,
+  NavigatorPopResponse,
+  NavigatorSwitchTabRequest,
+  NavigatorSwitchTabResponse,
+  NavigatorRedirectRequest,
+  NavigatorRedirectResponse,
+  NavigatorReLaunchRequest,
+  NavigatorReLaunchResponse
 } from './types.generated';
-
-const SENDER = 'MINIAPP_WEBVIEW';
-
-let _requestIdCounter = 0;
-function generateRequestId(): string {
-  return `req_${Date.now()}_${++_requestIdCounter}`;
-}
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */
 export function isSuccess(response: MiniAppResponseBase): boolean {
   return response.eventStatus?.errorCode === 'SDK000';
 }
 
-type SendMessageFn = (message: MiniAppRequestBase & Record<string, any>) => Promise<MiniAppResponseBase & Record<string, any>>;
+type SendRawFn = (message: MiniAppRequestBase) => Promise<any>;
 
-let _sendMessage: SendMessageFn | null = null;
+let _sendRaw: SendRawFn | null = null;
 
 /**
  * Khoi tao module API voi ham gui message
  * Goi 1 lan khi setup MiniApp SDK
  */
-export function initMiniAppAPI(sendFn: SendMessageFn): void {
-  _sendMessage = sendFn;
+export function initMiniAppAPI(sendFn: SendRawFn): void {
+  _sendRaw = sendFn;
 }
 
 function send<TRes>(event: string, payload: Record<string, any>): Promise<MiniAppResponse<TRes>> {
-  if (!_sendMessage) throw new Error('MiniApp API chua duoc khoi tao. Goi initMiniAppAPI() truoc.');
-  const request: MiniAppRequestBase & Record<string, any> = {
-    event,
-    sender: SENDER,
-    request_id: generateRequestId(),
-    ...payload,
-  };
-  return _sendMessage(request) as Promise<MiniAppResponse<TRes>>;
+  if (!_sendRaw) throw new Error('MiniApp API chua duoc khoi tao. Goi wireToMiniApp() truoc.');
+  return _sendRaw({ event, sender: '', request_id: '', ...payload }) as Promise<MiniAppResponse<TRes>>;
 }
 
 // ============================================================
@@ -84,169 +157,563 @@ function send<TRes>(event: string, payload: Record<string, any>): Promise<MiniAp
 // ============================================================
 
 /**
- * Lay thong tin nguoi dung
- * Event: GET_USER_INFO
- * @param payload.data.user_id (optional) ID nguoi dung (bo trong de lay user hien tai)
+ * Mở một WebView mới với URL và cấu hình tùy chỉnh.
+ * Event: APP_OPEN_WEBVIEW
+ * @param payload.data.url (required) URL của webview cần mở
+ * @param payload.data.serviceName (optional) Tiêu đề hiển thị trên app bar
+ * @param payload.data.isPaymentConfirm (optional) false = đóng mini app để sang gateway thanh toán
+ * @param payload.data.resourceType (optional) "HTML" = mở trong webview, khác = mở browser mặc định
+ * @param payload.data.returnUrl (optional) URL trả về khi thành công/thất bại/timeout
+ * @param payload.data.cancelUrl (optional) URL trả về khi người dùng cancel
  */
-export async function getUserInfo(payload: GetUserInfoRequest = {} as any): Promise<MiniAppResponse<GetUserInfoResponse>> {
-  return send<GetUserInfoResponse>('GET_USER_INFO', payload);
+export async function appOpenWebview(payload: AppOpenWebviewRequest): Promise<MiniAppResponse<AppOpenWebviewResponse>> {
+  return send<AppOpenWebviewResponse>('APP_OPEN_WEBVIEW', payload);
 }
 
 /**
- * Lay vi tri hien tai
- * Event: GET_LOCATION
- * @param payload.data.type (optional) Loai toa do: wgs84 | gcj02 [default: "wgs84"]
- * @param payload.data.high_accuracy (optional) Bat do chinh xac cao [default: false]
+ * Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.
+ * Event: APP_OPEN_STORE
+ * @param payload.data.fallbackUrlAndroid (optional) URL android
+ * @param payload.data.fallbackUrlIos (optional) URL Ios
  */
-export async function getLocation(payload: GetLocationRequest = {} as any): Promise<MiniAppResponse<GetLocationResponse>> {
-  return send<GetLocationResponse>('GET_LOCATION', payload);
+export async function appOpenStore(payload: AppOpenStoreRequest): Promise<MiniAppResponse<AppOpenStoreResponse>> {
+  return send<AppOpenStoreResponse>('APP_OPEN_STORE', payload);
 }
 
 /**
- * Mo camera quet ma QR
- * Event: SCAN_QR_CODE
- * @param payload.data.scan_type (optional) Loai ma: qr | barcode | all [default: "qr"]
+ * Đóng Mini App và điều hướng về màn hình khác.
+ * Event: EXIT
+ * @param payload.data.navigationAction (optional) RETURN_HOME_APP - Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App
  */
-export async function scanQrCode(payload: ScanQrCodeRequest = {} as any): Promise<MiniAppResponse<ScanQrCodeResponse>> {
-  return send<ScanQrCodeResponse>('SCAN_QR_CODE', payload);
+export async function exit(payload: ExitRequest): Promise<MiniAppResponse<ExitResponse>> {
+  return send<ExitResponse>('EXIT', payload);
 }
 
 /**
- * Lay thong tin thiet bi va he dieu hanh
- * Event: GET_SYSTEM_INFO
+ * Mở URL bằng browser mặc định của hệ thống.
+ * Event: OPEN_EXTERNAL_LINK
+ * @param payload.data.uri (optional) Link Ngoài
  */
-export async function getSystemInfo(): Promise<MiniAppResponse<GetSystemInfoResponse>> {
-  return send<GetSystemInfoResponse>('GET_SYSTEM_INFO', {});
+export async function openExternalLink(payload: OpenExternalLinkRequest): Promise<MiniAppResponse<OpenExternalLinkResponse>> {
+  return send<OpenExternalLinkResponse>('OPEN_EXTERNAL_LINK', payload);
 }
 
 /**
- * Luu du lieu vao storage native
- * Event: SET_STORAGE
+ * Mở một Mini App khác từ Mini App hiện tại.
+ * Event: OPEN_MINI_APP
+ * @param payload.data.route (optional) Định tuyến màn hình trong Mini App - "route": {       "screenName": "home"     }
+ * @param payload.data.miniappKey (optional) Key của Mini App cần mở - 
+ * @param payload.data.additional (optional) Dữ liệu bổ sung truyền cho Mini App - "additional": {       "param1": "value1",       "param2": "value2"     }
+ * @param payload.data.launchConfig (optional) Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)	;  
+ * @param payload.data.navStyle (optional) Style cho navigation bar - {       "color": "#FF0000",       "hidden": "false"     }
+ * @param payload.data.tracking (optional) Thông tin tracking - {       "campaign": "promotion",       "utmSource": "miniapp"     }
+ */
+export async function openMiniApp(payload: OpenMiniAppRequest): Promise<MiniAppResponse<OpenMiniAppResponse>> {
+  return send<OpenMiniAppResponse>('OPEN_MINI_APP', payload);
+}
+
+/**
+ * Yêu cầu nhiều quyền user data cùng một lúc.
+ * Event: REQUEST_MULTIPLE_USER_DATA_PERMISSION
  * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.key (required) Key luu tru
- * @param payload.data.value (required) Gia tri can luu
+ * @param payload.data.permissionCodes (required) Danh sách mã quyền
+ * @param payload.data.useSameReason (optional) useSameReason [default: true]
  */
-export async function setStorage(payload: SetStorageRequest): Promise<MiniAppResponse<SetStorageResponse>> {
+export async function requestMultipleUserDataPermission(payload: RequestMultipleUserDataPermissionRequest): Promise<MiniAppResponse<RequestMultipleUserDataPermissionResponse>> {
   const _p: any = { ...payload };
   if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
-  return send<SetStorageResponse>('SET_STORAGE', _p);
+  return send<RequestMultipleUserDataPermissionResponse>('REQUEST_MULTIPLE_USER_DATA_PERMISSION', _p);
 }
 
 /**
- * Doc du lieu tu storage native
- * Event: GET_STORAGE
- * @param payload.data.key (required) Key can doc
+ * Kiểm tra trạng thái nhiều quyền user data cùng lúc.
+ * Event: CHECK_MULTIPLE_USER_DATA_PERMISSION
+ * @note data duoc JSON.stringify() truoc khi gui
+ * @param payload.data.permissionCodes (required) Danh sách mã quyền
  */
-export async function getStorage(payload: GetStorageRequest): Promise<MiniAppResponse<GetStorageResponse>> {
-  return send<GetStorageResponse>('GET_STORAGE', payload);
+export async function checkMultipleUserDataPermission(payload: CheckMultipleUserDataPermissionRequest): Promise<MiniAppResponse<CheckMultipleUserDataPermissionResponse>> {
+  const _p: any = { ...payload };
+  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
+  return send<CheckMultipleUserDataPermissionResponse>('CHECK_MULTIPLE_USER_DATA_PERMISSION', _p);
 }
 
 /**
- * Xoa du lieu theo key trong storage
- * Event: REMOVE_STORAGE
- * @param payload.data.key (required) Key can xoa
+ * Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).
+ * Event: REQUEST_PERMISSION_WITH_CODE
+ * @param payload.data.permissionCode (required) mã quyền
  */
-export async function removeStorage(payload: RemoveStorageRequest): Promise<MiniAppResponse<RemoveStorageResponse>> {
-  return send<RemoveStorageResponse>('REMOVE_STORAGE', payload);
+export async function requestPermissionWithCode(payload: RequestPermissionWithCodeRequest): Promise<MiniAppResponse<RequestPermissionWithCodeResponse>> {
+  return send<RequestPermissionWithCodeResponse>('REQUEST_PERMISSION_WITH_CODE', payload);
 }
 
 /**
- * Hien thi thong bao toast
- * Event: SHOW_TOAST
- * @param payload.data.title (required) Noi dung hien thi
- * @param payload.data.icon (optional) Icon: success | error | loading | none [default: "none"]
- * @param payload.data.duration (optional) Thoi gian hien thi (ms) [default: 2000]
+ * Lấy nhiều trường dữ liệu người dùng từ host app.
+ * Event: GET_MULTIPLE_USER_DATA
+ * @note data duoc JSON.stringify() truoc khi gui
+ * @param payload.data.dataNames (required) Danh sách data cần lấy
  */
-export async function showToast(payload: ShowToastRequest): Promise<MiniAppResponse<ShowToastResponse>> {
-  return send<ShowToastResponse>('SHOW_TOAST', payload);
+export async function getMultipleUserData(payload: GetMultipleUserDataRequest): Promise<MiniAppResponse<GetMultipleUserDataResponse>> {
+  const _p: any = { ...payload };
+  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
+  return send<GetMultipleUserDataResponse>('GET_MULTIPLE_USER_DATA', _p);
 }
 
 /**
- * Hien thi loading
- * Event: SHOW_LOADING
- * @param payload.data.title (optional) Noi dung loading [default: ""]
- * @param payload.data.mask (optional) Hien thi lop phu [default: false]
+ * Kiểm tra trạng thái quyền cụ thể.
+ * Event: CHECK_PERMISSION_WITH_CODE
+ * @param payload.data.permissionCode (required) Tham so 1
  */
-export async function showLoading(payload: ShowLoadingRequest = {} as any): Promise<MiniAppResponse<ShowLoadingResponse>> {
-  return send<ShowLoadingResponse>('SHOW_LOADING', payload);
+export async function checkPermissionWithCode(payload: CheckPermissionWithCodeRequest): Promise<MiniAppResponse<CheckPermissionWithCodeResponse>> {
+  return send<CheckPermissionWithCodeResponse>('CHECK_PERMISSION_WITH_CODE', payload);
 }
 
 /**
- * An loading
- * Event: HIDE_LOADING
+ * Xóa tất cả quyền đã cache ở local.
+ * Event: CLEAR_PERMISSION_CACHE
  */
-export async function hideLoading(): Promise<MiniAppResponse<HideLoadingResponse>> {
-  return send<HideLoadingResponse>('HIDE_LOADING', {});
+export async function clearPermissionCache(payload: ClearPermissionCacheRequest): Promise<MiniAppResponse<ClearPermissionCacheResponse>> {
+  return send<ClearPermissionCacheResponse>('CLEAR_PERMISSION_CACHE', payload);
 }
 
 /**
- * Hien thi hop thoai xac nhan
- * Event: SHOW_DIALOG
- * @param payload.data.title (optional) Tieu de
- * @param payload.data.content (required) Noi dung
- * @param payload.data.confirm_text (optional) Text nut xac nhan [default: "OK"]
- * @param payload.data.cancel_text (optional) Text nut huy [default: "Huy"]
- * @param payload.data.show_cancel (optional) Hien nut huy [default: true]
+ * Yêu cầu mở camera
+ * Event: REQUEST_CAMERA_PERMISSION
  */
-export async function showDialog(payload: ShowDialogRequest): Promise<MiniAppResponse<ShowDialogResponse>> {
-  return send<ShowDialogResponse>('SHOW_DIALOG', payload);
+export async function requestCameraPermission(): Promise<MiniAppResponse<RequestCameraPermissionResponse>> {
+  return send<RequestCameraPermissionResponse>('REQUEST_CAMERA_PERMISSION', {});
 }
 
 /**
- * Chuyen trang (them vao stack)
- * Event: NAVIGATE_TO
- * @param payload.data.url (required) Duong dan trang
- * @param payload.data.params (optional) Tham so truyen theo
+ * Yêu cầu vị trí
+ * Event: REQUEST_LOCATION_PERMISSION
  */
-export async function navigateTo(payload: NavigateToRequest): Promise<MiniAppResponse<NavigateToResponse>> {
-  return send<NavigateToResponse>('NAVIGATE_TO', payload);
+export async function requestLocationPermission(): Promise<MiniAppResponse<RequestLocationPermissionResponse>> {
+  return send<RequestLocationPermissionResponse>('REQUEST_LOCATION_PERMISSION', {});
 }
 
 /**
- * Quay lai trang truoc
- * Event: NAVIGATE_BACK
- * @param payload.data.delta (optional) So trang quay lai [default: 1]
+ * Yêu cầu truy cập ảnh trên thiết bị
+ * Event: REQUEST_PHOTOS_PERMISSION
  */
-export async function navigateBack(payload: NavigateBackRequest = {} as any): Promise<MiniAppResponse<NavigateBackResponse>> {
-  return send<NavigateBackResponse>('NAVIGATE_BACK', payload);
+export async function requestPhotosPermission(): Promise<MiniAppResponse<RequestPhotosPermissionResponse>> {
+  return send<RequestPhotosPermissionResponse>('REQUEST_PHOTOS_PERMISSION', {});
 }
 
 /**
- * Lay access token cua nguoi dung
- * Event: GET_ACCESS_TOKEN
+ * Yêu cầu truy cập video trên thiết bị
+ * Event: REQUEST_VIDEOS_PERMISSION
  */
-export async function getAccessToken(): Promise<MiniAppResponse<GetAccessTokenResponse>> {
-  return send<GetAccessTokenResponse>('GET_ACCESS_TOKEN', {});
+export async function requestVideosPermission(): Promise<MiniAppResponse<RequestVideosPermissionResponse>> {
+  return send<RequestVideosPermissionResponse>('REQUEST_VIDEOS_PERMISSION', {});
 }
 
 /**
- * Mo deep link trong app native
- * Event: OPEN_DEEP_LINK
- * @param payload.data.url (required) Deep link URL
- * @param payload.data.fallback_url (optional) URL du phong neu khong mo duoc
+ * Yêu cầu truy cập audio trên thiết bị
+ * Event: REQUEST_AUDIO_PERMISSION
  */
-export async function openDeepLink(payload: OpenDeepLinkRequest): Promise<MiniAppResponse<OpenDeepLinkResponse>> {
-  return send<OpenDeepLinkResponse>('OPEN_DEEP_LINK', payload);
+export async function requestAudioPermission(): Promise<MiniAppResponse<RequestAudioPermissionResponse>> {
+  return send<RequestAudioPermissionResponse>('REQUEST_AUDIO_PERMISSION', {});
 }
 
 /**
- * Chia se noi dung
- * Event: SHARE
- * @param payload.data.title (required) Tieu de chia se
- * @param payload.data.description (optional) Mo ta
- * @param payload.data.image_url (optional) URL anh
- * @param payload.data.link (optional) Link chia se
+ * Yêu cầu ghi âm trên thiết bị
+ * Event: REQUEST_RECORD_AUDIO_PERMISSION
  */
-export async function share(payload: ShareRequest): Promise<MiniAppResponse<ShareResponse>> {
-  return send<ShareResponse>('SHARE', payload);
+export async function requestRecordAudioPermission(): Promise<MiniAppResponse<RequestRecordAudioPermissionResponse>> {
+  return send<RequestRecordAudioPermissionResponse>('REQUEST_RECORD_AUDIO_PERMISSION', {});
 }
 
 /**
- * Dong miniapp va quay ve app native
- * Event: CLOSE_MINIAPP
+ * Yêu cầu truy cập danh bạ trên thiết bị
+ * Event: REQUEST_CONTACTS_PERMISSION
  */
-export async function closeMiniapp(): Promise<MiniAppResponse<CloseMiniappResponse>> {
-  return send<CloseMiniappResponse>('CLOSE_MINIAPP', {});
+export async function requestContactsPermission(): Promise<MiniAppResponse<RequestContactsPermissionResponse>> {
+  return send<RequestContactsPermissionResponse>('REQUEST_CONTACTS_PERMISSION', {});
+}
+
+/**
+ * Yêu cầu truy cập tài liệu trên thiết bị
+ * Event: REQUEST_DOCUMENT_PERMISSION
+ */
+export async function requestDocumentPermission(): Promise<MiniAppResponse<RequestDocumentPermissionResponse>> {
+  return send<RequestDocumentPermissionResponse>('REQUEST_DOCUMENT_PERMISSION', {});
+}
+
+/**
+ * Yêu cầu thực hiện cuộc gọi trên thiết bị
+ * Event: REQUEST_PHONE_CALL_PERMISSION
+ */
+export async function requestPhoneCallPermission(): Promise<MiniAppResponse<RequestPhoneCallPermissionResponse>> {
+  return send<RequestPhoneCallPermissionResponse>('REQUEST_PHONE_CALL_PERMISSION', {});
+}
+
+/**
+ * 
+ * Event: REQUEST_PAYMENT_PERMISSION
+ */
+export async function requestPaymentPermission(): Promise<MiniAppResponse<RequestPaymentPermissionResponse>> {
+  return send<RequestPaymentPermissionResponse>('REQUEST_PAYMENT_PERMISSION', {});
+}
+
+/**
+ * 
+ * Event: REQUEST_LOGIN_PERMISSION
+ */
+export async function requestLoginPermission(): Promise<MiniAppResponse<RequestLoginPermissionResponse>> {
+  return send<RequestLoginPermissionResponse>('REQUEST_LOGIN_PERMISSION', {});
+}
+
+/**
+ * Yêu cầu xác thực sinh trắc học (vân tay, Face ID).
+ * Event: REQUEST_LOCAL_AUTHENTICATION_PERMISSION
+ */
+export async function requestLocalAuthenticationPermission(): Promise<MiniAppResponse<RequestLocalAuthenticationPermissionResponse>> {
+  return send<RequestLocalAuthenticationPermissionResponse>('REQUEST_LOCAL_AUTHENTICATION_PERMISSION', {});
+}
+
+/**
+ * Kiểm tra quyền camera
+ * Event: CHECK_CAMERA_PERMISSION
+ */
+export async function checkCameraPermission(): Promise<MiniAppResponse<CheckCameraPermissionResponse>> {
+  return send<CheckCameraPermissionResponse>('CHECK_CAMERA_PERMISSION', {});
+}
+
+/**
+ * Kiểm tra quyền vị trí
+ * Event: CHECK_LOCATION_PERMISSION
+ */
+export async function checkLocationPermission(): Promise<MiniAppResponse<CheckLocationPermissionResponse>> {
+  return send<CheckLocationPermissionResponse>('CHECK_LOCATION_PERMISSION', {});
+}
+
+/**
+ * Kiểm tra quyền truy cập ảnh
+ * Event: CHECK_PHOTOS_PERMISSION
+ */
+export async function checkPhotosPermission(): Promise<MiniAppResponse<CheckPhotosPermissionResponse>> {
+  return send<CheckPhotosPermissionResponse>('CHECK_PHOTOS_PERMISSION', {});
+}
+
+/**
+ * Kiểm tra quyền truy cập video
+ * Event: CHECK_VIDEOS_PERMISSION
+ */
+export async function checkVideosPermission(): Promise<MiniAppResponse<CheckVideosPermissionResponse>> {
+  return send<CheckVideosPermissionResponse>('CHECK_VIDEOS_PERMISSION', {});
+}
+
+/**
+ * Kiểm tra quyền truy cập file audio
+ * Event: CHECK_AUDIO_PERMISSION
+ */
+export async function checkAudioPermission(): Promise<MiniAppResponse<CheckAudioPermissionResponse>> {
+  return send<CheckAudioPermissionResponse>('CHECK_AUDIO_PERMISSION', {});
+}
+
+/**
+ * Kiểm tra quyền ghi âm trên thiết bị
+ * Event: CHECK_RECORD_AUDIO_PERMISSION
+ */
+export async function checkRecordAudioPermission(): Promise<MiniAppResponse<CheckRecordAudioPermissionResponse>> {
+  return send<CheckRecordAudioPermissionResponse>('CHECK_RECORD_AUDIO_PERMISSION', {});
+}
+
+/**
+ * Kiểm tra quyền truy cập danh bạ
+ * Event: CHECK_CONTACTS_PERMISSION
+ */
+export async function checkContactsPermission(): Promise<MiniAppResponse<CheckContactsPermissionResponse>> {
+  return send<CheckContactsPermissionResponse>('CHECK_CONTACTS_PERMISSION', {});
+}
+
+/**
+ * Kiểm tra quyền truy cập file tài liệu
+ * Event: CHECK_DOCUMENT_PERMISSION
+ */
+export async function checkDocumentPermission(): Promise<MiniAppResponse<CheckDocumentPermissionResponse>> {
+  return send<CheckDocumentPermissionResponse>('CHECK_DOCUMENT_PERMISSION', {});
+}
+
+/**
+ * Kiểm tra quyền gọi điện
+ * Event: CHECK_PHONE_CALL_PERMISSION
+ */
+export async function checkPhoneCallPermission(): Promise<MiniAppResponse<CheckPhoneCallPermissionResponse>> {
+  return send<CheckPhoneCallPermissionResponse>('CHECK_PHONE_CALL_PERMISSION', {});
+}
+
+/**
+ * 
+ * Event: CHECK_PAYMENT_PERMISSION
+ */
+export async function checkPaymentPermission(): Promise<MiniAppResponse<CheckPaymentPermissionResponse>> {
+  return send<CheckPaymentPermissionResponse>('CHECK_PAYMENT_PERMISSION', {});
+}
+
+/**
+ * 
+ * Event: CHECK_LOGIN_PERMISSION
+ */
+export async function checkLoginPermission(): Promise<MiniAppResponse<CheckLoginPermissionResponse>> {
+  return send<CheckLoginPermissionResponse>('CHECK_LOGIN_PERMISSION', {});
+}
+
+/**
+ * kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).
+ * Event: CHECK_LOCAL_AUTHENTICATION_PERMISSION
+ * @param payload.data.authOptionsParam (optional) 
+ */
+export async function checkLocalAuthenticationPermission(payload: CheckLocalAuthenticationPermissionRequest = {} as any): Promise<MiniAppResponse<CheckLocalAuthenticationPermissionResponse>> {
+  return send<CheckLocalAuthenticationPermissionResponse>('CHECK_LOCAL_AUTHENTICATION_PERMISSION', payload);
+}
+
+/**
+ *  lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).
+ * Event: GET_LOCAL_AUTHENTICATION_STATUS
+ */
+export async function getLocalAuthenticationStatus(): Promise<MiniAppResponse<GetLocalAuthenticationStatusResponse>> {
+  return send<GetLocalAuthenticationStatusResponse>('GET_LOCAL_AUTHENTICATION_STATUS', {});
+}
+
+/**
+ * Truy cập danh bạ
+ * Event: GET_CONTACTS
+ * @param payload.data.filter (optional) 
+ * @param payload.data.pager (optional) 
+ */
+export async function getContacts(payload: GetContactsRequest = {} as any): Promise<MiniAppResponse<GetContactsResponse>> {
+  return send<GetContactsResponse>('GET_CONTACTS', payload);
+}
+
+/**
+ * Mở file tài liệu
+ * Event: PICK_FILE
+ * @note data duoc JSON.stringify() truoc khi gui
+ * @param payload.data.mimeType (required) 
+ * @param payload.data.isCapture (optional) 
+ * @param payload.data.new_field (optional) 
+ */
+export async function pickFile(payload: PickFileRequest = {} as any): Promise<MiniAppResponse<PickFileResponse>> {
+  const _p: any = { ...payload };
+  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
+  return send<PickFileResponse>('PICK_FILE', _p);
+}
+
+/**
+ * Lấy vị trí thiết bị
+ * Event: GET_LOCATION
+ */
+export async function getLocation(): Promise<MiniAppResponse<GetLocationResponse>> {
+  return send<GetLocationResponse>('GET_LOCATION', {});
+}
+
+/**
+ * Thay đổi màu nền status bar.
+ * Event: SET_BACKGROUND_STATUS_BAR_COLOR
+ * @note data duoc JSON.stringify() truoc khi gui
+ * @param payload.color (string) 
+ */
+export async function setBackgroundStatusBarColor(payload: SetBackgroundStatusBarColorRequest = {} as any): Promise<MiniAppResponse<SetBackgroundStatusBarColorResponse>> {
+  const _p: any = { ...payload };
+  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
+  return send<SetBackgroundStatusBarColorResponse>('SET_BACKGROUND_STATUS_BAR_COLOR', _p);
+}
+
+/**
+ * Thay đổi màu nền navigation bar.
+ * Event: SET_NAVIGATION_BAR_COLOR
+ * @note data duoc JSON.stringify() truoc khi gui
+ * @param payload.color (string) 
+ */
+export async function setNavigationBarColor(payload: SetNavigationBarColorRequest = {} as any): Promise<MiniAppResponse<SetNavigationBarColorResponse>> {
+  const _p: any = { ...payload };
+  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
+  return send<SetNavigationBarColorResponse>('SET_NAVIGATION_BAR_COLOR', _p);
+}
+
+/**
+ * Chuyển đổi status bar giữa dark mode và light mode.
+ * Event: UPDATE_STATUS_BAR_APPEARANCE
+ * @note data duoc JSON.stringify() truoc khi gui
+ * @param payload.appearance (string) "LIGHT" hoặc "DARK"
+ */
+export async function updateStatusBarAppearance(payload: UpdateStatusBarAppearanceRequest = {} as any): Promise<MiniAppResponse<UpdateStatusBarAppearanceResponse>> {
+  const _p: any = { ...payload };
+  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
+  return send<UpdateStatusBarAppearanceResponse>('UPDATE_STATUS_BAR_APPEARANCE', _p);
+}
+
+/**
+ * Chuyển đổi navigation bar giữa dark mode và light mode.
+ * Event: UPDATE_NAVIGATION_BAR_APPEARANCE
+ * @note data duoc JSON.stringify() truoc khi gui
+ * @param payload.appearance (string) "LIGHT" hoặc "DARK"
+ */
+export async function updateNavigationBarAppearance(payload: UpdateNavigationBarAppearanceRequest = {} as any): Promise<MiniAppResponse<UpdateNavigationBarAppearanceResponse>> {
+  const _p: any = { ...payload };
+  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
+  return send<UpdateNavigationBarAppearanceResponse>('UPDATE_NAVIGATION_BAR_APPEARANCE', _p);
+}
+
+/**
+ * Mở dialog chia sẻ nội dung text.
+ * Event: SHARE_TEXT_CONTENT
+ * @note data duoc JSON.stringify() truoc khi gui
+ * @param payload.content (string) 
+ */
+export async function shareTextContent(payload: ShareTextContentRequest = {} as any): Promise<MiniAppResponse<ShareTextContentResponse>> {
+  const _p: any = { ...payload };
+  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
+  return send<ShareTextContentResponse>('SHARE_TEXT_CONTENT', _p);
+}
+
+/**
+ * Lấy dữ liệu từ storage theo key.
+ * Event: STORAGE_GET
+ * @param payload.key (string) Key cần lấy
+ */
+export async function storageGet(payload: StorageGetRequest): Promise<MiniAppResponse<StorageGetResponse>> {
+  return send<StorageGetResponse>('STORAGE_GET', payload);
+}
+
+/**
+ * Lưu dữ liệu vào storage theo key.
+ * Event: STORAGE_SET
+ * @param payload.key (string) Key lưu trữ
+ * @param payload.data (any) Dữ liệu cần lưu
+ */
+export async function storageSet(payload: StorageSetRequest): Promise<MiniAppResponse<StorageSetResponse>> {
+  return send<StorageSetResponse>('STORAGE_SET', payload);
+}
+
+/**
+ * Xóa dữ liệu từ storage theo key.
+ * Event: STORAGE_REMOVE
+ * @param payload.key (string) Key cần xóa
+ */
+export async function storageRemove(payload: StorageRemoveRequest): Promise<MiniAppResponse<StorageRemoveResponse>> {
+  return send<StorageRemoveResponse>('STORAGE_REMOVE', payload);
+}
+
+/**
+ * Xóa toàn bộ dữ liệu trong storage.
+ * Event: STORAGE_CLEAR
+ */
+export async function storageClear(): Promise<MiniAppResponse<StorageClearResponse>> {
+  return send<StorageClearResponse>('STORAGE_CLEAR', {});
+}
+
+/**
+ * Lấy thông tin dung lượng storage.
+ * Event: STORAGE_INFO
+ */
+export async function storageInfo(): Promise<MiniAppResponse<StorageInfoResponse>> {
+  return send<StorageInfoResponse>('STORAGE_INFO', {});
+}
+
+/**
+ * Hiển thị toast notification.
+ * Event: UI_SHOW_TOAST
+ * @param payload.title (string) Nội dung toast
+ * @param payload.icon (string) Icon: success | error | loading | none
+ * @param payload.duration (number) Thời gian hiển thị (ms)
+ */
+export async function uiShowToast(payload: UiShowToastRequest): Promise<MiniAppResponse<UiShowToastResponse>> {
+  return send<UiShowToastResponse>('UI_SHOW_TOAST', payload);
+}
+
+/**
+ * Ẩn toast hiện tại.
+ * Event: UI_HIDE_TOAST
+ */
+export async function uiHideToast(): Promise<MiniAppResponse<UiHideToastResponse>> {
+  return send<UiHideToastResponse>('UI_HIDE_TOAST', {});
+}
+
+/**
+ * Hiển thị loading indicator.
+ * Event: UI_SHOW_LOADING
+ * @param payload.title (string) Text hiển thị
+ * @param payload.mask (boolean) Hiện overlay chặn tương tác
+ */
+export async function uiShowLoading(payload: UiShowLoadingRequest = {} as any): Promise<MiniAppResponse<UiShowLoadingResponse>> {
+  return send<UiShowLoadingResponse>('UI_SHOW_LOADING', payload);
+}
+
+/**
+ * Ẩn loading indicator.
+ * Event: UI_HIDE_LOADING
+ */
+export async function uiHideLoading(): Promise<MiniAppResponse<UiHideLoadingResponse>> {
+  return send<UiHideLoadingResponse>('UI_HIDE_LOADING', {});
+}
+
+/**
+ * Hiển thị dialog xác nhận.
+ * Event: UI_SHOW_DIALOG
+ * @param payload.title (string) Tiêu đề dialog
+ * @param payload.content (string) Nội dung dialog
+ * @param payload.confirmText (string) Text nút xác nhận
+ * @param payload.cancelText (string) Text nút hủy
+ * @param payload.showCancel (boolean) Hiện nút hủy
+ */
+export async function uiShowDialog(payload: UiShowDialogRequest): Promise<MiniAppResponse<UiShowDialogResponse>> {
+  return send<UiShowDialogResponse>('UI_SHOW_DIALOG', payload);
+}
+
+/**
+ * Hiển thị action sheet.
+ * Event: UI_SHOW_ACTION_SHEET
+ * @param payload.itemList (array) Danh sách lựa chọn
+ */
+export async function uiShowActionSheet(payload: UiShowActionSheetRequest): Promise<MiniAppResponse<UiShowActionSheetResponse>> {
+  return send<UiShowActionSheetResponse>('UI_SHOW_ACTION_SHEET', payload);
+}
+
+/**
+ * Mở trang mới (thêm vào navigation stack).
+ * Event: NAVIGATOR_PUSH
+ * @param payload.url (string) URL trang đích
+ */
+export async function navigatorPush(payload: NavigatorPushRequest): Promise<MiniAppResponse<NavigatorPushResponse>> {
+  return send<NavigatorPushResponse>('NAVIGATOR_PUSH', payload);
+}
+
+/**
+ * Quay lại trang trước.
+ * Event: NAVIGATOR_POP
+ * @param payload.delta (number) Số trang quay lại (mặc định 1)
+ */
+export async function navigatorPop(payload: NavigatorPopRequest = {} as any): Promise<MiniAppResponse<NavigatorPopResponse>> {
+  return send<NavigatorPopResponse>('NAVIGATOR_POP', payload);
+}
+
+/**
+ * Chuyển sang tab khác.
+ * Event: NAVIGATOR_SWITCH_TAB
+ * @param payload.url (string) URL của tab
+ */
+export async function navigatorSwitchTab(payload: NavigatorSwitchTabRequest): Promise<MiniAppResponse<NavigatorSwitchTabResponse>> {
+  return send<NavigatorSwitchTabResponse>('NAVIGATOR_SWITCH_TAB', payload);
+}
+
+/**
+ * Redirect (thay thế trang hiện tại).
+ * Event: NAVIGATOR_REDIRECT
+ * @param payload.url (string) URL trang đích
+ */
+export async function navigatorRedirect(payload: NavigatorRedirectRequest): Promise<MiniAppResponse<NavigatorRedirectResponse>> {
+  return send<NavigatorRedirectResponse>('NAVIGATOR_REDIRECT', payload);
+}
+
+/**
+ * Quay về trang chủ và xóa navigation stack.
+ * Event: NAVIGATOR_RE_LAUNCH
+ * @param payload.url (string) URL trang chủ
+ */
+export async function navigatorReLaunch(payload: NavigatorReLaunchRequest): Promise<MiniAppResponse<NavigatorReLaunchResponse>> {
+  return send<NavigatorReLaunchResponse>('NAVIGATOR_RE_LAUNCH', payload);
 }
 
 // ============================================================
@@ -257,19 +724,16 @@ export async function closeMiniapp(): Promise<MiniAppResponse<CloseMiniappRespon
  * Noi generated API voi MiniApp instance.
  * Goi 1 lan trong getSharedInstance() hoac constructor cua adapter.
  */
-export function wireToMiniApp(app: { invoke(api: string, data?: any): Promise<any> }): void {
-  initMiniAppAPI((request) => {
-    const { event: _evt, sender: _s, request_id: _rid, ...payload } = request;
-    return app.invoke(_evt, payload).then((raw): MiniAppResponseBase & Record<string, any> => {
-      // Native da tra ve response day du
+export function wireToMiniApp(app: { sendRaw(msg: MiniAppRequestBase): Promise<any> }): void {
+  initMiniAppAPI((msg) => {
+    return app.sendRaw(msg).then((raw): MiniAppResponseBase & Record<string, any> => {
       if (raw && raw.eventStatus) return raw;
-      // Wrap raw thanh response
       const data = typeof raw === 'object' && raw !== null ? raw : { data: raw };
       return {
-        event: _evt,
+        event: msg.event || '',
         sender: 'MINIAPP_SDK',
         response_id: '',
-        request_id: _rid,
+        request_id: msg.request_id || '',
         ...data,
         eventStatus: { errorCode: 'SDK000', errorMessageVN: 'Thanh cong', errorMessageEN: 'Success', realMsg: '' },
         errorData: '',
@@ -284,40 +748,126 @@ export function wireToMiniApp(app: { invoke(api: string, data?: any): Promise<an
 // ============================================================
 
 export const MiniAppAPI = {
-  /** Lay thong tin nguoi dung */
-  getUserInfo,
-  /** Lay vi tri hien tai */
+  /** Mở một WebView mới với URL và cấu hình tùy chỉnh. */
+  appOpenWebview,
+  /** Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài. */
+  appOpenStore,
+  /** Đóng Mini App và điều hướng về màn hình khác. */
+  exit,
+  /** Mở URL bằng browser mặc định của hệ thống. */
+  openExternalLink,
+  /** Mở một Mini App khác từ Mini App hiện tại. */
+  openMiniApp,
+  /** Yêu cầu nhiều quyền user data cùng một lúc. */
+  requestMultipleUserDataPermission,
+  /** Kiểm tra trạng thái nhiều quyền user data cùng lúc. */
+  checkMultipleUserDataPermission,
+  /** Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level). */
+  requestPermissionWithCode,
+  /** Lấy nhiều trường dữ liệu người dùng từ host app. */
+  getMultipleUserData,
+  /** Kiểm tra trạng thái quyền cụ thể. */
+  checkPermissionWithCode,
+  /** Xóa tất cả quyền đã cache ở local. */
+  clearPermissionCache,
+  /** Yêu cầu mở camera */
+  requestCameraPermission,
+  /** Yêu cầu vị trí */
+  requestLocationPermission,
+  /** Yêu cầu truy cập ảnh trên thiết bị */
+  requestPhotosPermission,
+  /** Yêu cầu truy cập video trên thiết bị */
+  requestVideosPermission,
+  /** Yêu cầu truy cập audio trên thiết bị */
+  requestAudioPermission,
+  /** Yêu cầu ghi âm trên thiết bị */
+  requestRecordAudioPermission,
+  /** Yêu cầu truy cập danh bạ trên thiết bị */
+  requestContactsPermission,
+  /** Yêu cầu truy cập tài liệu trên thiết bị */
+  requestDocumentPermission,
+  /** Yêu cầu thực hiện cuộc gọi trên thiết bị */
+  requestPhoneCallPermission,
+  /**  */
+  requestPaymentPermission,
+  /**  */
+  requestLoginPermission,
+  /** Yêu cầu xác thực sinh trắc học (vân tay, Face ID). */
+  requestLocalAuthenticationPermission,
+  /** Kiểm tra quyền camera */
+  checkCameraPermission,
+  /** Kiểm tra quyền vị trí */
+  checkLocationPermission,
+  /** Kiểm tra quyền truy cập ảnh */
+  checkPhotosPermission,
+  /** Kiểm tra quyền truy cập video */
+  checkVideosPermission,
+  /** Kiểm tra quyền truy cập file audio */
+  checkAudioPermission,
+  /** Kiểm tra quyền ghi âm trên thiết bị */
+  checkRecordAudioPermission,
+  /** Kiểm tra quyền truy cập danh bạ */
+  checkContactsPermission,
+  /** Kiểm tra quyền truy cập file tài liệu */
+  checkDocumentPermission,
+  /** Kiểm tra quyền gọi điện */
+  checkPhoneCallPermission,
+  /**  */
+  checkPaymentPermission,
+  /**  */
+  checkLoginPermission,
+  /** kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID). */
+  checkLocalAuthenticationPermission,
+  /**  lấy trạng thái xác thực sinh trắc học (vân tay, Face ID). */
+  getLocalAuthenticationStatus,
+  /** Truy cập danh bạ */
+  getContacts,
+  /** Mở file tài liệu */
+  pickFile,
+  /** Lấy vị trí thiết bị */
   getLocation,
-  /** Mo camera quet ma QR */
-  scanQrCode,
-  /** Lay thong tin thiet bi va he dieu hanh */
-  getSystemInfo,
-  /** Luu du lieu vao storage native */
-  setStorage,
-  /** Doc du lieu tu storage native */
-  getStorage,
-  /** Xoa du lieu theo key trong storage */
-  removeStorage,
-  /** Hien thi thong bao toast */
-  showToast,
-  /** Hien thi loading */
-  showLoading,
-  /** An loading */
-  hideLoading,
-  /** Hien thi hop thoai xac nhan */
-  showDialog,
-  /** Chuyen trang (them vao stack) */
-  navigateTo,
-  /** Quay lai trang truoc */
-  navigateBack,
-  /** Lay access token cua nguoi dung */
-  getAccessToken,
-  /** Mo deep link trong app native */
-  openDeepLink,
-  /** Chia se noi dung */
-  share,
-  /** Dong miniapp va quay ve app native */
-  closeMiniapp,
+  /** Thay đổi màu nền status bar. */
+  setBackgroundStatusBarColor,
+  /** Thay đổi màu nền navigation bar. */
+  setNavigationBarColor,
+  /** Chuyển đổi status bar giữa dark mode và light mode. */
+  updateStatusBarAppearance,
+  /** Chuyển đổi navigation bar giữa dark mode và light mode. */
+  updateNavigationBarAppearance,
+  /** Mở dialog chia sẻ nội dung text. */
+  shareTextContent,
+  /** Lấy dữ liệu từ storage theo key. */
+  storageGet,
+  /** Lưu dữ liệu vào storage theo key. */
+  storageSet,
+  /** Xóa dữ liệu từ storage theo key. */
+  storageRemove,
+  /** Xóa toàn bộ dữ liệu trong storage. */
+  storageClear,
+  /** Lấy thông tin dung lượng storage. */
+  storageInfo,
+  /** Hiển thị toast notification. */
+  uiShowToast,
+  /** Ẩn toast hiện tại. */
+  uiHideToast,
+  /** Hiển thị loading indicator. */
+  uiShowLoading,
+  /** Ẩn loading indicator. */
+  uiHideLoading,
+  /** Hiển thị dialog xác nhận. */
+  uiShowDialog,
+  /** Hiển thị action sheet. */
+  uiShowActionSheet,
+  /** Mở trang mới (thêm vào navigation stack). */
+  navigatorPush,
+  /** Quay lại trang trước. */
+  navigatorPop,
+  /** Chuyển sang tab khác. */
+  navigatorSwitchTab,
+  /** Redirect (thay thế trang hiện tại). */
+  navigatorRedirect,
+  /** Quay về trang chủ và xóa navigation stack. */
+  navigatorReLaunch,
   /** Kiem tra response thanh cong */
   isSuccess,
   /** Khoi tao API module */
