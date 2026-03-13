@@ -24,7 +24,8 @@
       "Bash(/tmp/test_imports.txt:*)",
       "Read(//tmp/**)",
       "Bash(npx tsc:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(node demo/demo.js)"
     ]
   }
 }

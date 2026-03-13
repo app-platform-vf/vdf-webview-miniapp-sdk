@@ -91,7 +91,39 @@ import type {
   UpdateNavigationBarAppearanceRequest,
   UpdateNavigationBarAppearanceResponse,
   ShareTextContentRequest,
-  ShareTextContentResponse
+  ShareTextContentResponse,
+  StorageGetRequest,
+  StorageGetResponse,
+  StorageSetRequest,
+  StorageSetResponse,
+  StorageRemoveRequest,
+  StorageRemoveResponse,
+  StorageClearRequest,
+  StorageClearResponse,
+  StorageInfoRequest,
+  StorageInfoResponse,
+  UiShowToastRequest,
+  UiShowToastResponse,
+  UiHideToastRequest,
+  UiHideToastResponse,
+  UiShowLoadingRequest,
+  UiShowLoadingResponse,
+  UiHideLoadingRequest,
+  UiHideLoadingResponse,
+  UiShowDialogRequest,
+  UiShowDialogResponse,
+  UiShowActionSheetRequest,
+  UiShowActionSheetResponse,
+  NavigatorPushRequest,
+  NavigatorPushResponse,
+  NavigatorPopRequest,
+  NavigatorPopResponse,
+  NavigatorSwitchTabRequest,
+  NavigatorSwitchTabResponse,
+  NavigatorRedirectRequest,
+  NavigatorRedirectResponse,
+  NavigatorReLaunchRequest,
+  NavigatorReLaunchResponse
 } from './types.generated';
 
 /** Map event name -> [RequestType, ResponseType] */
@@ -140,6 +172,22 @@ export interface MiniAppEventMap {
   'UPDATE_STATUS_BAR_APPEARANCE': [UpdateStatusBarAppearanceRequest, UpdateStatusBarAppearanceResponse];
   'UPDATE_NAVIGATION_BAR_APPEARANCE': [UpdateNavigationBarAppearanceRequest, UpdateNavigationBarAppearanceResponse];
   'SHARE_TEXT_CONTENT': [ShareTextContentRequest, ShareTextContentResponse];
+  'STORAGE_GET': [StorageGetRequest, StorageGetResponse];
+  'STORAGE_SET': [StorageSetRequest, StorageSetResponse];
+  'STORAGE_REMOVE': [StorageRemoveRequest, StorageRemoveResponse];
+  'STORAGE_CLEAR': [StorageClearRequest, StorageClearResponse];
+  'STORAGE_INFO': [StorageInfoRequest, StorageInfoResponse];
+  'UI_SHOW_TOAST': [UiShowToastRequest, UiShowToastResponse];
+  'UI_HIDE_TOAST': [UiHideToastRequest, UiHideToastResponse];
+  'UI_SHOW_LOADING': [UiShowLoadingRequest, UiShowLoadingResponse];
+  'UI_HIDE_LOADING': [UiHideLoadingRequest, UiHideLoadingResponse];
+  'UI_SHOW_DIALOG': [UiShowDialogRequest, UiShowDialogResponse];
+  'UI_SHOW_ACTION_SHEET': [UiShowActionSheetRequest, UiShowActionSheetResponse];
+  'NAVIGATOR_PUSH': [NavigatorPushRequest, NavigatorPushResponse];
+  'NAVIGATOR_POP': [NavigatorPopRequest, NavigatorPopResponse];
+  'NAVIGATOR_SWITCH_TAB': [NavigatorSwitchTabRequest, NavigatorSwitchTabResponse];
+  'NAVIGATOR_REDIRECT': [NavigatorRedirectRequest, NavigatorRedirectResponse];
+  'NAVIGATOR_RE_LAUNCH': [NavigatorReLaunchRequest, NavigatorReLaunchResponse];
 }
 
 /** Danh sach event name constants */
@@ -232,4 +280,36 @@ export const MINIAPP_EVENTS = {
   updateNavigationBarAppearance: 'UPDATE_NAVIGATION_BAR_APPEARANCE' as const,
   /** Mở dialog chia sẻ nội dung text. */
   shareTextContent: 'SHARE_TEXT_CONTENT' as const,
+  /** Lấy dữ liệu từ storage theo key. */
+  storageGet: 'STORAGE_GET' as const,
+  /** Lưu dữ liệu vào storage theo key. */
+  storageSet: 'STORAGE_SET' as const,
+  /** Xóa dữ liệu từ storage theo key. */
+  storageRemove: 'STORAGE_REMOVE' as const,
+  /** Xóa toàn bộ dữ liệu trong storage. */
+  storageClear: 'STORAGE_CLEAR' as const,
+  /** Lấy thông tin dung lượng storage. */
+  storageInfo: 'STORAGE_INFO' as const,
+  /** Hiển thị toast notification. */
+  uiShowToast: 'UI_SHOW_TOAST' as const,
+  /** Ẩn toast hiện tại. */
+  uiHideToast: 'UI_HIDE_TOAST' as const,
+  /** Hiển thị loading indicator. */
+  uiShowLoading: 'UI_SHOW_LOADING' as const,
+  /** Ẩn loading indicator. */
+  uiHideLoading: 'UI_HIDE_LOADING' as const,
+  /** Hiển thị dialog xác nhận. */
+  uiShowDialog: 'UI_SHOW_DIALOG' as const,
+  /** Hiển thị action sheet. */
+  uiShowActionSheet: 'UI_SHOW_ACTION_SHEET' as const,
+  /** Mở trang mới (thêm vào navigation stack). */
+  navigatorPush: 'NAVIGATOR_PUSH' as const,
+  /** Quay lại trang trước. */
+  navigatorPop: 'NAVIGATOR_POP' as const,
+  /** Chuyển sang tab khác. */
+  navigatorSwitchTab: 'NAVIGATOR_SWITCH_TAB' as const,
+  /** Redirect (thay thế trang hiện tại). */
+  navigatorRedirect: 'NAVIGATOR_REDIRECT' as const,
+  /** Quay về trang chủ và xóa navigation stack. */
+  navigatorReLaunch: 'NAVIGATOR_RE_LAUNCH' as const,
 };

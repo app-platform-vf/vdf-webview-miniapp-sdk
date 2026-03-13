@@ -7,11 +7,10 @@
     "scripts": {
         "create-event": "node packages/core/src/event.js",
         "doc": "node build-doc.js",
-        "build": "npm run build --workspace packages/core && npm run build --workspace packages/react && npm run build --workspace packages/vue && npm run build --workspace packages/angular",
-        "pack": "npm run build && if not exist dist mkdir dist && npm pack --workspace packages/core --workspace packages/react --workspace packages/vue --workspace packages/angular --pack-destination ./dist"
+        "build": "npm run build --workspace packages/core",
+        "pack": "npm run create-event && (if not exist node_modules npm install) && npm run build && (if not exist dist mkdir dist) && npm pack --workspace packages/core --pack-destination ./dist"
     },
     "devDependencies": {
-        "@types/react": "^19.2.14",
         "typescript": "^5.9.3"
     }
 }

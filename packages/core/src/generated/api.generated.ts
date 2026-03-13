@@ -94,41 +94,61 @@ import type {
   UpdateNavigationBarAppearanceRequest,
   UpdateNavigationBarAppearanceResponse,
   ShareTextContentRequest,
-  ShareTextContentResponse
+  ShareTextContentResponse,
+  StorageGetRequest,
+  StorageGetResponse,
+  StorageSetRequest,
+  StorageSetResponse,
+  StorageRemoveRequest,
+  StorageRemoveResponse,
+  StorageClearRequest,
+  StorageClearResponse,
+  StorageInfoRequest,
+  StorageInfoResponse,
+  UiShowToastRequest,
+  UiShowToastResponse,
+  UiHideToastRequest,
+  UiHideToastResponse,
+  UiShowLoadingRequest,
+  UiShowLoadingResponse,
+  UiHideLoadingRequest,
+  UiHideLoadingResponse,
+  UiShowDialogRequest,
+  UiShowDialogResponse,
+  UiShowActionSheetRequest,
+  UiShowActionSheetResponse,
+  NavigatorPushRequest,
+  NavigatorPushResponse,
+  NavigatorPopRequest,
+  NavigatorPopResponse,
+  NavigatorSwitchTabRequest,
+  NavigatorSwitchTabResponse,
+  NavigatorRedirectRequest,
+  NavigatorRedirectResponse,
+  NavigatorReLaunchRequest,
+  NavigatorReLaunchResponse
 } from './types.generated';
-
-const SENDER = 'MINIAPP_WEBVIEW';
-
-function generateRequestId(): string {
-  return `req_${Date.now()}_${Math.random().toString(36).slice(8)}`;
-}
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */
 export function isSuccess(response: MiniAppResponseBase): boolean {
   return response.eventStatus?.errorCode === 'SDK000';
 }
 
-type SendMessageFn = (message: MiniAppRequestBase & Record<string, any>) => Promise<MiniAppResponseBase & Record<string, any>>;
+type SendRawFn = (message: MiniAppRequestBase) => Promise<any>;
 
-let _sendMessage: SendMessageFn | null = null;
+let _sendRaw: SendRawFn | null = null;
 
 /**
  * Khoi tao module API voi ham gui message
  * Goi 1 lan khi setup MiniApp SDK
  */
-export function initMiniAppAPI(sendFn: SendMessageFn): void {
-  _sendMessage = sendFn;
+export function initMiniAppAPI(sendFn: SendRawFn): void {
+  _sendRaw = sendFn;
 }
 
 function send<TRes>(event: string, payload: Record<string, any>): Promise<MiniAppResponse<TRes>> {
-  if (!_sendMessage) throw new Error('MiniApp API chua duoc khoi tao. Goi initMiniAppAPI() truoc.');
-  const request: MiniAppRequestBase & Record<string, any> = {
-    event,
-    sender: SENDER,
-    request_id: generateRequestId(),
-    ...payload,
-  };
-  return _sendMessage(request) as Promise<MiniAppResponse<TRes>>;
+  if (!_sendRaw) throw new Error('MiniApp API chua duoc khoi tao. Goi wireToMiniApp() truoc.');
+  return _sendRaw({ event, sender: '', request_id: '', ...payload }) as Promise<MiniAppResponse<TRes>>;
 }
 
 // ============================================================
@@ -548,6 +568,154 @@ export async function shareTextContent(payload: ShareTextContentRequest = {} as 
   return send<ShareTextContentResponse>('SHARE_TEXT_CONTENT', _p);
 }
 
+/**
+ * Lấy dữ liệu từ storage theo key.
+ * Event: STORAGE_GET
+ * @param payload.key (string) Key cần lấy
+ */
+export async function storageGet(payload: StorageGetRequest): Promise<MiniAppResponse<StorageGetResponse>> {
+  return send<StorageGetResponse>('STORAGE_GET', payload);
+}
+
+/**
+ * Lưu dữ liệu vào storage theo key.
+ * Event: STORAGE_SET
+ * @param payload.key (string) Key lưu trữ
+ * @param payload.data (any) Dữ liệu cần lưu
+ */
+export async function storageSet(payload: StorageSetRequest): Promise<MiniAppResponse<StorageSetResponse>> {
+  return send<StorageSetResponse>('STORAGE_SET', payload);
+}
+
+/**
+ * Xóa dữ liệu từ storage theo key.
+ * Event: STORAGE_REMOVE
+ * @param payload.key (string) Key cần xóa
+ */
+export async function storageRemove(payload: StorageRemoveRequest): Promise<MiniAppResponse<StorageRemoveResponse>> {
+  return send<StorageRemoveResponse>('STORAGE_REMOVE', payload);
+}
+
+/**
+ * Xóa toàn bộ dữ liệu trong storage.
+ * Event: STORAGE_CLEAR
+ */
+export async function storageClear(): Promise<MiniAppResponse<StorageClearResponse>> {
+  return send<StorageClearResponse>('STORAGE_CLEAR', {});
+}
+
+/**
+ * Lấy thông tin dung lượng storage.
+ * Event: STORAGE_INFO
+ */
+export async function storageInfo(): Promise<MiniAppResponse<StorageInfoResponse>> {
+  return send<StorageInfoResponse>('STORAGE_INFO', {});
+}
+
+/**
+ * Hiển thị toast notification.
+ * Event: UI_SHOW_TOAST
+ * @param payload.title (string) Nội dung toast
+ * @param payload.icon (string) Icon: success | error | loading | none
+ * @param payload.duration (number) Thời gian hiển thị (ms)
+ */
+export async function uiShowToast(payload: UiShowToastRequest): Promise<MiniAppResponse<UiShowToastResponse>> {
+  return send<UiShowToastResponse>('UI_SHOW_TOAST', payload);
+}
+
+/**
+ * Ẩn toast hiện tại.
+ * Event: UI_HIDE_TOAST
+ */
+export async function uiHideToast(): Promise<MiniAppResponse<UiHideToastResponse>> {
+  return send<UiHideToastResponse>('UI_HIDE_TOAST', {});
+}
+
+/**
+ * Hiển thị loading indicator.
+ * Event: UI_SHOW_LOADING
+ * @param payload.title (string) Text hiển thị
+ * @param payload.mask (boolean) Hiện overlay chặn tương tác
+ */
+export async function uiShowLoading(payload: UiShowLoadingRequest = {} as any): Promise<MiniAppResponse<UiShowLoadingResponse>> {
+  return send<UiShowLoadingResponse>('UI_SHOW_LOADING', payload);
+}
+
+/**
+ * Ẩn loading indicator.
+ * Event: UI_HIDE_LOADING
+ */
+export async function uiHideLoading(): Promise<MiniAppResponse<UiHideLoadingResponse>> {
+  return send<UiHideLoadingResponse>('UI_HIDE_LOADING', {});
+}
+
+/**
+ * Hiển thị dialog xác nhận.
+ * Event: UI_SHOW_DIALOG
+ * @param payload.title (string) Tiêu đề dialog
+ * @param payload.content (string) Nội dung dialog
+ * @param payload.confirmText (string) Text nút xác nhận
+ * @param payload.cancelText (string) Text nút hủy
+ * @param payload.showCancel (boolean) Hiện nút hủy
+ */
+export async function uiShowDialog(payload: UiShowDialogRequest): Promise<MiniAppResponse<UiShowDialogResponse>> {
+  return send<UiShowDialogResponse>('UI_SHOW_DIALOG', payload);
+}
+
+/**
+ * Hiển thị action sheet.
+ * Event: UI_SHOW_ACTION_SHEET
+ * @param payload.itemList (array) Danh sách lựa chọn
+ */
+export async function uiShowActionSheet(payload: UiShowActionSheetRequest): Promise<MiniAppResponse<UiShowActionSheetResponse>> {
+  return send<UiShowActionSheetResponse>('UI_SHOW_ACTION_SHEET', payload);
+}
+
+/**
+ * Mở trang mới (thêm vào navigation stack).
+ * Event: NAVIGATOR_PUSH
+ * @param payload.url (string) URL trang đích
+ */
+export async function navigatorPush(payload: NavigatorPushRequest): Promise<MiniAppResponse<NavigatorPushResponse>> {
+  return send<NavigatorPushResponse>('NAVIGATOR_PUSH', payload);
+}
+
+/**
+ * Quay lại trang trước.
+ * Event: NAVIGATOR_POP
+ * @param payload.delta (number) Số trang quay lại (mặc định 1)
+ */
+export async function navigatorPop(payload: NavigatorPopRequest = {} as any): Promise<MiniAppResponse<NavigatorPopResponse>> {
+  return send<NavigatorPopResponse>('NAVIGATOR_POP', payload);
+}
+
+/**
+ * Chuyển sang tab khác.
+ * Event: NAVIGATOR_SWITCH_TAB
+ * @param payload.url (string) URL của tab
+ */
+export async function navigatorSwitchTab(payload: NavigatorSwitchTabRequest): Promise<MiniAppResponse<NavigatorSwitchTabResponse>> {
+  return send<NavigatorSwitchTabResponse>('NAVIGATOR_SWITCH_TAB', payload);
+}
+
+/**
+ * Redirect (thay thế trang hiện tại).
+ * Event: NAVIGATOR_REDIRECT
+ * @param payload.url (string) URL trang đích
+ */
+export async function navigatorRedirect(payload: NavigatorRedirectRequest): Promise<MiniAppResponse<NavigatorRedirectResponse>> {
+  return send<NavigatorRedirectResponse>('NAVIGATOR_REDIRECT', payload);
+}
+
+/**
+ * Quay về trang chủ và xóa navigation stack.
+ * Event: NAVIGATOR_RE_LAUNCH
+ * @param payload.url (string) URL trang chủ
+ */
+export async function navigatorReLaunch(payload: NavigatorReLaunchRequest): Promise<MiniAppResponse<NavigatorReLaunchResponse>> {
+  return send<NavigatorReLaunchResponse>('NAVIGATOR_RE_LAUNCH', payload);
+}
+
 // ============================================================
 // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
 // ============================================================
@@ -556,19 +724,16 @@ export async function shareTextContent(payload: ShareTextContentRequest = {} as 
  * Noi generated API voi MiniApp instance.
  * Goi 1 lan trong getSharedInstance() hoac constructor cua adapter.
  */
-export function wireToMiniApp(app: { invoke(api: string, data?: any): Promise<any> }): void {
-  initMiniAppAPI((request) => {
-    const { event: _evt, sender: _s, request_id: _rid, ...payload } = request;
-    return app.invoke(_evt, payload).then((raw): MiniAppResponseBase & Record<string, any> => {
-      // Native da tra ve response day du
+export function wireToMiniApp(app: { sendRaw(msg: MiniAppRequestBase): Promise<any> }): void {
+  initMiniAppAPI((msg) => {
+    return app.sendRaw(msg).then((raw): MiniAppResponseBase & Record<string, any> => {
       if (raw && raw.eventStatus) return raw;
-      // Wrap raw thanh response
       const data = typeof raw === 'object' && raw !== null ? raw : { data: raw };
       return {
-        event: _evt,
+        event: msg.event || '',
         sender: 'MINIAPP_SDK',
         response_id: '',
-        request_id: _rid,
+        request_id: msg.request_id || '',
         ...data,
         eventStatus: { errorCode: 'SDK000', errorMessageVN: 'Thanh cong', errorMessageEN: 'Success', realMsg: '' },
         errorData: '',
@@ -671,6 +836,38 @@ export const MiniAppAPI = {
   updateNavigationBarAppearance,
   /** Mở dialog chia sẻ nội dung text. */
   shareTextContent,
+  /** Lấy dữ liệu từ storage theo key. */
+  storageGet,
+  /** Lưu dữ liệu vào storage theo key. */
+  storageSet,
+  /** Xóa dữ liệu từ storage theo key. */
+  storageRemove,
+  /** Xóa toàn bộ dữ liệu trong storage. */
+  storageClear,
+  /** Lấy thông tin dung lượng storage. */
+  storageInfo,
+  /** Hiển thị toast notification. */
+  uiShowToast,
+  /** Ẩn toast hiện tại. */
+  uiHideToast,
+  /** Hiển thị loading indicator. */
+  uiShowLoading,
+  /** Ẩn loading indicator. */
+  uiHideLoading,
+  /** Hiển thị dialog xác nhận. */
+  uiShowDialog,
+  /** Hiển thị action sheet. */
+  uiShowActionSheet,
+  /** Mở trang mới (thêm vào navigation stack). */
+  navigatorPush,
+  /** Quay lại trang trước. */
+  navigatorPop,
+  /** Chuyển sang tab khác. */
+  navigatorSwitchTab,
+  /** Redirect (thay thế trang hiện tại). */
+  navigatorRedirect,
+  /** Quay về trang chủ và xóa navigation stack. */
+  navigatorReLaunch,
   /** Kiem tra response thanh cong */
   isSuccess,
   /** Khoi tao API module */

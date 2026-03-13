@@ -1,119 +1,39 @@
 <div class="container">
     <h1>MiniApp SDK - Angular Demo</h1>
 
-    <!-- Lifecycle -->
+    <!-- Input JSON -->
     <section>
-        <h3 class="section-title">Lifecycle</h3>
+        <h3 class="section-title">Input Data (JSON)</h3>
+        <textarea
+            [(ngModel)]="inputValue"
+            placeholder='{"data":{"url":"https://example.com"}}'
+            class="input-area"
+        ></textarea>
+    </section>
+
+    <!-- Event groups -->
+    <section *ngFor="let group of groups">
+        <h3 class="section-title">{{ group.title }}</h3>
         <div class="btn-group">
-            <button class="btn" (click)="onReady()">ready()</button>
+            <div *ngFor="let evt of group.events" class="evt-wrap">
+                <button class="btn" (click)="showPopup(evt)" [title]="evt.desc">{{ evt.name }}</button>
+                <div class="popup" *ngIf="popup?.name === evt.name">
+                    <div class="popup-title">{{ evt.event }}</div>
+                    <div class="popup-desc" *ngIf="evt.desc">{{ evt.desc }}</div>
+                    <div class="popup-actions">
+                        <button class="btn btn-run" (click)="runEvent(evt)">Run</button>
+                        <button class="btn btn-fill" *ngIf="evt.hasParams" (click)="fillInput(evt)">Fill Input</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Input -->
+    <!-- Generic invoke -->
     <section>
-        <h3 class="section-title">Input</h3>
+        <h3 class="section-title">Generic invoke()</h3>
         <div class="btn-group">
-            <input type="text" placeholder="Type something..." [(ngModel)]="inputValue" />
-        </div>
-    </section>
-
-    <!-- Storage -->
-    <section>
-        <h3 class="section-title">Storage API</h3>
-        <div class="btn-group">
-            <button class="btn" (click)="run('storage.set', storageSet)">storage.set</button>
-            <button class="btn" (click)="run('storage.get', storageGet)">storage.get</button>
-            <button class="btn" (click)="run('storage.remove', storageRemove)">storage.remove</button>
-            <button class="btn" (click)="run('storage.clear', storageClear)">storage.clear</button>
-            <button class="btn" (click)="run('storage.info', storageInfo)">storage.info</button>
-        </div>
-    </section>
-
-    <!-- UI -->
-    <section>
-        <h3 class="section-title">UI API</h3>
-        <div class="btn-group">
-            <button class="btn" (click)="run('showToast', showToast)">showToast</button>
-            <button class="btn" (click)="run('showLoading', showLoading)">showLoading</button>
-            <button class="btn" (click)="run('hideLoading', hideLoading)">hideLoading</button>
-            <button class="btn" (click)="run('showDialog', showDialog)">showDialog</button>
-            <button class="btn" (click)="run('showActionSheet', showActionSheet)">showActionSheet</button>
-        </div>
-    </section>
-
-    <!-- Navigator -->
-    <section>
-        <h3 class="section-title">Navigator API</h3>
-        <div class="btn-group">
-            <button class="btn" (click)="run('navigator.push', navPush)">push /detail</button>
-            <button class="btn" (click)="run('navigator.pop', navPop)">pop</button>
-            <button class="btn" (click)="run('navigator.redirect', navRedirect)">redirect /home</button>
-            <button class="btn" (click)="run('navigator.switchTab', navSwitchTab)">switchTab</button>
-        </div>
-    </section>
-
-    <!-- Data APIs -->
-    <section>
-        <h3 class="section-title">Data APIs</h3>
-        <div class="btn-group">
-            <button class="btn" (click)="run('getLocation', fnGetLocation)">getLocation</button>
-            <button class="btn" (click)="run('getContacts', fnGetContacts)">getContacts</button>
-            <button class="btn" (click)="run('getMultipleUserData', fnGetUserData)">getMultipleUserData</button>
-            <button class="btn" (click)="run('getLocalAuthStatus', fnGetLocalAuth)">getLocalAuthStatus</button>
-        </div>
-    </section>
-
-    <!-- Request Permissions -->
-    <section>
-        <h3 class="section-title">Request Permissions</h3>
-        <div class="btn-group">
-            <button class="btn" (click)="run('requestCamera', fnReqCamera)">Camera</button>
-            <button class="btn" (click)="run('requestLocation', fnReqLocation)">Location</button>
-            <button class="btn" (click)="run('requestPhotos', fnReqPhotos)">Photos</button>
-            <button class="btn" (click)="run('requestContacts', fnReqContacts)">Contacts</button>
-            <button class="btn" (click)="run('requestLogin', fnReqLogin)">Login</button>
-            <button class="btn" (click)="run('requestPayment', fnReqPayment)">Payment</button>
-        </div>
-    </section>
-
-    <!-- Check Permissions -->
-    <section>
-        <h3 class="section-title">Check Permissions</h3>
-        <div class="btn-group">
-            <button class="btn" (click)="run('checkCamera', fnChkCamera)">Camera</button>
-            <button class="btn" (click)="run('checkLocation', fnChkLocation)">Location</button>
-            <button class="btn" (click)="run('checkLogin', fnChkLogin)">Login</button>
-            <button class="btn" (click)="run('clearCache', fnClearCache)">clearCache</button>
-        </div>
-    </section>
-
-    <!-- Navigation APIs -->
-    <section>
-        <h3 class="section-title">Navigation APIs</h3>
-        <div class="btn-group">
-            <button class="btn" (click)="run('appOpenWebview', fnOpenWebview)">appOpenWebview</button>
-            <button class="btn" (click)="run('openExternalLink', fnOpenExtLink)">openExternalLink</button>
-            <button class="btn" (click)="run('exit', fnExit)">exit</button>
-        </div>
-    </section>
-
-    <!-- UI Customization -->
-    <section>
-        <h3 class="section-title">UI Customization</h3>
-        <div class="btn-group">
-            <button class="btn" (click)="run('statusBarColor', fnStatusBarColor)">StatusBar Color</button>
-            <button class="btn" (click)="run('navBarColor', fnNavBarColor)">NavBar Color</button>
-            <button class="btn" (click)="run('statusBarDark', fnStatusBarDark)">StatusBar Dark</button>
-            <button class="btn" (click)="run('navBarLight', fnNavBarLight)">NavBar Light</button>
-        </div>
-    </section>
-
-    <!-- Other APIs -->
-    <section>
-        <h3 class="section-title">Other APIs</h3>
-        <div class="btn-group">
-            <button class="btn" (click)="run('shareText', fnShareText)">shareText</button>
-            <button class="btn" (click)="run('pickFile', fnPickFile)">pickFile</button>
+            <button class="btn" (click)="runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: null })">invoke(input)</button>
         </div>
     </section>
 
@@ -123,6 +43,9 @@
             <h3 style="margin: 0">Logs</h3>
             <button class="btn" (click)="logs = []">Clear</button>
         </div>
-        <pre class="log-area">{{ logs.length ? logs.join('\\n') : 'No logs yet. Click a button above.' }}</pre>
+        <pre class="log-area">{{ logs.length ? logs.join('\n') : 'No logs yet.' }}</pre>
     </div>
 </div>
+
+<!-- Overlay to close popup -->
+<div class="overlay" *ngIf="popup" (click)="popup = null"></div>

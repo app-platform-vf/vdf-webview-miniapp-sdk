@@ -1,4 +1,5 @@
-import { BridgeMessage, Platform } from '../types';
+import type { MiniAppRequestBase } from '../generated/types.generated';
+import { Platform } from '../types';
 
 declare global {
   interface Window {
@@ -18,7 +19,7 @@ export function detectPlatform(): Platform {
 }
 
 /** Gui message den native bridge */
-export function sendToNative(message: BridgeMessage): void {
+export function sendToNative(message: MiniAppRequestBase): void {
   const json = JSON.stringify(message);
   const platform = detectPlatform();
 
@@ -40,10 +41,10 @@ export function sendToNative(message: BridgeMessage): void {
 }
 
 /** Parse message tu native gui xuong */
-export function parseNativeMessage(raw: any): BridgeMessage | null {
+export function parseNativeMessage(raw: any): MiniAppRequestBase | null {
   try {
     if (typeof raw === 'string') return JSON.parse(raw);
-    if (typeof raw === 'object' && raw.type) return raw as BridgeMessage;
+    if (typeof raw === 'object' && raw.event) return raw as MiniAppRequestBase;
     return null;
   } catch {
     return null;

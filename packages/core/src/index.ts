@@ -3,8 +3,6 @@ export { MiniApp, createMiniApp } from './MiniApp';
 
 // Types
 export type {
-  BridgeMessage,
-  MessageType,
   MiniAppConfig,
   MiniAppPlugin,
   MiddlewareFn,
@@ -12,28 +10,7 @@ export type {
   LifecycleEvent,
   LifecycleCallback,
   Platform,
-  // Storage
-  StorageGetResult,
-  StorageSetOptions,
-  StorageRemoveOptions,
-  StorageInfoResult,
-  // UI
-  ToastOptions,
-  LoadingOptions,
-  DialogOptions,
-  DialogResult,
-  ActionSheetOptions,
-  ActionSheetResult,
-  // Navigator
-  NavigateOptions,
-  NavigateBackOptions,
-  SwitchTabOptions,
 } from './types';
-
-// API modules (de su dung doc lap neu can)
-export { StorageAPI } from './apis/Storage';
-export { UIAPI } from './apis/UI';
-export { NavigatorAPI } from './apis/Navigator';
 
 // Transport
 export { sendToNative, detectPlatform, parseNativeMessage } from './bridge/Transport';

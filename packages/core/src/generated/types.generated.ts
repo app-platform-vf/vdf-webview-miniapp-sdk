@@ -483,6 +483,131 @@ export interface ShareTextContentRequest {
 
 export interface ShareTextContentResponse {}
 
+/** Lấy dữ liệu từ storage theo key. */
+export interface StorageGetRequest {
+  key: string; // Key cần lấy
+}
+
+export interface StorageGetResponse {
+  data?: any; // Dữ liệu đã lưu
+}
+
+/** Lưu dữ liệu vào storage theo key. */
+export interface StorageSetRequest {
+  key: string; // Key lưu trữ
+  data: any; // Dữ liệu cần lưu
+}
+
+export interface StorageSetResponse {}
+
+/** Xóa dữ liệu từ storage theo key. */
+export interface StorageRemoveRequest {
+  key: string; // Key cần xóa
+}
+
+export interface StorageRemoveResponse {}
+
+/** Xóa toàn bộ dữ liệu trong storage. */
+export interface StorageClearRequest {}
+
+export interface StorageClearResponse {}
+
+/** Lấy thông tin dung lượng storage. */
+export interface StorageInfoRequest {}
+
+export interface StorageInfoResponse {
+  keys?: string[]; // Danh sách key
+  currentSize?: number; // Dung lượng hiện tại (bytes)
+  limitSize?: number; // Giới hạn dung lượng (bytes)
+}
+
+/** Hiển thị toast notification. */
+export interface UiShowToastRequest {
+  title: string; // Nội dung toast
+  icon?: string; // Icon: success | error | loading | none
+  duration?: number; // Thời gian hiển thị (ms)
+}
+
+export interface UiShowToastResponse {}
+
+/** Ẩn toast hiện tại. */
+export interface UiHideToastRequest {}
+
+export interface UiHideToastResponse {}
+
+/** Hiển thị loading indicator. */
+export interface UiShowLoadingRequest {
+  title?: string; // Text hiển thị
+  mask?: boolean; // Hiện overlay chặn tương tác
+}
+
+export interface UiShowLoadingResponse {}
+
+/** Ẩn loading indicator. */
+export interface UiHideLoadingRequest {}
+
+export interface UiHideLoadingResponse {}
+
+/** Hiển thị dialog xác nhận. */
+export interface UiShowDialogRequest {
+  title?: string; // Tiêu đề dialog
+  content: string; // Nội dung dialog
+  confirmText?: string; // Text nút xác nhận
+  cancelText?: string; // Text nút hủy
+  showCancel?: boolean; // Hiện nút hủy
+}
+
+export interface UiShowDialogResponse {
+  confirm?: boolean; // Người dùng nhấn xác nhận
+  cancel?: boolean; // Người dùng nhấn hủy
+}
+
+/** Hiển thị action sheet. */
+export interface UiShowActionSheetRequest {
+  itemList: string[]; // Danh sách lựa chọn
+}
+
+export interface UiShowActionSheetResponse {
+  tapIndex?: number; // Index được chọn
+}
+
+/** Mở trang mới (thêm vào navigation stack). */
+export interface NavigatorPushRequest {
+  url: string; // URL trang đích
+  params?: Record<string, any>; // Tham số truyền kèm
+}
+
+export interface NavigatorPushResponse {}
+
+/** Quay lại trang trước. */
+export interface NavigatorPopRequest {
+  delta?: number; // Số trang quay lại (mặc định 1)
+}
+
+export interface NavigatorPopResponse {}
+
+/** Chuyển sang tab khác. */
+export interface NavigatorSwitchTabRequest {
+  url: string; // URL của tab
+}
+
+export interface NavigatorSwitchTabResponse {}
+
+/** Redirect (thay thế trang hiện tại). */
+export interface NavigatorRedirectRequest {
+  url: string; // URL trang đích
+  params?: Record<string, any>; // Tham số truyền kèm
+}
+
+export interface NavigatorRedirectResponse {}
+
+/** Quay về trang chủ và xóa navigation stack. */
+export interface NavigatorReLaunchRequest {
+  url: string; // URL trang chủ
+}
+
+export interface NavigatorReLaunchResponse {}
+
 // --- Event name constants ---
 
 export type MiniAppEventName =
@@ -529,7 +654,23 @@ export type MiniAppEventName =
   | 'SET_NAVIGATION_BAR_COLOR'
   | 'UPDATE_STATUS_BAR_APPEARANCE'
   | 'UPDATE_NAVIGATION_BAR_APPEARANCE'
-  | 'SHARE_TEXT_CONTENT';
+  | 'SHARE_TEXT_CONTENT'
+  | 'STORAGE_GET'
+  | 'STORAGE_SET'
+  | 'STORAGE_REMOVE'
+  | 'STORAGE_CLEAR'
+  | 'STORAGE_INFO'
+  | 'UI_SHOW_TOAST'
+  | 'UI_HIDE_TOAST'
+  | 'UI_SHOW_LOADING'
+  | 'UI_HIDE_LOADING'
+  | 'UI_SHOW_DIALOG'
+  | 'UI_SHOW_ACTION_SHEET'
+  | 'NAVIGATOR_PUSH'
+  | 'NAVIGATOR_POP'
+  | 'NAVIGATOR_SWITCH_TAB'
+  | 'NAVIGATOR_REDIRECT'
+  | 'NAVIGATOR_RE_LAUNCH';
 
 /** Danh sach tat ca events voi metadata */
 export const EVENT_LIST = [
@@ -577,4 +718,20 @@ export const EVENT_LIST = [
   { event: 'UPDATE_STATUS_BAR_APPEARANCE', method: 'updateStatusBarAppearance', description: 'Chuyển đổi status bar giữa dark mode và light mode.', requestType: 'UpdateStatusBarAppearanceRequest', responseType: 'UpdateStatusBarAppearanceResponse' },
   { event: 'UPDATE_NAVIGATION_BAR_APPEARANCE', method: 'updateNavigationBarAppearance', description: 'Chuyển đổi navigation bar giữa dark mode và light mode.', requestType: 'UpdateNavigationBarAppearanceRequest', responseType: 'UpdateNavigationBarAppearanceResponse' },
   { event: 'SHARE_TEXT_CONTENT', method: 'shareTextContent', description: 'Mở dialog chia sẻ nội dung text.', requestType: 'ShareTextContentRequest', responseType: 'ShareTextContentResponse' },
+  { event: 'STORAGE_GET', method: 'storageGet', description: 'Lấy dữ liệu từ storage theo key.', requestType: 'StorageGetRequest', responseType: 'StorageGetResponse' },
+  { event: 'STORAGE_SET', method: 'storageSet', description: 'Lưu dữ liệu vào storage theo key.', requestType: 'StorageSetRequest', responseType: 'StorageSetResponse' },
+  { event: 'STORAGE_REMOVE', method: 'storageRemove', description: 'Xóa dữ liệu từ storage theo key.', requestType: 'StorageRemoveRequest', responseType: 'StorageRemoveResponse' },
+  { event: 'STORAGE_CLEAR', method: 'storageClear', description: 'Xóa toàn bộ dữ liệu trong storage.', requestType: 'StorageClearRequest', responseType: 'StorageClearResponse' },
+  { event: 'STORAGE_INFO', method: 'storageInfo', description: 'Lấy thông tin dung lượng storage.', requestType: 'StorageInfoRequest', responseType: 'StorageInfoResponse' },
+  { event: 'UI_SHOW_TOAST', method: 'uiShowToast', description: 'Hiển thị toast notification.', requestType: 'UiShowToastRequest', responseType: 'UiShowToastResponse' },
+  { event: 'UI_HIDE_TOAST', method: 'uiHideToast', description: 'Ẩn toast hiện tại.', requestType: 'UiHideToastRequest', responseType: 'UiHideToastResponse' },
+  { event: 'UI_SHOW_LOADING', method: 'uiShowLoading', description: 'Hiển thị loading indicator.', requestType: 'UiShowLoadingRequest', responseType: 'UiShowLoadingResponse' },
+  { event: 'UI_HIDE_LOADING', method: 'uiHideLoading', description: 'Ẩn loading indicator.', requestType: 'UiHideLoadingRequest', responseType: 'UiHideLoadingResponse' },
+  { event: 'UI_SHOW_DIALOG', method: 'uiShowDialog', description: 'Hiển thị dialog xác nhận.', requestType: 'UiShowDialogRequest', responseType: 'UiShowDialogResponse' },
+  { event: 'UI_SHOW_ACTION_SHEET', method: 'uiShowActionSheet', description: 'Hiển thị action sheet.', requestType: 'UiShowActionSheetRequest', responseType: 'UiShowActionSheetResponse' },
+  { event: 'NAVIGATOR_PUSH', method: 'navigatorPush', description: 'Mở trang mới (thêm vào navigation stack).', requestType: 'NavigatorPushRequest', responseType: 'NavigatorPushResponse' },
+  { event: 'NAVIGATOR_POP', method: 'navigatorPop', description: 'Quay lại trang trước.', requestType: 'NavigatorPopRequest', responseType: 'NavigatorPopResponse' },
+  { event: 'NAVIGATOR_SWITCH_TAB', method: 'navigatorSwitchTab', description: 'Chuyển sang tab khác.', requestType: 'NavigatorSwitchTabRequest', responseType: 'NavigatorSwitchTabResponse' },
+  { event: 'NAVIGATOR_REDIRECT', method: 'navigatorRedirect', description: 'Redirect (thay thế trang hiện tại).', requestType: 'NavigatorRedirectRequest', responseType: 'NavigatorRedirectResponse' },
+  { event: 'NAVIGATOR_RE_LAUNCH', method: 'navigatorReLaunch', description: 'Quay về trang chủ và xóa navigation stack.', requestType: 'NavigatorReLaunchRequest', responseType: 'NavigatorReLaunchResponse' },
 ] as const;
