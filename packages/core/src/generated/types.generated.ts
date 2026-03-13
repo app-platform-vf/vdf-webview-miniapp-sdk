@@ -38,265 +38,700 @@ export type MiniAppResponse<T = Record<string, any>> = MiniAppResponseBase & T;
 
 // --- Request / Response cho tung event ---
 
-/** Lay thong tin nguoi dung */
-export interface GetUserInfoRequest {
-  data?: {
-    user_id?: string; // ID nguoi dung (bo trong de lay user hien tai)
-  }; // Thong tin request
-}
-
-export interface GetUserInfoResponse {
+/** Mở một WebView mới với URL và cấu hình tùy chỉnh. */
+export interface AppOpenWebviewRequest {
   data: {
-    user_id: string; // ID nguoi dung
-    full_name: string; // Ho va ten
-    phone: string; // So dien thoai
-    email: string; // Email
-    avatar: string; // URL anh dai dien
-  }; // Thong tin nguoi dung
+    url: string; // URL của webview cần mở
+    serviceName?: string; // Tiêu đề hiển thị trên app bar
+    isPaymentConfirm?: boolean; // false = đóng mini app để sang gateway thanh toán
+    resourceType?: string; // "HTML" = mở trong webview, khác = mở browser mặc định
+    returnUrl?: string; // URL trả về khi thành công/thất bại/timeout
+    cancelUrl?: string; // URL trả về khi người dùng cancel
+  }; // Du lieu
 }
 
-/** Lay vi tri hien tai */
-export interface GetLocationRequest {
-  data?: {
-    type?: string; // Loai toa do: wgs84 | gcj02
-    high_accuracy?: boolean; // Bat do chinh xac cao
-  }; // Tuy chon vi tri
+export interface AppOpenWebviewResponse {
+  data: {
+    url?: string; // url
+    type?: string; // RETURN - Người dùng hoàn tất và quay lại, kèm theo URL; CANCEL - Người dùng hủy, kèm theo URL; CLOSED - Người dùng tự đóng webview, không có URL
+  }; // Ket qua
 }
+
+/** Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài. */
+export interface AppOpenStoreRequest {
+  data: {
+    fallbackUrlAndroid?: string; // URL android
+    fallbackUrlIos?: string; // URL Ios
+  }; // Du lieu
+}
+
+export interface AppOpenStoreResponse {}
+
+/** Đóng Mini App và điều hướng về màn hình khác. */
+export interface ExitRequest {
+  data: {
+    navigationAction?: string; // RETURN_HOME_APP - Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App
+  }; // Du lieu
+}
+
+export interface ExitResponse {}
+
+/** Mở URL bằng browser mặc định của hệ thống. */
+export interface OpenExternalLinkRequest {
+  data: {
+    uri?: string; // Link Ngoài
+  }; // Du lieu
+}
+
+export interface OpenExternalLinkResponse {}
+
+/** Mở một Mini App khác từ Mini App hiện tại. */
+export interface OpenMiniAppRequest {
+  data: {
+    route?: Record<string, any>; // Định tuyến màn hình trong Mini App - "route": {       "screenName": "home"     }
+    miniappKey?: string; // Key của Mini App cần mở - 
+    additional?: Record<string, any>; // Dữ liệu bổ sung truyền cho Mini App - "additional": {       "param1": "value1",       "param2": "value2"     }
+    launchConfig?: Record<string, any>; // Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)	;  
+    navStyle?: Record<string, any>; // Style cho navigation bar - {       "color": "#FF0000",       "hidden": "false"     }
+    tracking?: Record<string, any>; // Thông tin tracking - {       "campaign": "promotion",       "utmSource": "miniapp"     }
+  }; // Du lieu
+}
+
+export interface OpenMiniAppResponse {}
+
+/** Yêu cầu nhiều quyền user data cùng một lúc. */
+export interface RequestMultipleUserDataPermissionRequest {
+  data: {
+    permissionCodes: string[]; // Danh sách mã quyền
+    useSameReason?: boolean; // useSameReason
+  }; // Du lieu
+}
+
+export interface RequestMultipleUserDataPermissionResponse {
+  data?: {
+    permissionCode?: string; // Mã quyền
+    result?: string; // Granted - Quyền đã được cấp;  Denied -  Quyền bị từ chối; NotFound -  Permission code không tồn tại
+    message?: string; // Nội dung 
+  }[]; // Du lieu
+}
+
+/** Kiểm tra trạng thái nhiều quyền user data cùng lúc. */
+export interface CheckMultipleUserDataPermissionRequest {
+  data: {
+    permissionCodes: string[]; // Danh sách mã quyền
+  }; // Du lieu
+}
+
+export interface CheckMultipleUserDataPermissionResponse {
+  data?: {
+    permissionCode?: string; // Mã quyền
+    result?: string; // Granted - Quyền đã được cấp;  Denied -  Quyền bị từ chối; NotFound -  Permission code không tồn tại
+    message?: string; // Nội dung 
+  }[]; // Du lieu
+}
+
+/** Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level). */
+export interface RequestPermissionWithCodeRequest {
+  data: {
+    permissionCode: string; // mã quyền
+  }; // Du lieu
+}
+
+export interface RequestPermissionWithCodeResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Lấy nhiều trường dữ liệu người dùng từ host app. */
+export interface GetMultipleUserDataRequest {
+  data: {
+    dataNames: string[]; // Danh sách data cần lấy
+  }; // Du lieu
+}
+
+export interface GetMultipleUserDataResponse {
+  age?: string;
+  userName?: string;
+  fullName?: string;
+}
+
+/** Kiểm tra trạng thái quyền cụ thể. */
+export interface CheckPermissionWithCodeRequest {
+  data: {
+    permissionCode: string; // Tham so 1
+  }; // Du lieu
+}
+
+export interface CheckPermissionWithCodeResponse {}
+
+/** Xóa tất cả quyền đã cache ở local. */
+export interface ClearPermissionCacheRequest {
+  data: Record<string, any>; // Du lieu
+}
+
+export interface ClearPermissionCacheResponse {
+  eventStatus?: string;
+}
+
+/** Yêu cầu mở camera */
+export interface RequestCameraPermissionRequest {}
+
+export interface RequestCameraPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Yêu cầu vị trí */
+export interface RequestLocationPermissionRequest {}
+
+export interface RequestLocationPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Yêu cầu truy cập ảnh trên thiết bị */
+export interface RequestPhotosPermissionRequest {}
+
+export interface RequestPhotosPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Yêu cầu truy cập video trên thiết bị */
+export interface RequestVideosPermissionRequest {}
+
+export interface RequestVideosPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Yêu cầu truy cập audio trên thiết bị */
+export interface RequestAudioPermissionRequest {}
+
+export interface RequestAudioPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Yêu cầu ghi âm trên thiết bị */
+export interface RequestRecordAudioPermissionRequest {}
+
+export interface RequestRecordAudioPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Yêu cầu truy cập danh bạ trên thiết bị */
+export interface RequestContactsPermissionRequest {}
+
+export interface RequestContactsPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Yêu cầu truy cập tài liệu trên thiết bị */
+export interface RequestDocumentPermissionRequest {}
+
+export interface RequestDocumentPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Yêu cầu thực hiện cuộc gọi trên thiết bị */
+export interface RequestPhoneCallPermissionRequest {}
+
+export interface RequestPhoneCallPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/**  */
+export interface RequestPaymentPermissionRequest {}
+
+export interface RequestPaymentPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/**  */
+export interface RequestLoginPermissionRequest {}
+
+export interface RequestLoginPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Yêu cầu xác thực sinh trắc học (vân tay, Face ID). */
+export interface RequestLocalAuthenticationPermissionRequest {}
+
+export interface RequestLocalAuthenticationPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Kiểm tra quyền camera */
+export interface CheckCameraPermissionRequest {}
+
+export interface CheckCameraPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Kiểm tra quyền vị trí */
+export interface CheckLocationPermissionRequest {}
+
+export interface CheckLocationPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Kiểm tra quyền truy cập ảnh */
+export interface CheckPhotosPermissionRequest {}
+
+export interface CheckPhotosPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Kiểm tra quyền truy cập video */
+export interface CheckVideosPermissionRequest {}
+
+export interface CheckVideosPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Kiểm tra quyền truy cập file audio */
+export interface CheckAudioPermissionRequest {}
+
+export interface CheckAudioPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Kiểm tra quyền ghi âm trên thiết bị */
+export interface CheckRecordAudioPermissionRequest {}
+
+export interface CheckRecordAudioPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Kiểm tra quyền truy cập danh bạ */
+export interface CheckContactsPermissionRequest {}
+
+export interface CheckContactsPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Kiểm tra quyền truy cập file tài liệu */
+export interface CheckDocumentPermissionRequest {}
+
+export interface CheckDocumentPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** Kiểm tra quyền gọi điện */
+export interface CheckPhoneCallPermissionRequest {}
+
+export interface CheckPhoneCallPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/**  */
+export interface CheckPaymentPermissionRequest {}
+
+export interface CheckPaymentPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/**  */
+export interface CheckLoginPermissionRequest {}
+
+export interface CheckLoginPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
+/** kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID). */
+export interface CheckLocalAuthenticationPermissionRequest {
+  data?: {
+    authOptionsParam?: Record<string, any>;
+  };
+}
+
+export interface CheckLocalAuthenticationPermissionResponse {
+  result?: string;
+  description?: string;
+}
+
+/**  lấy trạng thái xác thực sinh trắc học (vân tay, Face ID). */
+export interface GetLocalAuthenticationStatusRequest {}
+
+export interface GetLocalAuthenticationStatusResponse {
+  isHardwareSupportStrongBiometric?: boolean;
+  isHardwareSupportBiometric?: boolean;
+  isDeviceSecure?: boolean;
+  canAuthenticateWithDeviceCredential?: boolean;
+  canAuthenticateWithBiometrics?: boolean;
+  canAuthenticateWithStrongBiometrics?: boolean;
+}
+
+/** Truy cập danh bạ */
+export interface GetContactsRequest {
+  data?: {
+    filter?: Record<string, any>;
+    pager?: Record<string, any>;
+  };
+}
+
+export interface GetContactsResponse {
+  data?: {
+    contactList: Record<string, any>[];
+    countContacts?: number;
+  };
+}
+
+/** Mở file tài liệu */
+export interface PickFileRequest {
+  data?: {
+    mimeType: string[];
+    isCapture?: boolean;
+    new_field?: string;
+  };
+}
+
+export interface PickFileResponse {
+  data?: {
+    hostUrl?: string;
+  };
+}
+
+/** Lấy vị trí thiết bị */
+export interface GetLocationRequest {}
 
 export interface GetLocationResponse {
-  data: {
-    latitude: number; // Vi do
-    longitude: number; // Kinh do
-    accuracy: number; // Do chinh xac (met)
-    speed: number; // Toc do (m/s)
-  }; // Toa do vi tri
+  latitude?: any;
+  longgitude?: any;
 }
 
-/** Mo camera quet ma QR */
-export interface ScanQrCodeRequest {
-  data?: {
-    scan_type?: string; // Loai ma: qr | barcode | all
-  }; // Tuy chon quet
+/** Thay đổi màu nền status bar. */
+export interface SetBackgroundStatusBarColorRequest {
+  data?: Record<string, any>;
+  color?: string;
 }
 
-export interface ScanQrCodeResponse {
-  data: {
-    code: string; // Noi dung ma da quet
-    format: string; // Dinh dang ma: QR_CODE | EAN_13 | ...
-  }; // Ket qua quet
+export interface SetBackgroundStatusBarColorResponse {}
+
+/** Thay đổi màu nền navigation bar. */
+export interface SetNavigationBarColorRequest {
+  data?: Record<string, any>;
+  color?: string;
 }
 
-/** Lay thong tin thiet bi va he dieu hanh */
-export interface GetSystemInfoRequest {}
+export interface SetNavigationBarColorResponse {}
 
-export interface GetSystemInfoResponse {
-  data: {
-    platform: string; // android | ios
-    os_version: string; // Phien ban OS
-    brand: string; // Hang san xuat
-    model: string; // Ten thiet bi
-    sdk_version: string; // Phien ban SDK native
-    screen_width: number; // Chieu rong man hinh (px)
-    screen_height: number; // Chieu cao man hinh (px)
-  }; // Thong tin thiet bi
+/** Chuyển đổi status bar giữa dark mode và light mode. */
+export interface UpdateStatusBarAppearanceRequest {
+  data?: Record<string, any>;
+  appearance?: string; // "LIGHT" hoặc "DARK"
 }
 
-/** Luu du lieu vao storage native */
-export interface SetStorageRequest {
-  data: {
-    key: string; // Key luu tru
-    value: any; // Gia tri can luu
-  }; // Du lieu luu tru (se duoc stringify)
+export interface UpdateStatusBarAppearanceResponse {}
+
+/** Chuyển đổi navigation bar giữa dark mode và light mode. */
+export interface UpdateNavigationBarAppearanceRequest {
+  data?: Record<string, any>;
+  appearance?: string; // "LIGHT" hoặc "DARK"
 }
 
-export interface SetStorageResponse {
-  data: {
-    success: boolean; // Ket qua luu tru
-  }; // Ket qua
+export interface UpdateNavigationBarAppearanceResponse {}
+
+/** Mở dialog chia sẻ nội dung text. */
+export interface ShareTextContentRequest {
+  data?: Record<string, any>;
+  content?: string;
 }
 
-/** Doc du lieu tu storage native */
-export interface GetStorageRequest {
-  data: {
-    key: string; // Key can doc
-  }; // Thong tin key
+export interface ShareTextContentResponse {}
+
+/** Lấy dữ liệu từ storage theo key. */
+export interface StorageGetRequest {
+  key: string; // Key cần lấy
 }
 
-export interface GetStorageResponse {
-  data: {
-    key: string; // Key da doc
-    value: any; // Gia tri
-  }; // Du lieu doc duoc
+export interface StorageGetResponse {
+  data?: any; // Dữ liệu đã lưu
 }
 
-/** Xoa du lieu theo key trong storage */
-export interface RemoveStorageRequest {
-  data: {
-    key: string; // Key can xoa
-  }; // Thong tin key
+/** Lưu dữ liệu vào storage theo key. */
+export interface StorageSetRequest {
+  key: string; // Key lưu trữ
+  data: any; // Dữ liệu cần lưu
 }
 
-export interface RemoveStorageResponse {
-  data: {
-    success: boolean; // Ket qua xoa
-  }; // Ket qua
+export interface StorageSetResponse {}
+
+/** Xóa dữ liệu từ storage theo key. */
+export interface StorageRemoveRequest {
+  key: string; // Key cần xóa
 }
 
-/** Hien thi thong bao toast */
-export interface ShowToastRequest {
-  data: {
-    title: string; // Noi dung hien thi
-    icon?: string; // Icon: success | error | loading | none
-    duration?: number; // Thoi gian hien thi (ms)
-  }; // Noi dung toast
+export interface StorageRemoveResponse {}
+
+/** Xóa toàn bộ dữ liệu trong storage. */
+export interface StorageClearRequest {}
+
+export interface StorageClearResponse {}
+
+/** Lấy thông tin dung lượng storage. */
+export interface StorageInfoRequest {}
+
+export interface StorageInfoResponse {
+  keys?: string[]; // Danh sách key
+  currentSize?: number; // Dung lượng hiện tại (bytes)
+  limitSize?: number; // Giới hạn dung lượng (bytes)
 }
 
-export interface ShowToastResponse {}
-
-/** Hien thi loading */
-export interface ShowLoadingRequest {
-  data?: {
-    title?: string; // Noi dung loading
-    mask?: boolean; // Hien thi lop phu
-  }; // Tuy chon loading
+/** Hiển thị toast notification. */
+export interface UiShowToastRequest {
+  title: string; // Nội dung toast
+  icon?: string; // Icon: success | error | loading | none
+  duration?: number; // Thời gian hiển thị (ms)
 }
 
-export interface ShowLoadingResponse {}
+export interface UiShowToastResponse {}
 
-/** An loading */
-export interface HideLoadingRequest {}
+/** Ẩn toast hiện tại. */
+export interface UiHideToastRequest {}
 
-export interface HideLoadingResponse {}
+export interface UiHideToastResponse {}
 
-/** Hien thi hop thoai xac nhan */
-export interface ShowDialogRequest {
-  data: {
-    title?: string; // Tieu de
-    content: string; // Noi dung
-    confirm_text?: string; // Text nut xac nhan
-    cancel_text?: string; // Text nut huy
-    show_cancel?: boolean; // Hien nut huy
-  }; // Noi dung dialog
+/** Hiển thị loading indicator. */
+export interface UiShowLoadingRequest {
+  title?: string; // Text hiển thị
+  mask?: boolean; // Hiện overlay chặn tương tác
 }
 
-export interface ShowDialogResponse {
-  data: {
-    confirm: boolean; // Nguoi dung nhan xac nhan
-    cancel: boolean; // Nguoi dung nhan huy
-  }; // Ket qua chon
+export interface UiShowLoadingResponse {}
+
+/** Ẩn loading indicator. */
+export interface UiHideLoadingRequest {}
+
+export interface UiHideLoadingResponse {}
+
+/** Hiển thị dialog xác nhận. */
+export interface UiShowDialogRequest {
+  title?: string; // Tiêu đề dialog
+  content: string; // Nội dung dialog
+  confirmText?: string; // Text nút xác nhận
+  cancelText?: string; // Text nút hủy
+  showCancel?: boolean; // Hiện nút hủy
 }
 
-/** Chuyen trang (them vao stack) */
-export interface NavigateToRequest {
-  data: {
-    url: string; // Duong dan trang
-    params?: Record<string, any>; // Tham so truyen theo
-  }; // Thong tin dieu huong
+export interface UiShowDialogResponse {
+  confirm?: boolean; // Người dùng nhấn xác nhận
+  cancel?: boolean; // Người dùng nhấn hủy
 }
 
-export interface NavigateToResponse {
-  data: {
-    success: boolean; // Ket qua dieu huong
-  }; // Ket qua
+/** Hiển thị action sheet. */
+export interface UiShowActionSheetRequest {
+  itemList: string[]; // Danh sách lựa chọn
 }
 
-/** Quay lai trang truoc */
-export interface NavigateBackRequest {
-  data?: {
-    delta?: number; // So trang quay lai
-  }; // Tuy chon
+export interface UiShowActionSheetResponse {
+  tapIndex?: number; // Index được chọn
 }
 
-export interface NavigateBackResponse {
-  data: {
-    success: boolean; // Ket qua
-  }; // Ket qua
+/** Mở trang mới (thêm vào navigation stack). */
+export interface NavigatorPushRequest {
+  url: string; // URL trang đích
+  params?: Record<string, any>; // Tham số truyền kèm
 }
 
-/** Lay access token cua nguoi dung */
-export interface GetAccessTokenRequest {}
+export interface NavigatorPushResponse {}
 
-export interface GetAccessTokenResponse {
-  data: {
-    access_token: string; // Access token
-    expires_in: number; // Thoi gian het han (giay)
-  }; // Token info
+/** Quay lại trang trước. */
+export interface NavigatorPopRequest {
+  delta?: number; // Số trang quay lại (mặc định 1)
 }
 
-/** Mo deep link trong app native */
-export interface OpenDeepLinkRequest {
-  data: {
-    url: string; // Deep link URL
-    fallback_url?: string; // URL du phong neu khong mo duoc
-  }; // Thong tin deep link
+export interface NavigatorPopResponse {}
+
+/** Chuyển sang tab khác. */
+export interface NavigatorSwitchTabRequest {
+  url: string; // URL của tab
 }
 
-export interface OpenDeepLinkResponse {
-  data: {
-    success: boolean; // Mo thanh cong hay khong
-  }; // Ket qua
+export interface NavigatorSwitchTabResponse {}
+
+/** Redirect (thay thế trang hiện tại). */
+export interface NavigatorRedirectRequest {
+  url: string; // URL trang đích
+  params?: Record<string, any>; // Tham số truyền kèm
 }
 
-/** Chia se noi dung */
-export interface ShareRequest {
-  data: {
-    title: string; // Tieu de chia se
-    description?: string; // Mo ta
-    image_url?: string; // URL anh
-    link?: string; // Link chia se
-  }; // Noi dung chia se
+export interface NavigatorRedirectResponse {}
+
+/** Quay về trang chủ và xóa navigation stack. */
+export interface NavigatorReLaunchRequest {
+  url: string; // URL trang chủ
 }
 
-export interface ShareResponse {
-  data: {
-    success: boolean; // Chia se thanh cong
-    channel: string; // Kenh chia se: facebook | zalo | copy | ...
-  }; // Ket qua chia se
-}
-
-/** Dong miniapp va quay ve app native */
-export interface CloseMiniappRequest {}
-
-export interface CloseMiniappResponse {}
+export interface NavigatorReLaunchResponse {}
 
 // --- Event name constants ---
 
 export type MiniAppEventName =
-  | 'GET_USER_INFO'
+  | 'APP_OPEN_WEBVIEW'
+  | 'APP_OPEN_STORE'
+  | 'EXIT'
+  | 'OPEN_EXTERNAL_LINK'
+  | 'OPEN_MINI_APP'
+  | 'REQUEST_MULTIPLE_USER_DATA_PERMISSION'
+  | 'CHECK_MULTIPLE_USER_DATA_PERMISSION'
+  | 'REQUEST_PERMISSION_WITH_CODE'
+  | 'GET_MULTIPLE_USER_DATA'
+  | 'CHECK_PERMISSION_WITH_CODE'
+  | 'CLEAR_PERMISSION_CACHE'
+  | 'REQUEST_CAMERA_PERMISSION'
+  | 'REQUEST_LOCATION_PERMISSION'
+  | 'REQUEST_PHOTOS_PERMISSION'
+  | 'REQUEST_VIDEOS_PERMISSION'
+  | 'REQUEST_AUDIO_PERMISSION'
+  | 'REQUEST_RECORD_AUDIO_PERMISSION'
+  | 'REQUEST_CONTACTS_PERMISSION'
+  | 'REQUEST_DOCUMENT_PERMISSION'
+  | 'REQUEST_PHONE_CALL_PERMISSION'
+  | 'REQUEST_PAYMENT_PERMISSION'
+  | 'REQUEST_LOGIN_PERMISSION'
+  | 'REQUEST_LOCAL_AUTHENTICATION_PERMISSION'
+  | 'CHECK_CAMERA_PERMISSION'
+  | 'CHECK_LOCATION_PERMISSION'
+  | 'CHECK_PHOTOS_PERMISSION'
+  | 'CHECK_VIDEOS_PERMISSION'
+  | 'CHECK_AUDIO_PERMISSION'
+  | 'CHECK_RECORD_AUDIO_PERMISSION'
+  | 'CHECK_CONTACTS_PERMISSION'
+  | 'CHECK_DOCUMENT_PERMISSION'
+  | 'CHECK_PHONE_CALL_PERMISSION'
+  | 'CHECK_PAYMENT_PERMISSION'
+  | 'CHECK_LOGIN_PERMISSION'
+  | 'CHECK_LOCAL_AUTHENTICATION_PERMISSION'
+  | 'GET_LOCAL_AUTHENTICATION_STATUS'
+  | 'GET_CONTACTS'
+  | 'PICK_FILE'
   | 'GET_LOCATION'
-  | 'SCAN_QR_CODE'
-  | 'GET_SYSTEM_INFO'
-  | 'SET_STORAGE'
-  | 'GET_STORAGE'
-  | 'REMOVE_STORAGE'
-  | 'SHOW_TOAST'
-  | 'SHOW_LOADING'
-  | 'HIDE_LOADING'
-  | 'SHOW_DIALOG'
-  | 'NAVIGATE_TO'
-  | 'NAVIGATE_BACK'
-  | 'GET_ACCESS_TOKEN'
-  | 'OPEN_DEEP_LINK'
-  | 'SHARE'
-  | 'CLOSE_MINIAPP';
+  | 'SET_BACKGROUND_STATUS_BAR_COLOR'
+  | 'SET_NAVIGATION_BAR_COLOR'
+  | 'UPDATE_STATUS_BAR_APPEARANCE'
+  | 'UPDATE_NAVIGATION_BAR_APPEARANCE'
+  | 'SHARE_TEXT_CONTENT'
+  | 'STORAGE_GET'
+  | 'STORAGE_SET'
+  | 'STORAGE_REMOVE'
+  | 'STORAGE_CLEAR'
+  | 'STORAGE_INFO'
+  | 'UI_SHOW_TOAST'
+  | 'UI_HIDE_TOAST'
+  | 'UI_SHOW_LOADING'
+  | 'UI_HIDE_LOADING'
+  | 'UI_SHOW_DIALOG'
+  | 'UI_SHOW_ACTION_SHEET'
+  | 'NAVIGATOR_PUSH'
+  | 'NAVIGATOR_POP'
+  | 'NAVIGATOR_SWITCH_TAB'
+  | 'NAVIGATOR_REDIRECT'
+  | 'NAVIGATOR_RE_LAUNCH';
 
 /** Danh sach tat ca events voi metadata */
 export const EVENT_LIST = [
-  { event: 'GET_USER_INFO', method: 'getUserInfo', description: 'Lay thong tin nguoi dung', requestType: 'GetUserInfoRequest', responseType: 'GetUserInfoResponse' },
-  { event: 'GET_LOCATION', method: 'getLocation', description: 'Lay vi tri hien tai', requestType: 'GetLocationRequest', responseType: 'GetLocationResponse' },
-  { event: 'SCAN_QR_CODE', method: 'scanQrCode', description: 'Mo camera quet ma QR', requestType: 'ScanQrCodeRequest', responseType: 'ScanQrCodeResponse' },
-  { event: 'GET_SYSTEM_INFO', method: 'getSystemInfo', description: 'Lay thong tin thiet bi va he dieu hanh', requestType: 'GetSystemInfoRequest', responseType: 'GetSystemInfoResponse' },
-  { event: 'SET_STORAGE', method: 'setStorage', description: 'Luu du lieu vao storage native', requestType: 'SetStorageRequest', responseType: 'SetStorageResponse' },
-  { event: 'GET_STORAGE', method: 'getStorage', description: 'Doc du lieu tu storage native', requestType: 'GetStorageRequest', responseType: 'GetStorageResponse' },
-  { event: 'REMOVE_STORAGE', method: 'removeStorage', description: 'Xoa du lieu theo key trong storage', requestType: 'RemoveStorageRequest', responseType: 'RemoveStorageResponse' },
-  { event: 'SHOW_TOAST', method: 'showToast', description: 'Hien thi thong bao toast', requestType: 'ShowToastRequest', responseType: 'ShowToastResponse' },
-  { event: 'SHOW_LOADING', method: 'showLoading', description: 'Hien thi loading', requestType: 'ShowLoadingRequest', responseType: 'ShowLoadingResponse' },
-  { event: 'HIDE_LOADING', method: 'hideLoading', description: 'An loading', requestType: 'HideLoadingRequest', responseType: 'HideLoadingResponse' },
-  { event: 'SHOW_DIALOG', method: 'showDialog', description: 'Hien thi hop thoai xac nhan', requestType: 'ShowDialogRequest', responseType: 'ShowDialogResponse' },
-  { event: 'NAVIGATE_TO', method: 'navigateTo', description: 'Chuyen trang (them vao stack)', requestType: 'NavigateToRequest', responseType: 'NavigateToResponse' },
-  { event: 'NAVIGATE_BACK', method: 'navigateBack', description: 'Quay lai trang truoc', requestType: 'NavigateBackRequest', responseType: 'NavigateBackResponse' },
-  { event: 'GET_ACCESS_TOKEN', method: 'getAccessToken', description: 'Lay access token cua nguoi dung', requestType: 'GetAccessTokenRequest', responseType: 'GetAccessTokenResponse' },
-  { event: 'OPEN_DEEP_LINK', method: 'openDeepLink', description: 'Mo deep link trong app native', requestType: 'OpenDeepLinkRequest', responseType: 'OpenDeepLinkResponse' },
-  { event: 'SHARE', method: 'share', description: 'Chia se noi dung', requestType: 'ShareRequest', responseType: 'ShareResponse' },
-  { event: 'CLOSE_MINIAPP', method: 'closeMiniapp', description: 'Dong miniapp va quay ve app native', requestType: 'CloseMiniappRequest', responseType: 'CloseMiniappResponse' },
+  { event: 'APP_OPEN_WEBVIEW', method: 'appOpenWebview', description: 'Mở một WebView mới với URL và cấu hình tùy chỉnh.', requestType: 'AppOpenWebviewRequest', responseType: 'AppOpenWebviewResponse' },
+  { event: 'APP_OPEN_STORE', method: 'appOpenStore', description: 'Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.', requestType: 'AppOpenStoreRequest', responseType: 'AppOpenStoreResponse' },
+  { event: 'EXIT', method: 'exit', description: 'Đóng Mini App và điều hướng về màn hình khác.', requestType: 'ExitRequest', responseType: 'ExitResponse' },
+  { event: 'OPEN_EXTERNAL_LINK', method: 'openExternalLink', description: 'Mở URL bằng browser mặc định của hệ thống.', requestType: 'OpenExternalLinkRequest', responseType: 'OpenExternalLinkResponse' },
+  { event: 'OPEN_MINI_APP', method: 'openMiniApp', description: 'Mở một Mini App khác từ Mini App hiện tại.', requestType: 'OpenMiniAppRequest', responseType: 'OpenMiniAppResponse' },
+  { event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', method: 'requestMultipleUserDataPermission', description: 'Yêu cầu nhiều quyền user data cùng một lúc.', requestType: 'RequestMultipleUserDataPermissionRequest', responseType: 'RequestMultipleUserDataPermissionResponse' },
+  { event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', method: 'checkMultipleUserDataPermission', description: 'Kiểm tra trạng thái nhiều quyền user data cùng lúc.', requestType: 'CheckMultipleUserDataPermissionRequest', responseType: 'CheckMultipleUserDataPermissionResponse' },
+  { event: 'REQUEST_PERMISSION_WITH_CODE', method: 'requestPermissionWithCode', description: 'Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).', requestType: 'RequestPermissionWithCodeRequest', responseType: 'RequestPermissionWithCodeResponse' },
+  { event: 'GET_MULTIPLE_USER_DATA', method: 'getMultipleUserData', description: 'Lấy nhiều trường dữ liệu người dùng từ host app.', requestType: 'GetMultipleUserDataRequest', responseType: 'GetMultipleUserDataResponse' },
+  { event: 'CHECK_PERMISSION_WITH_CODE', method: 'checkPermissionWithCode', description: 'Kiểm tra trạng thái quyền cụ thể.', requestType: 'CheckPermissionWithCodeRequest', responseType: 'CheckPermissionWithCodeResponse' },
+  { event: 'CLEAR_PERMISSION_CACHE', method: 'clearPermissionCache', description: 'Xóa tất cả quyền đã cache ở local.', requestType: 'ClearPermissionCacheRequest', responseType: 'ClearPermissionCacheResponse' },
+  { event: 'REQUEST_CAMERA_PERMISSION', method: 'requestCameraPermission', description: 'Yêu cầu mở camera', requestType: 'RequestCameraPermissionRequest', responseType: 'RequestCameraPermissionResponse' },
+  { event: 'REQUEST_LOCATION_PERMISSION', method: 'requestLocationPermission', description: 'Yêu cầu vị trí', requestType: 'RequestLocationPermissionRequest', responseType: 'RequestLocationPermissionResponse' },
+  { event: 'REQUEST_PHOTOS_PERMISSION', method: 'requestPhotosPermission', description: 'Yêu cầu truy cập ảnh trên thiết bị', requestType: 'RequestPhotosPermissionRequest', responseType: 'RequestPhotosPermissionResponse' },
+  { event: 'REQUEST_VIDEOS_PERMISSION', method: 'requestVideosPermission', description: 'Yêu cầu truy cập video trên thiết bị', requestType: 'RequestVideosPermissionRequest', responseType: 'RequestVideosPermissionResponse' },
+  { event: 'REQUEST_AUDIO_PERMISSION', method: 'requestAudioPermission', description: 'Yêu cầu truy cập audio trên thiết bị', requestType: 'RequestAudioPermissionRequest', responseType: 'RequestAudioPermissionResponse' },
+  { event: 'REQUEST_RECORD_AUDIO_PERMISSION', method: 'requestRecordAudioPermission', description: 'Yêu cầu ghi âm trên thiết bị', requestType: 'RequestRecordAudioPermissionRequest', responseType: 'RequestRecordAudioPermissionResponse' },
+  { event: 'REQUEST_CONTACTS_PERMISSION', method: 'requestContactsPermission', description: 'Yêu cầu truy cập danh bạ trên thiết bị', requestType: 'RequestContactsPermissionRequest', responseType: 'RequestContactsPermissionResponse' },
+  { event: 'REQUEST_DOCUMENT_PERMISSION', method: 'requestDocumentPermission', description: 'Yêu cầu truy cập tài liệu trên thiết bị', requestType: 'RequestDocumentPermissionRequest', responseType: 'RequestDocumentPermissionResponse' },
+  { event: 'REQUEST_PHONE_CALL_PERMISSION', method: 'requestPhoneCallPermission', description: 'Yêu cầu thực hiện cuộc gọi trên thiết bị', requestType: 'RequestPhoneCallPermissionRequest', responseType: 'RequestPhoneCallPermissionResponse' },
+  { event: 'REQUEST_PAYMENT_PERMISSION', method: 'requestPaymentPermission', description: '', requestType: 'RequestPaymentPermissionRequest', responseType: 'RequestPaymentPermissionResponse' },
+  { event: 'REQUEST_LOGIN_PERMISSION', method: 'requestLoginPermission', description: '', requestType: 'RequestLoginPermissionRequest', responseType: 'RequestLoginPermissionResponse' },
+  { event: 'REQUEST_LOCAL_AUTHENTICATION_PERMISSION', method: 'requestLocalAuthenticationPermission', description: 'Yêu cầu xác thực sinh trắc học (vân tay, Face ID).', requestType: 'RequestLocalAuthenticationPermissionRequest', responseType: 'RequestLocalAuthenticationPermissionResponse' },
+  { event: 'CHECK_CAMERA_PERMISSION', method: 'checkCameraPermission', description: 'Kiểm tra quyền camera', requestType: 'CheckCameraPermissionRequest', responseType: 'CheckCameraPermissionResponse' },
+  { event: 'CHECK_LOCATION_PERMISSION', method: 'checkLocationPermission', description: 'Kiểm tra quyền vị trí', requestType: 'CheckLocationPermissionRequest', responseType: 'CheckLocationPermissionResponse' },
+  { event: 'CHECK_PHOTOS_PERMISSION', method: 'checkPhotosPermission', description: 'Kiểm tra quyền truy cập ảnh', requestType: 'CheckPhotosPermissionRequest', responseType: 'CheckPhotosPermissionResponse' },
+  { event: 'CHECK_VIDEOS_PERMISSION', method: 'checkVideosPermission', description: 'Kiểm tra quyền truy cập video', requestType: 'CheckVideosPermissionRequest', responseType: 'CheckVideosPermissionResponse' },
+  { event: 'CHECK_AUDIO_PERMISSION', method: 'checkAudioPermission', description: 'Kiểm tra quyền truy cập file audio', requestType: 'CheckAudioPermissionRequest', responseType: 'CheckAudioPermissionResponse' },
+  { event: 'CHECK_RECORD_AUDIO_PERMISSION', method: 'checkRecordAudioPermission', description: 'Kiểm tra quyền ghi âm trên thiết bị', requestType: 'CheckRecordAudioPermissionRequest', responseType: 'CheckRecordAudioPermissionResponse' },
+  { event: 'CHECK_CONTACTS_PERMISSION', method: 'checkContactsPermission', description: 'Kiểm tra quyền truy cập danh bạ', requestType: 'CheckContactsPermissionRequest', responseType: 'CheckContactsPermissionResponse' },
+  { event: 'CHECK_DOCUMENT_PERMISSION', method: 'checkDocumentPermission', description: 'Kiểm tra quyền truy cập file tài liệu', requestType: 'CheckDocumentPermissionRequest', responseType: 'CheckDocumentPermissionResponse' },
+  { event: 'CHECK_PHONE_CALL_PERMISSION', method: 'checkPhoneCallPermission', description: 'Kiểm tra quyền gọi điện', requestType: 'CheckPhoneCallPermissionRequest', responseType: 'CheckPhoneCallPermissionResponse' },
+  { event: 'CHECK_PAYMENT_PERMISSION', method: 'checkPaymentPermission', description: '', requestType: 'CheckPaymentPermissionRequest', responseType: 'CheckPaymentPermissionResponse' },
+  { event: 'CHECK_LOGIN_PERMISSION', method: 'checkLoginPermission', description: '', requestType: 'CheckLoginPermissionRequest', responseType: 'CheckLoginPermissionResponse' },
+  { event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', method: 'checkLocalAuthenticationPermission', description: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', requestType: 'CheckLocalAuthenticationPermissionRequest', responseType: 'CheckLocalAuthenticationPermissionResponse' },
+  { event: 'GET_LOCAL_AUTHENTICATION_STATUS', method: 'getLocalAuthenticationStatus', description: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', requestType: 'GetLocalAuthenticationStatusRequest', responseType: 'GetLocalAuthenticationStatusResponse' },
+  { event: 'GET_CONTACTS', method: 'getContacts', description: 'Truy cập danh bạ', requestType: 'GetContactsRequest', responseType: 'GetContactsResponse' },
+  { event: 'PICK_FILE', method: 'pickFile', description: 'Mở file tài liệu', requestType: 'PickFileRequest', responseType: 'PickFileResponse' },
+  { event: 'GET_LOCATION', method: 'getLocation', description: 'Lấy vị trí thiết bị', requestType: 'GetLocationRequest', responseType: 'GetLocationResponse' },
+  { event: 'SET_BACKGROUND_STATUS_BAR_COLOR', method: 'setBackgroundStatusBarColor', description: 'Thay đổi màu nền status bar.', requestType: 'SetBackgroundStatusBarColorRequest', responseType: 'SetBackgroundStatusBarColorResponse' },
+  { event: 'SET_NAVIGATION_BAR_COLOR', method: 'setNavigationBarColor', description: 'Thay đổi màu nền navigation bar.', requestType: 'SetNavigationBarColorRequest', responseType: 'SetNavigationBarColorResponse' },
+  { event: 'UPDATE_STATUS_BAR_APPEARANCE', method: 'updateStatusBarAppearance', description: 'Chuyển đổi status bar giữa dark mode và light mode.', requestType: 'UpdateStatusBarAppearanceRequest', responseType: 'UpdateStatusBarAppearanceResponse' },
+  { event: 'UPDATE_NAVIGATION_BAR_APPEARANCE', method: 'updateNavigationBarAppearance', description: 'Chuyển đổi navigation bar giữa dark mode và light mode.', requestType: 'UpdateNavigationBarAppearanceRequest', responseType: 'UpdateNavigationBarAppearanceResponse' },
+  { event: 'SHARE_TEXT_CONTENT', method: 'shareTextContent', description: 'Mở dialog chia sẻ nội dung text.', requestType: 'ShareTextContentRequest', responseType: 'ShareTextContentResponse' },
+  { event: 'STORAGE_GET', method: 'storageGet', description: 'Lấy dữ liệu từ storage theo key.', requestType: 'StorageGetRequest', responseType: 'StorageGetResponse' },
+  { event: 'STORAGE_SET', method: 'storageSet', description: 'Lưu dữ liệu vào storage theo key.', requestType: 'StorageSetRequest', responseType: 'StorageSetResponse' },
+  { event: 'STORAGE_REMOVE', method: 'storageRemove', description: 'Xóa dữ liệu từ storage theo key.', requestType: 'StorageRemoveRequest', responseType: 'StorageRemoveResponse' },
+  { event: 'STORAGE_CLEAR', method: 'storageClear', description: 'Xóa toàn bộ dữ liệu trong storage.', requestType: 'StorageClearRequest', responseType: 'StorageClearResponse' },
+  { event: 'STORAGE_INFO', method: 'storageInfo', description: 'Lấy thông tin dung lượng storage.', requestType: 'StorageInfoRequest', responseType: 'StorageInfoResponse' },
+  { event: 'UI_SHOW_TOAST', method: 'uiShowToast', description: 'Hiển thị toast notification.', requestType: 'UiShowToastRequest', responseType: 'UiShowToastResponse' },
+  { event: 'UI_HIDE_TOAST', method: 'uiHideToast', description: 'Ẩn toast hiện tại.', requestType: 'UiHideToastRequest', responseType: 'UiHideToastResponse' },
+  { event: 'UI_SHOW_LOADING', method: 'uiShowLoading', description: 'Hiển thị loading indicator.', requestType: 'UiShowLoadingRequest', responseType: 'UiShowLoadingResponse' },
+  { event: 'UI_HIDE_LOADING', method: 'uiHideLoading', description: 'Ẩn loading indicator.', requestType: 'UiHideLoadingRequest', responseType: 'UiHideLoadingResponse' },
+  { event: 'UI_SHOW_DIALOG', method: 'uiShowDialog', description: 'Hiển thị dialog xác nhận.', requestType: 'UiShowDialogRequest', responseType: 'UiShowDialogResponse' },
+  { event: 'UI_SHOW_ACTION_SHEET', method: 'uiShowActionSheet', description: 'Hiển thị action sheet.', requestType: 'UiShowActionSheetRequest', responseType: 'UiShowActionSheetResponse' },
+  { event: 'NAVIGATOR_PUSH', method: 'navigatorPush', description: 'Mở trang mới (thêm vào navigation stack).', requestType: 'NavigatorPushRequest', responseType: 'NavigatorPushResponse' },
+  { event: 'NAVIGATOR_POP', method: 'navigatorPop', description: 'Quay lại trang trước.', requestType: 'NavigatorPopRequest', responseType: 'NavigatorPopResponse' },
+  { event: 'NAVIGATOR_SWITCH_TAB', method: 'navigatorSwitchTab', description: 'Chuyển sang tab khác.', requestType: 'NavigatorSwitchTabRequest', responseType: 'NavigatorSwitchTabResponse' },
+  { event: 'NAVIGATOR_REDIRECT', method: 'navigatorRedirect', description: 'Redirect (thay thế trang hiện tại).', requestType: 'NavigatorRedirectRequest', responseType: 'NavigatorRedirectResponse' },
+  { event: 'NAVIGATOR_RE_LAUNCH', method: 'navigatorReLaunch', description: 'Quay về trang chủ và xóa navigation stack.', requestType: 'NavigatorReLaunchRequest', responseType: 'NavigatorReLaunchResponse' },
 ] as const;

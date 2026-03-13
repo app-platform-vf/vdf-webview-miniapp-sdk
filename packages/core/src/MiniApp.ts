@@ -1,5 +1,4 @@
 import {
-  BridgeMessage,
   MiniAppConfig,
   MiniAppPlugin,
   MiddlewareFn,
@@ -8,25 +7,25 @@ import {
   LifecycleCallback,
 } from './types';
 
+import type { MiniAppRequestBase } from './generated/types.generated';
 import { sendToNative, parseNativeMessage, detectPlatform } from './bridge/Transport';
 import { EventBus } from './modules/EventBus';
 import { RequestManager } from './modules/RequestManager';
 import { MessageQueue } from './modules/MessageQueue';
 import { MiddlewareManager } from './modules/MiddlewareManager';
 import { PluginManager } from './plugins/PluginManager';
-import { StorageAPI } from './apis/Storage';
-import { UIAPI } from './apis/UI';
-import { NavigatorAPI } from './apis/Navigator';
 import { Logger } from './utils/logger';
+
+const SENDER = 'MINIAPP_WEBVIEW';
 
 /**
  * MiniApp - Class chinh cua SDK
  *
  * Cung cap giao tiep 2 chieu giua WebView va Native:
- * - invoke(): goi native API va cho response
+ * - sendRaw(): gui MiniAppRequestBase truc tiep
+ * - invoke(): wrapper tien loi cho sendRaw
  * - emit(): gui su kien khong cho response
  * - on(): lang nghe su kien tu native
- * - storage / ui / navigator: API tien ich
  */
 export class MiniApp {
   private eventBus = new EventBus();
@@ -37,13 +36,6 @@ export class MiniApp {
   private lifecycleBus = new EventBus();
   private config: Required<MiniAppConfig>;
   private messageHandler: ((e: MessageEvent) => void) | null = null;
-
-  /** API luu tru du lieu */
-  readonly storage: StorageAPI;
-  /** API giao dien native */
-  readonly ui: UIAPI;
-  /** API dieu huong */
-  readonly navigator: NavigatorAPI;
 
   constructor(config: MiniAppConfig = {}) {
     this.config = {
@@ -57,12 +49,6 @@ export class MiniApp {
       Logger.enabled = true;
     }
 
-    // Khoi tao cac API module, bind invoke vao MiniApp
-    const invokeFn = this.invoke.bind(this);
-    this.storage = new StorageAPI(invokeFn);
-    this.ui = new UIAPI(invokeFn);
-    this.navigator = new NavigatorAPI(invokeFn);
-
     // Lang nghe message tu native
     this.startListening();
 
@@ -74,25 +60,24 @@ export class MiniApp {
   // ============================================================
 
   /**
-   * Goi native API va cho response
-   * Tuong tu wx.request() / my.call()
+   * Gui MiniAppRequestBase truc tiep va cho response.
+   * Day la core method — invoke() va wireToMiniApp() deu goi qua day.
    */
-  invoke(api: string, data?: any): Promise<any> {
+  sendRaw(msg: MiniAppRequestBase): Promise<any> {
     return new Promise<any>((resolve, reject) => {
-      const { requestId, promise } = this.requestManager.create(this.config.timeout);
+      const { request_id, promise } = this.requestManager.create(this.config.timeout);
 
-      const message: BridgeMessage = {
-        type: 'request',
-        event: api,
-        payload: data,
-        requestId,
+      const message: MiniAppRequestBase = {
+        ...msg,
+        sender: msg.sender || SENDER,
+        request_id: msg.request_id || request_id,
         token: this.config.token || undefined,
         timestamp: Date.now(),
       };
 
       this.messageQueue.push(() => {
         this.middlewareManager.run(message, () => {
-          Logger.log('>>> invoke', api, data);
+          Logger.log('>>> send', message.event, message);
           sendToNative(message);
         });
       });
@@ -102,21 +87,33 @@ export class MiniApp {
   }
 
   /**
+   * Goi native API va cho response
+   * Tuong tu wx.request() / my.call()
+   */
+  invoke(api: string, data?: any): Promise<any> {
+    return this.sendRaw({
+      event: api,
+      ...data,
+    });
+  }
+
+  /**
    * Gui su kien den native (khong cho response)
    * Tuong tu postMessage mot chieu
    */
   emit(event: string, data?: any): void {
-    const message: BridgeMessage = {
-      type: 'event',
+    const message: MiniAppRequestBase = {
       event,
-      payload: data,
+      sender: SENDER,
+      request_id: '',
+      ...data,
       token: this.config.token || undefined,
       timestamp: Date.now(),
     };
 
     this.messageQueue.push(() => {
       this.middlewareManager.run(message, () => {
-        Logger.log('>>> emit', event, data);
+        Logger.log('>>> emit', event, message);
         sendToNative(message);
       });
     });
@@ -198,9 +195,10 @@ export class MiniApp {
 
     // Gui handshake den native
     sendToNative({
-      type: 'event',
       event: '__miniapp_ready',
-      payload: { appId: this.config.appId },
+      sender: SENDER,
+      request_id: '',
+      appId: this.config.appId,
       timestamp: Date.now(),
     });
 
@@ -239,51 +237,43 @@ export class MiniApp {
     }
   }
 
-  private handleMessage(msg: BridgeMessage): void {
-    Logger.log('<<< received', msg.type, msg.event, msg.payload);
+  private handleMessage(msg: MiniAppRequestBase): void {
+    Logger.log('<<< received', msg.event, msg);
 
-    switch (msg.type) {
-      case 'event':
-        this.handleEvent(msg);
-        break;
-      case 'response':
-        this.handleResponse(msg);
-        break;
-      case 'batch':
-        this.handleBatch(msg);
-        break;
+    // Response — co request_id de match
+    if (msg.request_id) {
+      this.handleResponse(msg);
+      return;
     }
+
+    // Event — lifecycle hoac user event
+    this.handleEvent(msg);
   }
 
-  private handleEvent(msg: BridgeMessage): void {
+  private handleEvent(msg: MiniAppRequestBase): void {
     if (!msg.event) return;
 
     // Xu ly lifecycle event dac biet
     const lifecycleEvents: LifecycleEvent[] = ['show', 'hide', 'error', 'destroy'];
     if (lifecycleEvents.includes(msg.event as LifecycleEvent)) {
-      this.lifecycleBus.emit(msg.event, msg.payload);
+      this.lifecycleBus.emit(msg.event, msg);
     }
 
     // Phat su kien cho listener
-    this.eventBus.emit(msg.event, msg.payload);
+    this.eventBus.emit(msg.event, msg);
   }
 
-  private handleResponse(msg: BridgeMessage): void {
-    if (!msg.requestId) return;
+  private handleResponse(msg: MiniAppRequestBase): void {
+    if (!msg.request_id) return;
 
     if (msg.errorCode || msg.errorMessage) {
-      this.requestManager.reject(msg.requestId, {
+      this.requestManager.reject(msg.request_id, {
         code: msg.errorCode,
         message: msg.errorMessage,
       });
     } else {
-      this.requestManager.resolve(msg.requestId, msg.payload);
+      this.requestManager.resolve(msg.request_id, msg);
     }
-  }
-
-  private handleBatch(msg: BridgeMessage): void {
-    if (!Array.isArray(msg.payload)) return;
-    msg.payload.forEach((item: BridgeMessage) => this.handleMessage(item));
   }
 
   // ============================================================

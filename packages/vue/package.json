@@ -1,8 +1,0 @@
-{
-  "name": "@webview-sdk/vue",
-  "version": "1.0.0",
-  "main": "dist/index.js",
-  "peerDependencies": {
-    "vue": "^3"
-  }
-}

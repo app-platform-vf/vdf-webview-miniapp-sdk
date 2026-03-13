@@ -1,28 +1,4 @@
-// ============================================================
-// Giao thuc message giua WebView va Native
-// ============================================================
-
-/** Loai message trong bridge */
-export type MessageType = 'event' | 'request' | 'response' | 'batch';
-
-/** Message truyen qua bridge */
-export interface BridgeMessage {
-  type: MessageType;
-  /** Ten su kien hoac API */
-  event?: string;
-  /** Du lieu dinh kem */
-  payload?: any;
-  /** ID ghep cap request/response */
-  requestId?: string;
-  /** Token bao mat */
-  token?: string;
-  /** Thoi gian gui */
-  timestamp?: number;
-  /** Ma loi (chi co trong response) */
-  errorCode?: number;
-  /** Thong bao loi */
-  errorMessage?: string;
-}
+import type { MiniAppRequestBase } from './generated/types.generated';
 
 // ============================================================
 // Cau hinh MiniApp
@@ -62,89 +38,13 @@ export interface MiniAppPlugin {
 // Middleware
 // ============================================================
 
-export type MiddlewareFn = (message: BridgeMessage, next: () => Promise<void>) => Promise<void> | void;
+export type MiddlewareFn = (message: MiniAppRequestBase, next: () => Promise<void>) => Promise<void> | void;
 
 // ============================================================
 // Event
 // ============================================================
 
 export type EventCallback = (data?: any) => void;
-
-// ============================================================
-// Storage API
-// ============================================================
-
-export interface StorageGetResult {
-  data: any;
-}
-
-export interface StorageSetOptions {
-  key: string;
-  data: any;
-}
-
-export interface StorageRemoveOptions {
-  key: string;
-}
-
-export interface StorageInfoResult {
-  keys: string[];
-  currentSize: number;
-  limitSize: number;
-}
-
-// ============================================================
-// UI API
-// ============================================================
-
-export interface ToastOptions {
-  title: string;
-  icon?: 'success' | 'error' | 'loading' | 'none';
-  duration?: number;
-}
-
-export interface LoadingOptions {
-  title?: string;
-  mask?: boolean;
-}
-
-export interface DialogOptions {
-  title?: string;
-  content: string;
-  confirmText?: string;
-  cancelText?: string;
-  showCancel?: boolean;
-}
-
-export interface DialogResult {
-  confirm: boolean;
-  cancel: boolean;
-}
-
-export interface ActionSheetOptions {
-  itemList: string[];
-}
-
-export interface ActionSheetResult {
-  tapIndex: number;
-}
-
-// ============================================================
-// Navigator API
-// ============================================================
-
-export interface NavigateOptions {
-  url: string;
-  params?: Record<string, any>;
-}
-
-export interface NavigateBackOptions {
-  delta?: number;
-}
-
-export interface SwitchTabOptions {
-  url: string;
-}
 
 // ============================================================
 // Platform
