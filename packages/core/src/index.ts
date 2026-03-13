@@ -50,8 +50,11 @@ export { Logger } from './utils/logger';
 export { withTimeout } from './utils/timeout';
 export { retry } from './utils/retry';
 
+// Adapter — shared logic cho React/Vue/Angular
+export { getSharedMiniApp, createMiniAppInterface } from './adapter';
+
 // Generated API (tu dong sinh tu events.json bang event.js)
-export { MiniAppAPI, wireToMiniApp, initMiniAppAPI, isSuccess } from './generated/api.generated';
+export * from './generated/api.generated';
 export type {
   MiniAppRequestBase,
   MiniAppResponseBase,

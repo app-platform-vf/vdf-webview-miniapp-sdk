@@ -156,19 +156,6 @@ export interface GetMultipleUserDataResponse {
   fullName?: string;
 }
 
-/** Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level). */
-export interface RequestPermissionWithCodeRequest {
-  data: {
-    permissionCode: string; // Tham so 1
-  }; // Du lieu
-}
-
-export interface RequestPermissionWithCodeResponse {
-  permissionCode?: string;
-  result?: string;
-  message?: string;
-}
-
 /** Kiểm tra trạng thái quyền cụ thể. */
 export interface CheckPermissionWithCodeRequest {
   data: {
@@ -508,7 +495,6 @@ export type MiniAppEventName =
   | 'CHECK_MULTIPLE_USER_DATA_PERMISSION'
   | 'REQUEST_PERMISSION_WITH_CODE'
   | 'GET_MULTIPLE_USER_DATA'
-  | 'REQUEST_PERMISSION_WITH_CODE'
   | 'CHECK_PERMISSION_WITH_CODE'
   | 'CLEAR_PERMISSION_CACHE'
   | 'REQUEST_CAMERA_PERMISSION'
@@ -556,7 +542,6 @@ export const EVENT_LIST = [
   { event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', method: 'checkMultipleUserDataPermission', description: 'Kiểm tra trạng thái nhiều quyền user data cùng lúc.', requestType: 'CheckMultipleUserDataPermissionRequest', responseType: 'CheckMultipleUserDataPermissionResponse' },
   { event: 'REQUEST_PERMISSION_WITH_CODE', method: 'requestPermissionWithCode', description: 'Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).', requestType: 'RequestPermissionWithCodeRequest', responseType: 'RequestPermissionWithCodeResponse' },
   { event: 'GET_MULTIPLE_USER_DATA', method: 'getMultipleUserData', description: 'Lấy nhiều trường dữ liệu người dùng từ host app.', requestType: 'GetMultipleUserDataRequest', responseType: 'GetMultipleUserDataResponse' },
-  { event: 'REQUEST_PERMISSION_WITH_CODE', method: 'requestPermissionWithCode', description: 'Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).', requestType: 'RequestPermissionWithCodeRequest', responseType: 'RequestPermissionWithCodeResponse' },
   { event: 'CHECK_PERMISSION_WITH_CODE', method: 'checkPermissionWithCode', description: 'Kiểm tra trạng thái quyền cụ thể.', requestType: 'CheckPermissionWithCodeRequest', responseType: 'CheckPermissionWithCodeResponse' },
   { event: 'CLEAR_PERMISSION_CACHE', method: 'clearPermissionCache', description: 'Xóa tất cả quyền đã cache ở local.', requestType: 'ClearPermissionCacheRequest', responseType: 'ClearPermissionCacheResponse' },
   { event: 'REQUEST_CAMERA_PERMISSION', method: 'requestCameraPermission', description: 'Yêu cầu mở camera', requestType: 'RequestCameraPermissionRequest', responseType: 'RequestCameraPermissionResponse' },

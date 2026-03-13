@@ -128,13 +128,15 @@ import { MiniAppService } from '@webview-sdk/angular'
 // Generated API — type-safe, co autocomplete day du
 import { getUserInfo, scanQrCode, isSuccess } from '@webview-sdk/core'
 
-@Component({ template: `
-  <button (click)="loadUser()">Lay thong tin</button>
-  <button (click)="scan()">Quet QR</button>
-` })
+@Component({
+  template: `
+    <button (click)="loadUser()">Lay thong tin</button>
+    <button (click)="scan()">Quet QR</button>
+  `,
+  providers: [MiniAppService]  // MiniAppService la plain class, tu provide o day
+})
 export class AppComponent implements OnInit {
   constructor(private miniapp: MiniAppService) {}
-  // MiniAppService tu dong goi wireToMiniApp() trong constructor
 
   ngOnInit() {
     this.miniapp.on('message', (data) => console.log(data))
@@ -157,7 +159,7 @@ export class AppComponent implements OnInit {
 }
 ```
 
-> **Luu y:** `MiniAppService` tu dong goi `wireToMiniApp()` trong constructor. Generated API san sang ngay sau khi inject service.
+> **Luu y:** `MiniAppService` la plain class (khong dung `@Injectable`), khong phu thuoc Angular version. Tu provide trong `providers` cua component hoac module. `getSharedMiniApp()` tu dong goi `wireToMiniApp()` khi khoi tao.
 
 ---
 
@@ -532,6 +534,7 @@ packages/
       index.ts                   Export cong khai
       types.ts                   Tat ca interface/type
       MiniApp.ts                 Class chinh + createMiniApp()
+      adapter.ts                 Shared logic: getSharedMiniApp() + createMiniAppInterface()
       events.json                Dinh nghia danh sach event
       event.js                   Generator: doc JSON -> sinh API
       generated/                 [AUTO-GEN] Khong sua thu cong
@@ -563,7 +566,7 @@ packages/
       useMiniApp.ts              Vue 3 composable (auto cleanup)
   angular/                       @webview-sdk/angular
     src/
-      miniapp.service.ts         Angular injectable service
+      miniapp.service.ts         Plain class service (khong phu thuoc Angular)
 ```
 
 ## Huong dan cho Native Developer

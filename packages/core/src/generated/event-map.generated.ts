@@ -22,8 +22,6 @@ import type {
   RequestPermissionWithCodeResponse,
   GetMultipleUserDataRequest,
   GetMultipleUserDataResponse,
-  RequestPermissionWithCodeRequest,
-  RequestPermissionWithCodeResponse,
   CheckPermissionWithCodeRequest,
   CheckPermissionWithCodeResponse,
   ClearPermissionCacheRequest,
@@ -107,7 +105,6 @@ export interface MiniAppEventMap {
   'CHECK_MULTIPLE_USER_DATA_PERMISSION': [CheckMultipleUserDataPermissionRequest, CheckMultipleUserDataPermissionResponse];
   'REQUEST_PERMISSION_WITH_CODE': [RequestPermissionWithCodeRequest, RequestPermissionWithCodeResponse];
   'GET_MULTIPLE_USER_DATA': [GetMultipleUserDataRequest, GetMultipleUserDataResponse];
-  'REQUEST_PERMISSION_WITH_CODE': [RequestPermissionWithCodeRequest, RequestPermissionWithCodeResponse];
   'CHECK_PERMISSION_WITH_CODE': [CheckPermissionWithCodeRequest, CheckPermissionWithCodeResponse];
   'CLEAR_PERMISSION_CACHE': [ClearPermissionCacheRequest, ClearPermissionCacheResponse];
   'REQUEST_CAMERA_PERMISSION': [RequestCameraPermissionRequest, RequestCameraPermissionResponse];
@@ -165,8 +162,6 @@ export const MINIAPP_EVENTS = {
   requestPermissionWithCode: 'REQUEST_PERMISSION_WITH_CODE' as const,
   /** Lấy nhiều trường dữ liệu người dùng từ host app. */
   getMultipleUserData: 'GET_MULTIPLE_USER_DATA' as const,
-  /** Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level). */
-  requestPermissionWithCode: 'REQUEST_PERMISSION_WITH_CODE' as const,
   /** Kiểm tra trạng thái quyền cụ thể. */
   checkPermissionWithCode: 'CHECK_PERMISSION_WITH_CODE' as const,
   /** Xóa tất cả quyền đã cache ở local. */

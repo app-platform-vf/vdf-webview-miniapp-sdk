@@ -25,8 +25,6 @@ import type {
   RequestPermissionWithCodeResponse,
   GetMultipleUserDataRequest,
   GetMultipleUserDataResponse,
-  RequestPermissionWithCodeRequest,
-  RequestPermissionWithCodeResponse,
   CheckPermissionWithCodeRequest,
   CheckPermissionWithCodeResponse,
   ClearPermissionCacheRequest,
@@ -238,15 +236,6 @@ export async function getMultipleUserData(payload: GetMultipleUserDataRequest): 
   const _p: any = { ...payload };
   if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
   return send<GetMultipleUserDataResponse>('GET_MULTIPLE_USER_DATA', _p);
-}
-
-/**
- * Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).
- * Event: REQUEST_PERMISSION_WITH_CODE
- * @param payload.data.permissionCode (required) Tham so 1
- */
-export async function requestPermissionWithCode(payload: RequestPermissionWithCodeRequest): Promise<MiniAppResponse<RequestPermissionWithCodeResponse>> {
-  return send<RequestPermissionWithCodeResponse>('REQUEST_PERMISSION_WITH_CODE', payload);
 }
 
 /**
@@ -612,8 +601,6 @@ export const MiniAppAPI = {
   requestPermissionWithCode,
   /** Lấy nhiều trường dữ liệu người dùng từ host app. */
   getMultipleUserData,
-  /** Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level). */
-  requestPermissionWithCode,
   /** Kiểm tra trạng thái quyền cụ thể. */
   checkPermissionWithCode,
   /** Xóa tất cả quyền đã cache ở local. */

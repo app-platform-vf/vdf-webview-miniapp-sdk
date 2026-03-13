@@ -327,38 +327,6 @@
       }
     },
     {
-      "event": "REQUEST_PERMISSION_WITH_CODE",
-      "description": "Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).",
-      "request": {
-        "data": {
-          "meta_data": "object",
-          "required": true,
-          "description": "Du lieu",
-          "fields": {
-            "permissionCode": {
-              "type": "string",
-              "required": true,
-              "description": "Tham so 1"
-            }
-          }
-        }
-      },
-      "response": {
-        "permissionCode": {
-          "meta_data": "string",
-          "required": false
-        },
-        "result": {
-          "meta_data": "string",
-          "required": false
-        },
-        "message": {
-          "meta_data": "string",
-          "required": false
-        }
-      }
-    },
-    {
       "event": "CHECK_PERMISSION_WITH_CODE",
       "description": "Kiểm tra trạng thái quyền cụ thể.",
       "request": {

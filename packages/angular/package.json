@@ -5,8 +5,5 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json"
-  },
-  "peerDependencies": {
-    "@angular/core": "^15"
   }
 }
