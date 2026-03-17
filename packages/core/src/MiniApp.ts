@@ -226,8 +226,8 @@ export class MiniApp {
   // ============================================================
 
   private startListening(): void {
-    (window as any).miniappSdkToWebview = (data: any) => {
-      Logger.log('Recever raw =======' + data);
+    window.miniappSdkToWebview = (data: any) => {
+      Logger.log('Receiver raw =======' + data);
       const msg = parseNativeMessage(data);
       if (!msg) return;
       this.handleMessage(msg);
@@ -236,7 +236,7 @@ export class MiniApp {
 
   private stopListening(): void {
     if (this.messageHandler) {
-      (window as any).miniappSdkToWebview = () => { Logger.log('Da stopListening')};
+      window.miniappSdkToWebview = () => { Logger.log('Da stopListening')};
       this.messageHandler = null;
     }
   }

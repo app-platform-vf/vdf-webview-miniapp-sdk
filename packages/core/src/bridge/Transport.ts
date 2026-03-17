@@ -4,8 +4,9 @@ import { Logger } from '../utils/logger';
 
 declare global {
   interface Window {
-    AndroidWebview?: { miniappWebviewToSdk(msg: string): void };
-    webkit?: { messageHandlers: { miniappWebviewToSdk: { postMessage(msg: string): void } } };
+    AndroidWebview?: { miniappWebviewToSdk(msg: string): void }; // Bên android định nghĩa interface này để webview có thể gọi event
+    webkit?: { messageHandlers: { miniappWebviewToSdk: { postMessage(msg: string): void } } }; // Bên iOS định nghĩa interface này để webview có thể gọi event
+    miniappSdkToWebview?: (msg: string) => void; // Bên webview định nghĩa function này để native có thể gửi message xuống webview
   }
 }
 
