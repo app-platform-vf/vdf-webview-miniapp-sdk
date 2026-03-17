@@ -3,8 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "set NODE_OPTIONS=--openssl-legacy-provider && ng serve",
-    "build": "set NODE_OPTIONS=--openssl-legacy-provider && ng build",
+    "dev": "ng serve",
+    "build": "ng build",
     "start": "set NODE_OPTIONS=--openssl-legacy-provider && ng serve"
   },
   "dependencies": {

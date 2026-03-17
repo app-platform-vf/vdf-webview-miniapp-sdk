@@ -131,7 +131,7 @@ import type {
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */
 export function isSuccess(response: MiniAppResponseBase): boolean {
-  return response.eventStatus?.errorCode === 'SDK000';
+  return response.eventStatus?.errorCode === 'SDK000' || response.errorCode === 'SDK000';
 }
 
 type SendRawFn = (message: MiniAppRequestBase) => Promise<any>;

@@ -8,7 +8,7 @@
         "create-event": "node packages/core/src/event.js",
         "doc": "node build-doc.js",
         "build": "npm run build --workspace packages/core",
-        "pack": "npm run create-event && (if not exist node_modules npm install) && npm run build && (if not exist dist mkdir dist) && npm pack --workspace packages/core --pack-destination ./dist"
+        "pack": "npm run create-event && npm run build && (if not exist dist mkdir dist) && npm pack --workspace packages/core --pack-destination ./dist"
     },
     "devDependencies": {
         "typescript": "^5.9.3"
