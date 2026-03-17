@@ -247,7 +247,7 @@ function genApi(config) {
   // Check response success
   lines.push("/** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */")
   lines.push("export function isSuccess(response: MiniAppResponseBase): boolean {")
-  lines.push("  return response.eventStatus?.errorCode === 'SDK000';")
+  lines.push("  return response.eventStatus?.errorCode === 'SDK000' || response.errorCode === 'SDK000';")
   lines.push("}")
   lines.push("")
 

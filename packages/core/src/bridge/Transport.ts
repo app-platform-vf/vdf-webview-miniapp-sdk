@@ -1,20 +1,20 @@
-import type { MiniAppRequestBase } from '../generated/types.generated';
+import type { MiniAppRequestBase, MiniAppResponseBase } from '../generated/types.generated';
 import { Platform } from '../types';
+import { Logger } from '../utils/logger';
 
 declare global {
   interface Window {
-    ReactNativeWebView?: { postMessage(msg: string): void };
-    AndroidBridge?: { postMessage(msg: string): void };
-    webkit?: { messageHandlers: { bridge: { postMessage(msg: string): void } } };
+    AndroidWebview?: { miniappWebviewToSdk(msg: string): void }; // Bên android định nghĩa interface này để webview có thể gọi event
+    webkit?: { messageHandlers: { miniappWebviewToSdk: { postMessage(msg: string): void } } }; // Bên iOS định nghĩa interface này để webview có thể gọi event
+    miniappSdkToWebview?: (msg: string) => void; // Bên webview định nghĩa function này để native có thể gửi message xuống webview
   }
 }
 
 /** Phat hien nen tang hien tai */
 export function detectPlatform(): Platform {
   if (typeof window === 'undefined') return 'web';
-  if (window.ReactNativeWebView) return 'react-native';
-  if (window.AndroidBridge) return 'android';
-  if (window.webkit?.messageHandlers?.bridge) return 'ios';
+  if (window.AndroidWebview) return 'android';
+  if (window.webkit?.messageHandlers?.miniappWebviewToSdk) return 'ios';
   return 'web';
 }
 
@@ -22,16 +22,14 @@ export function detectPlatform(): Platform {
 export function sendToNative(message: MiniAppRequestBase): void {
   const json = JSON.stringify(message);
   const platform = detectPlatform();
+  Logger.log('>>> sending to native platform:', platform, message);
 
   switch (platform) {
-    case 'react-native':
-      window.ReactNativeWebView!.postMessage(json);
-      break;
     case 'android':
-      window.AndroidBridge!.postMessage(json);
+      window.AndroidWebview!.miniappWebviewToSdk(json);
       break;
     case 'ios':
-      window.webkit!.messageHandlers.bridge.postMessage(json);
+      window.webkit!.messageHandlers.miniappWebviewToSdk.postMessage(json);
       break;
     case 'web':
     default:
@@ -41,10 +39,10 @@ export function sendToNative(message: MiniAppRequestBase): void {
 }
 
 /** Parse message tu native gui xuong */
-export function parseNativeMessage(raw: any): MiniAppRequestBase | null {
+export function parseNativeMessage(raw: any): MiniAppResponseBase | null {
   try {
     if (typeof raw === 'string') return JSON.parse(raw);
-    if (typeof raw === 'object' && raw.event) return raw as MiniAppRequestBase;
+    if (typeof raw === 'object' && raw.event) return raw as MiniAppResponseBase;
     return null;
   } catch {
     return null;
