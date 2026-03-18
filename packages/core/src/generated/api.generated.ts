@@ -162,7 +162,7 @@ function send<TRes>(event: string, payload: Record<string, any>): Promise<MiniAp
  * @param payload.data.url (required) URL của webview cần mở
  * @param payload.data.serviceName (optional) Tiêu đề hiển thị trên app bar
  * @param payload.data.isPaymentConfirm (optional) false = đóng mini app để sang gateway thanh toán
- * @param payload.data.resourceType (optional) "HTML" = mở trong webview, khác = mở browser mặc định
+ * @param payload.data.resourceType (optional) HTML = mở trong webview, khác = mở browser mặc định
  * @param payload.data.returnUrl (optional) URL trả về khi thành công/thất bại/timeout
  * @param payload.data.cancelUrl (optional) URL trả về khi người dùng cancel
  */
@@ -183,7 +183,7 @@ export async function appOpenStore(payload: AppOpenStoreRequest): Promise<MiniAp
 /**
  * Đóng Mini App và điều hướng về màn hình khác.
  * Event: EXIT
- * @param payload.data.navigationAction (optional) RETURN_HOME_APP - Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App
+ * @param payload.data.navigationAction (optional) Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App [default: "RETURN_HOME_APP"]
  */
 export async function exit(payload: ExitRequest): Promise<MiniAppResponse<ExitResponse>> {
   return send<ExitResponse>('EXIT', payload);
@@ -492,7 +492,6 @@ export async function getContacts(payload: GetContactsRequest = {} as any): Prom
  * @note data duoc JSON.stringify() truoc khi gui
  * @param payload.data.mimeType (required) 
  * @param payload.data.isCapture (optional) 
- * @param payload.data.new_field (optional) 
  */
 export async function pickFile(payload: PickFileRequest = {} as any): Promise<MiniAppResponse<PickFileResponse>> {
   const _p: any = { ...payload };

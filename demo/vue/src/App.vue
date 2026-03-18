@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import {
   getSharedMiniApp,
   appOpenWebview,
@@ -69,6 +69,10 @@ const logs = ref<string[]>([]);
 const input = ref('');
 const popup = ref<any>(null);
 
+const formatLog = computed(() => {
+  return logs.value.length ? logs.value.join('\n') : 'No logs yet.';
+});
+
 onMounted(() => { app.ready(); });
 
 function getInput(): any {
@@ -78,15 +82,15 @@ function getInput(): any {
 }
 
 const fns: Record<string, () => Promise<any>> = {
-  'appOpenWebview': () => appOpenWebview(getInput() || {'data':{'url':'URL của webview cần ','serviceName':'Tiêu đề hiển thị trê'}}),
+  'appOpenWebview': () => appOpenWebview(getInput() || {'data':{'url':'URL của webview cần mở','serviceName':'Tiêu đề hiển thị trên app bar','isPaymentConfirm':true,'resourceType':'HTML = mở trong webview, khác = mở brows','returnUrl':'URL trả về khi thành công/thất bại/timeo','cancelUrl':'URL trả về khi người dùng cancel'}}),
   'appOpenStore': () => appOpenStore(getInput() || {'data':{'fallbackUrlAndroid':'URL android','fallbackUrlIos':'URL Ios'}}),
-  'exit': () => exit(getInput() || {'data':{'navigationAction':'RETURN_HOME_APP - Qu'}}),
+  'exit': () => exit(getInput() || {'data':{'navigationAction':'Quay về trang chủ của host app; TH khác '}}),
   'openExternalLink': () => openExternalLink(getInput() || {'data':{'uri':'Link Ngoài'}}),
-  'openMiniApp': () => openMiniApp(getInput() || {'data':{'route':'example','miniappKey':'Key của Mini App cần'}}),
-  'requestMultipleUserDataPermission': () => requestMultipleUserDataPermission(getInput() || {'data':{'permissionCodes':[],'useSameReason':true}}),
-  'checkMultipleUserDataPermission': () => checkMultipleUserDataPermission(getInput() || {'data':{'permissionCodes':[]}}),
+  'openMiniApp': () => openMiniApp(getInput() || {'data':{'route':{},'miniappKey':'Key của Mini App cần mở - ','additional':{},'launchConfig':{},'navStyle':{},'tracking':{}}}),
+  'requestMultipleUserDataPermission': () => requestMultipleUserDataPermission(getInput() || {'data':{'permissionCodes':['example1','example2'],'useSameReason':true}}),
+  'checkMultipleUserDataPermission': () => checkMultipleUserDataPermission(getInput() || {'data':{'permissionCodes':['example1','example2']}}),
   'requestPermissionWithCode': () => requestPermissionWithCode(getInput() || {'data':{'permissionCode':'mã quyền'}}),
-  'getMultipleUserData': () => getMultipleUserData(getInput() || {'data':{'dataNames':[]}}),
+  'getMultipleUserData': () => getMultipleUserData(getInput() || {'data':{'dataNames':['example1','example2']}}),
   'checkPermissionWithCode': () => checkPermissionWithCode(getInput() || {'data':{'permissionCode':'Tham so 1'}}),
   'clearPermissionCache': () => clearPermissionCache(getInput() || {'data':{}}),
   'requestCameraPermission': () => requestCameraPermission(),
@@ -112,10 +116,10 @@ const fns: Record<string, () => Promise<any>> = {
   'checkPhoneCallPermission': () => checkPhoneCallPermission(),
   'checkPaymentPermission': () => checkPaymentPermission(),
   'checkLoginPermission': () => checkLoginPermission(),
-  'checkLocalAuthenticationPermission': () => checkLocalAuthenticationPermission(getInput() || {'data':{'authOptionsParam':'example'}}),
+  'checkLocalAuthenticationPermission': () => checkLocalAuthenticationPermission(getInput() || {'data':{'authOptionsParam':{}}}),
   'getLocalAuthenticationStatus': () => getLocalAuthenticationStatus(),
-  'getContacts': () => getContacts(getInput() || {'data':{'filter':'example','pager':'example'}}),
-  'pickFile': () => pickFile(getInput() || {'data':{'mimeType':[],'isCapture':true}}),
+  'getContacts': () => getContacts(getInput() || {'data':{'filter':{},'pager':{}}}),
+  'pickFile': () => pickFile(getInput() || {'data':{'mimeType':['example1','example2'],'isCapture':true}}),
   'getLocation': () => getLocation(),
   'setBackgroundStatusBarColor': () => setBackgroundStatusBarColor(getInput() || {'data':{},'color':'example'}),
   'setNavigationBarColor': () => setNavigationBarColor(getInput() || {'data':{},'color':'example'}),
@@ -151,14 +155,14 @@ interface EventInfo {
 
 const groups: { title: string; events: EventInfo[] }[] = [
   { title: 'Navigation', events: [
-      { name: 'appOpenWebview', event: 'APP_OPEN_WEBVIEW', desc: 'Mở một WebView mới với URL và cấu hình tùy chỉnh.', hasParams: true, defaultData: '{"data":{"url":"URL của webview cần ","serviceName":"Tiêu đề hiển thị trê"}}' },
+      { name: 'appOpenWebview', event: 'APP_OPEN_WEBVIEW', desc: 'Mở một WebView mới với URL và cấu hình tùy chỉnh.', hasParams: true, defaultData: '{"data":{"url":"URL của webview cần mở","serviceName":"Tiêu đề hiển thị trên app bar","isPaymentConfirm":true,"resourceType":"HTML = mở trong webview, khác = mở brows","returnUrl":"URL trả về khi thành công/thất bại/timeo","cancelUrl":"URL trả về khi người dùng cancel"}}' },
       { name: 'appOpenStore', event: 'APP_OPEN_STORE', desc: 'Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.', hasParams: true, defaultData: '{"data":{"fallbackUrlAndroid":"URL android","fallbackUrlIos":"URL Ios"}}' },
-      { name: 'exit', event: 'EXIT', desc: 'Đóng Mini App và điều hướng về màn hình khác.', hasParams: true, defaultData: '{"data":{"navigationAction":"RETURN_HOME_APP - Qu"}}' },
+      { name: 'exit', event: 'EXIT', desc: 'Đóng Mini App và điều hướng về màn hình khác.', hasParams: true, defaultData: '{"data":{"navigationAction":"Quay về trang chủ của host app; TH khác "}}' },
       { name: 'openExternalLink', event: 'OPEN_EXTERNAL_LINK', desc: 'Mở URL bằng browser mặc định của hệ thống.', hasParams: true, defaultData: '{"data":{"uri":"Link Ngoài"}}' },
-      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: 'Mở một Mini App khác từ Mini App hiện tại.', hasParams: true, defaultData: '{"data":{"route":"example","miniappKey":"Key của Mini App cần"}}' }
+      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: 'Mở một Mini App khác từ Mini App hiện tại.', hasParams: true, defaultData: '{"data":{"route":{},"miniappKey":"Key của Mini App cần mở - ","additional":{},"launchConfig":{},"navStyle":{},"tracking":{}}}' }
   ] },
   { title: 'Request Permissions', events: [
-      { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: 'Yêu cầu nhiều quyền user data cùng một lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":[],"useSameReason":true}}' },
+      { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: 'Yêu cầu nhiều quyền user data cùng một lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["example1","example2"],"useSameReason":true}}' },
       { name: 'requestPermissionWithCode', event: 'REQUEST_PERMISSION_WITH_CODE', desc: 'Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).', hasParams: true, defaultData: '{"data":{"permissionCode":"mã quyền"}}' },
       { name: 'requestCameraPermission', event: 'REQUEST_CAMERA_PERMISSION', desc: 'Yêu cầu mở camera', hasParams: false, defaultData: '' },
       { name: 'requestLocationPermission', event: 'REQUEST_LOCATION_PERMISSION', desc: 'Yêu cầu vị trí', hasParams: false, defaultData: '' },
@@ -174,7 +178,7 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'requestLocalAuthenticationPermission', event: 'REQUEST_LOCAL_AUTHENTICATION_PERMISSION', desc: 'Yêu cầu xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: '' }
   ] },
   { title: 'Check Permissions', events: [
-      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: 'Kiểm tra trạng thái nhiều quyền user data cùng lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":[]}}' },
+      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: 'Kiểm tra trạng thái nhiều quyền user data cùng lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["example1","example2"]}}' },
       { name: 'checkPermissionWithCode', event: 'CHECK_PERMISSION_WITH_CODE', desc: 'Kiểm tra trạng thái quyền cụ thể.', hasParams: true, defaultData: '{"data":{"permissionCode":"Tham so 1"}}' },
       { name: 'checkCameraPermission', event: 'CHECK_CAMERA_PERMISSION', desc: 'Kiểm tra quyền camera', hasParams: false, defaultData: '' },
       { name: 'checkLocationPermission', event: 'CHECK_LOCATION_PERMISSION', desc: 'Kiểm tra quyền vị trí', hasParams: false, defaultData: '' },
@@ -187,17 +191,17 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'checkPhoneCallPermission', event: 'CHECK_PHONE_CALL_PERMISSION', desc: 'Kiểm tra quyền gọi điện', hasParams: false, defaultData: '' },
       { name: 'checkPaymentPermission', event: 'CHECK_PAYMENT_PERMISSION', desc: '', hasParams: false, defaultData: '' },
       { name: 'checkLoginPermission', event: 'CHECK_LOGIN_PERMISSION', desc: '', hasParams: false, defaultData: '' },
-      { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', hasParams: true, defaultData: '{"data":{"authOptionsParam":"example"}}' }
+      { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', hasParams: true, defaultData: '{"data":{"authOptionsParam":{}}}' }
   ] },
   { title: 'Data', events: [
-      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: 'Lấy nhiều trường dữ liệu người dùng từ host app.', hasParams: true, defaultData: '{"data":{"dataNames":[]}}' },
+      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: 'Lấy nhiều trường dữ liệu người dùng từ host app.', hasParams: true, defaultData: '{"data":{"dataNames":["example1","example2"]}}' },
       { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: '' },
-      { name: 'getContacts', event: 'GET_CONTACTS', desc: 'Truy cập danh bạ', hasParams: true, defaultData: '{"data":{"filter":"example","pager":"example"}}' },
+      { name: 'getContacts', event: 'GET_CONTACTS', desc: 'Truy cập danh bạ', hasParams: true, defaultData: '{"data":{"filter":{},"pager":{}}}' },
       { name: 'getLocation', event: 'GET_LOCATION', desc: 'Lấy vị trí thiết bị', hasParams: false, defaultData: '' }
   ] },
   { title: 'Other', events: [
       { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: 'Xóa tất cả quyền đã cache ở local.', hasParams: true, defaultData: '{"data":{}}' },
-      { name: 'pickFile', event: 'PICK_FILE', desc: 'Mở file tài liệu', hasParams: true, defaultData: '{"data":{"mimeType":[],"isCapture":true}}' },
+      { name: 'pickFile', event: 'PICK_FILE', desc: 'Mở file tài liệu', hasParams: true, defaultData: '{"data":{"mimeType":["example1","example2"],"isCapture":true}}' },
       { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: 'Mở dialog chia sẻ nội dung text.', hasParams: true, defaultData: '{"data":{},"content":"example"}' }
   ] },
   { title: 'UI Customization', events: [
@@ -231,7 +235,7 @@ const groups: { title: string; events: EventInfo[] }[] = [
 ];
 
 function log(msg: string, data?: any) {
-  const entry = data ? `${msg}: ${JSON.stringify(data)}` : msg;
+  const entry = data ? `${msg}: ${JSON.stringify(data, null, 2)}` : msg;
   logs.value.unshift(`[${new Date().toLocaleTimeString()}] ${entry}`);
 }
 
@@ -244,7 +248,7 @@ async function runEvent(evt: EventInfo) {
     const res = await fn();
     log(`OK ${evt.name}`, res);
   } catch (err: any) {
-    log(`ERR ${evt.name}: ${err.message}`);
+    log(`ERR ${evt.name}`, err);
   }
 }
 
@@ -261,18 +265,30 @@ function showPopup(evt: EventInfo) {
 </script>
 
 <template>
-  <div style="font-family: system-ui; padding: 16px; max-width: 600px; margin: 0 auto">
-    <h1 style="font-size: 20px">MiniApp SDK - Vue Demo</h1>
+  <div class="container">
+    <h1>MiniApp SDK - Vue Demo</h1>
 
-    <!-- Input -->
-    <section>
-      <h3 class="section-title">Input Data (JSON)</h3>
-      <textarea
-        v-model="input"
-        placeholder='{"data":{"url":"https://example.com"}}'
-        class="input-area"
-      ></textarea>
-    </section>
+    <div class="sticky-top">
+      <!-- Input -->
+      <section>
+        <h3 class="section-title">Input Data (JSON)</h3>
+        <textarea
+          rows="5"
+          v-model="input"
+          placeholder='{"data":{"url":"https://example.com"}}'
+          class="input-area"
+        ></textarea>
+      </section>
+
+      <!-- Logs -->
+      <div style="margin-top: 16px">
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <h3 style="margin: 0">Logs</h3>
+          <button class="btn" @click="logs = []">Clear</button>
+        </div>
+        <pre class="log-area"><code style="width: 800px; display: block;">{{ formatLog }}</code></pre>
+      </div>
+    </div>
 
     <!-- Event groups -->
     <section v-for="group in groups" :key="group.title">
@@ -280,7 +296,7 @@ function showPopup(evt: EventInfo) {
       <div class="btn-group">
         <div v-for="evt in group.events" :key="evt.name" class="evt-wrap">
           <button class="btn" @click="showPopup(evt)" :title="evt.desc">{{ evt.name }}</button>
-          <div v-if="popup?.name === evt.name" class="popup">
+          <div v-if="popup?.name === evt.name" class="popup-custom">
             <div class="popup-title">{{ evt.event }}</div>
             <div v-if="evt.desc" class="popup-desc">{{ evt.desc }}</div>
             <div class="popup-actions">
@@ -299,22 +315,13 @@ function showPopup(evt: EventInfo) {
         <button class="btn" @click="runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: '' })">invoke(input)</button>
       </div>
     </section>
-
-    <!-- Logs -->
-    <div style="margin-top: 16px">
-      <div style="display: flex; justify-content: space-between; align-items: center">
-        <h3 style="margin: 0">Logs</h3>
-        <button class="btn" @click="logs = []">Clear</button>
-      </div>
-      <pre class="log-area">{{ logs.length ? logs.join('\n') : 'No logs yet.' }}</pre>
-    </div>
-
-    <!-- Overlay -->
-    <div v-if="popup" class="overlay" @click="popup = null"></div>
   </div>
 </template>
 
 <style>
+.container { font-family: system-ui; top: 0; left: 0; padding: 16px; margin: 0 auto; position: fixed; width: 100vw; height: 100vh; overflow: auto; background: #f9f9f9; }
+h1 { font-size: 20px; }
+.sticky-top { position: sticky; top: -20px; background: white; z-index: 1; padding-right: 20px;}
 .section-title { font-size: 14px; color: #666; border-bottom: 1px solid #eee; padding-bottom: 4px; }
 .btn-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd; background: #f5f5f5; cursor: pointer; font-size: 12px; }
@@ -323,12 +330,31 @@ function showPopup(evt: EventInfo) {
 .btn-run:hover { background: #45a049; }
 .btn-fill { background: #2196F3; color: #fff; border-color: #2196F3; }
 .btn-fill:hover { background: #1e88e5; }
-.input-area { width: 100%; min-height: 60px; font-family: monospace; font-size: 12px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; resize: vertical; }
+.input-area { width: calc(100vw - 40px); min-height: 60px; font-family: monospace; font-size: 12px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; resize: vertical; }
 .evt-wrap { position: relative; display: inline-block; }
-.popup { position: absolute; top: 100%; left: 0; z-index: 100; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; min-width: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.popup-custom { position: absolute; top: 100%; left: 0; z-index: 100; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; min-width: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 .popup-title { font-weight: bold; font-size: 12px; margin-bottom: 4px; }
 .popup-desc { font-size: 11px; color: #666; margin-bottom: 8px; }
 .popup-actions { display: flex; gap: 6px; }
 .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; }
-.log-area { background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 8px; font-size: 12px; max-height: 300px; overflow: auto; white-space: pre-wrap; }
+.log-area {
+    margin-top: 10px;
+    padding: 12px;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    border-radius: 6px;
+    border: 1px solid #333;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.log-area::-webkit-scrollbar { width: 8px; height: 8px; }
+.log-area::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+.log-area::-webkit-scrollbar-thumb:hover { background: #555; }
+
 </style>

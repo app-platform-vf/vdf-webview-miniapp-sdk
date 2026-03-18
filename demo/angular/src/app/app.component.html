@@ -1,15 +1,27 @@
 <div class="container">
     <h1>MiniApp SDK - Angular Demo</h1>
 
-    <!-- Input JSON -->
-    <section>
-        <h3 class="section-title">Input Data (JSON)</h3>
-        <textarea
-            [(ngModel)]="inputValue"
-            placeholder='{"data":{"url":"https://example.com"}}'
-            class="input-area"
-        ></textarea>
-    </section>
+    <div class="sticky-top">
+        <!-- Input JSON -->
+        <section>
+            <h3 class="section-title">Input Data (JSON)</h3>
+            <textarea
+                rows="5"
+                [(ngModel)]="inputValue"
+                placeholder='{"data":{"url":"https://example.com"}}'
+                class="input-area"
+            ></textarea>
+        </section>
+
+        <!-- Logs -->
+        <div style="margin-top: 16px">
+            <div style="display: flex; justify-content: space-between; align-items: center">
+                <h3 style="margin: 0">Logs</h3>
+                <button class="btn" (click)="logs = []">Clear</button>
+            </div>
+            <pre class="log-area"><code style="width: 800px; display: block;">{{ formatLog }}</code></pre>
+        </div>
+    </div>
 
     <!-- Event groups -->
     <section *ngFor="let group of groups">
@@ -17,7 +29,7 @@
         <div class="btn-group">
             <div *ngFor="let evt of group.events" class="evt-wrap">
                 <button class="btn" (click)="showPopup(evt)" [title]="evt.desc">{{ evt.name }}</button>
-                <div class="popup" *ngIf="popup?.name === evt.name">
+                <div class="popup-custom" *ngIf="popup?.name === evt.name">
                     <div class="popup-title">{{ evt.event }}</div>
                     <div class="popup-desc" *ngIf="evt.desc">{{ evt.desc }}</div>
                     <div class="popup-actions">
@@ -36,16 +48,8 @@
             <button class="btn" (click)="runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: null })">invoke(input)</button>
         </div>
     </section>
-
-    <!-- Logs -->
-    <div style="margin-top: 16px">
-        <div style="display: flex; justify-content: space-between; align-items: center">
-            <h3 style="margin: 0">Logs</h3>
-            <button class="btn" (click)="logs = []">Clear</button>
-        </div>
-        <pre class="log-area">{{ logs.length ? logs.join('\n') : 'No logs yet.' }}</pre>
-    </div>
+    <div style="padding: 50px"><div>
 </div>
 
 <!-- Overlay to close popup -->
-<div class="overlay" *ngIf="popup" (click)="popup = null"></div>
+<!-- <div class="overlay" *ngIf="popup" (click)="popup = null"></div> -->

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import {
   getSharedMiniApp,
   appOpenWebview,
@@ -62,6 +62,7 @@ import {
   navigatorRedirect,
   navigatorReLaunch,
 } from '@webview-sdk/core';
+import './App.css';
 
 const app = getSharedMiniApp({ debug: true });
 
@@ -75,14 +76,14 @@ interface EventInfo {
 
 const groups: { title: string; events: EventInfo[] }[] = [
   { title: "Navigation", events: [
-      { name: 'appOpenWebview', event: 'APP_OPEN_WEBVIEW', desc: "Mở một WebView mới với URL và cấu hình tùy chỉnh.", hasParams: true, defaultData: "{\"data\":{\"url\":\"URL của webview cần \",\"serviceName\":\"Tiêu đề hiển thị trê\"}}" },
+      { name: 'appOpenWebview', event: 'APP_OPEN_WEBVIEW', desc: "Mở một WebView mới với URL và cấu hình tùy chỉnh.", hasParams: true, defaultData: "{\"data\":{\"url\":\"URL của webview cần mở\",\"serviceName\":\"Tiêu đề hiển thị trên app bar\",\"isPaymentConfirm\":true,\"resourceType\":\"HTML = mở trong webview, khác = mở brows\",\"returnUrl\":\"URL trả về khi thành công/thất bại/timeo\",\"cancelUrl\":\"URL trả về khi người dùng cancel\"}}" },
       { name: 'appOpenStore', event: 'APP_OPEN_STORE', desc: "Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.", hasParams: true, defaultData: "{\"data\":{\"fallbackUrlAndroid\":\"URL android\",\"fallbackUrlIos\":\"URL Ios\"}}" },
-      { name: 'exit', event: 'EXIT', desc: "Đóng Mini App và điều hướng về màn hình khác.", hasParams: true, defaultData: "{\"data\":{\"navigationAction\":\"RETURN_HOME_APP - Qu\"}}" },
+      { name: 'exit', event: 'EXIT', desc: "Đóng Mini App và điều hướng về màn hình khác.", hasParams: true, defaultData: "{\"data\":{\"navigationAction\":\"Quay về trang chủ của host app; TH khác \"}}" },
       { name: 'openExternalLink', event: 'OPEN_EXTERNAL_LINK', desc: "Mở URL bằng browser mặc định của hệ thống.", hasParams: true, defaultData: "{\"data\":{\"uri\":\"Link Ngoài\"}}" },
-      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: "Mở một Mini App khác từ Mini App hiện tại.", hasParams: true, defaultData: "{\"data\":{\"route\":\"example\",\"miniappKey\":\"Key của Mini App cần\"}}" }
+      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: "Mở một Mini App khác từ Mini App hiện tại.", hasParams: true, defaultData: "{\"data\":{\"route\":{},\"miniappKey\":\"Key của Mini App cần mở - \",\"additional\":{},\"launchConfig\":{},\"navStyle\":{},\"tracking\":{}}}" }
   ] },
   { title: "Request Permissions", events: [
-      { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: "Yêu cầu nhiều quyền user data cùng một lúc.", hasParams: true, defaultData: "{\"data\":{\"permissionCodes\":[],\"useSameReason\":true}}" },
+      { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: "Yêu cầu nhiều quyền user data cùng một lúc.", hasParams: true, defaultData: "{\"data\":{\"permissionCodes\":[\"example1\",\"example2\"],\"useSameReason\":true}}" },
       { name: 'requestPermissionWithCode', event: 'REQUEST_PERMISSION_WITH_CODE', desc: "Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).", hasParams: true, defaultData: "{\"data\":{\"permissionCode\":\"mã quyền\"}}" },
       { name: 'requestCameraPermission', event: 'REQUEST_CAMERA_PERMISSION', desc: "Yêu cầu mở camera", hasParams: false, defaultData: null },
       { name: 'requestLocationPermission', event: 'REQUEST_LOCATION_PERMISSION', desc: "Yêu cầu vị trí", hasParams: false, defaultData: null },
@@ -98,7 +99,7 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'requestLocalAuthenticationPermission', event: 'REQUEST_LOCAL_AUTHENTICATION_PERMISSION', desc: "Yêu cầu xác thực sinh trắc học (vân tay, Face ID).", hasParams: false, defaultData: null }
   ] },
   { title: "Check Permissions", events: [
-      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: "Kiểm tra trạng thái nhiều quyền user data cùng lúc.", hasParams: true, defaultData: "{\"data\":{\"permissionCodes\":[]}}" },
+      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: "Kiểm tra trạng thái nhiều quyền user data cùng lúc.", hasParams: true, defaultData: "{\"data\":{\"permissionCodes\":[\"example1\",\"example2\"]}}" },
       { name: 'checkPermissionWithCode', event: 'CHECK_PERMISSION_WITH_CODE', desc: "Kiểm tra trạng thái quyền cụ thể.", hasParams: true, defaultData: "{\"data\":{\"permissionCode\":\"Tham so 1\"}}" },
       { name: 'checkCameraPermission', event: 'CHECK_CAMERA_PERMISSION', desc: "Kiểm tra quyền camera", hasParams: false, defaultData: null },
       { name: 'checkLocationPermission', event: 'CHECK_LOCATION_PERMISSION', desc: "Kiểm tra quyền vị trí", hasParams: false, defaultData: null },
@@ -111,17 +112,17 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'checkPhoneCallPermission', event: 'CHECK_PHONE_CALL_PERMISSION', desc: "Kiểm tra quyền gọi điện", hasParams: false, defaultData: null },
       { name: 'checkPaymentPermission', event: 'CHECK_PAYMENT_PERMISSION', desc: "", hasParams: false, defaultData: null },
       { name: 'checkLoginPermission', event: 'CHECK_LOGIN_PERMISSION', desc: "", hasParams: false, defaultData: null },
-      { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: "kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).", hasParams: true, defaultData: "{\"data\":{\"authOptionsParam\":\"example\"}}" }
+      { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: "kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).", hasParams: true, defaultData: "{\"data\":{\"authOptionsParam\":{}}}" }
   ] },
   { title: "Data", events: [
-      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: "Lấy nhiều trường dữ liệu người dùng từ host app.", hasParams: true, defaultData: "{\"data\":{\"dataNames\":[]}}" },
+      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: "Lấy nhiều trường dữ liệu người dùng từ host app.", hasParams: true, defaultData: "{\"data\":{\"dataNames\":[\"example1\",\"example2\"]}}" },
       { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: " lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).", hasParams: false, defaultData: null },
-      { name: 'getContacts', event: 'GET_CONTACTS', desc: "Truy cập danh bạ", hasParams: true, defaultData: "{\"data\":{\"filter\":\"example\",\"pager\":\"example\"}}" },
+      { name: 'getContacts', event: 'GET_CONTACTS', desc: "Truy cập danh bạ", hasParams: true, defaultData: "{\"data\":{\"filter\":{},\"pager\":{}}}" },
       { name: 'getLocation', event: 'GET_LOCATION', desc: "Lấy vị trí thiết bị", hasParams: false, defaultData: null }
   ] },
   { title: "Other", events: [
       { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: "Xóa tất cả quyền đã cache ở local.", hasParams: true, defaultData: "{\"data\":{}}" },
-      { name: 'pickFile', event: 'PICK_FILE', desc: "Mở file tài liệu", hasParams: true, defaultData: "{\"data\":{\"mimeType\":[],\"isCapture\":true}}" },
+      { name: 'pickFile', event: 'PICK_FILE', desc: "Mở file tài liệu", hasParams: true, defaultData: "{\"data\":{\"mimeType\":[\"example1\",\"example2\"],\"isCapture\":true}}" },
       { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: "Mở dialog chia sẻ nội dung text.", hasParams: true, defaultData: "{\"data\":{},\"content\":\"example\"}" }
   ] },
   { title: "UI Customization", events: [
@@ -163,6 +164,10 @@ export default function App() {
 
   useEffect(() => { app.ready(); }, []);
 
+  const formatLog = useMemo(() => {
+    return logs.length ? logs.join('\n') : 'No logs yet.';
+  }, [logs]);
+
   const getInput = useCallback((): any => {
     const v = inputRef.current.trim();
     if (!v) return null;
@@ -170,15 +175,15 @@ export default function App() {
   }, []);
 
   const fns: Record<string, () => Promise<any>> = {
-    'appOpenWebview': () => appOpenWebview(getInput() || {"data":{"url":"URL của webview cần ","serviceName":"Tiêu đề hiển thị trê"}}),
+    'appOpenWebview': () => appOpenWebview(getInput() || {"data":{"url":"URL của webview cần mở","serviceName":"Tiêu đề hiển thị trên app bar","isPaymentConfirm":true,"resourceType":"HTML = mở trong webview, khác = mở brows","returnUrl":"URL trả về khi thành công/thất bại/timeo","cancelUrl":"URL trả về khi người dùng cancel"}}),
     'appOpenStore': () => appOpenStore(getInput() || {"data":{"fallbackUrlAndroid":"URL android","fallbackUrlIos":"URL Ios"}}),
-    'exit': () => exit(getInput() || {"data":{"navigationAction":"RETURN_HOME_APP - Qu"}}),
+    'exit': () => exit(getInput() || {"data":{"navigationAction":"Quay về trang chủ của host app; TH khác "}}),
     'openExternalLink': () => openExternalLink(getInput() || {"data":{"uri":"Link Ngoài"}}),
-    'openMiniApp': () => openMiniApp(getInput() || {"data":{"route":"example","miniappKey":"Key của Mini App cần"}}),
-    'requestMultipleUserDataPermission': () => requestMultipleUserDataPermission(getInput() || {"data":{"permissionCodes":[],"useSameReason":true}}),
-    'checkMultipleUserDataPermission': () => checkMultipleUserDataPermission(getInput() || {"data":{"permissionCodes":[]}}),
+    'openMiniApp': () => openMiniApp(getInput() || {"data":{"route":{},"miniappKey":"Key của Mini App cần mở - ","additional":{},"launchConfig":{},"navStyle":{},"tracking":{}}}),
+    'requestMultipleUserDataPermission': () => requestMultipleUserDataPermission(getInput() || {"data":{"permissionCodes":["example1","example2"],"useSameReason":true}}),
+    'checkMultipleUserDataPermission': () => checkMultipleUserDataPermission(getInput() || {"data":{"permissionCodes":["example1","example2"]}}),
     'requestPermissionWithCode': () => requestPermissionWithCode(getInput() || {"data":{"permissionCode":"mã quyền"}}),
-    'getMultipleUserData': () => getMultipleUserData(getInput() || {"data":{"dataNames":[]}}),
+    'getMultipleUserData': () => getMultipleUserData(getInput() || {"data":{"dataNames":["example1","example2"]}}),
     'checkPermissionWithCode': () => checkPermissionWithCode(getInput() || {"data":{"permissionCode":"Tham so 1"}}),
     'clearPermissionCache': () => clearPermissionCache(getInput() || {"data":{}}),
     'requestCameraPermission': () => requestCameraPermission(),
@@ -204,10 +209,10 @@ export default function App() {
     'checkPhoneCallPermission': () => checkPhoneCallPermission(),
     'checkPaymentPermission': () => checkPaymentPermission(),
     'checkLoginPermission': () => checkLoginPermission(),
-    'checkLocalAuthenticationPermission': () => checkLocalAuthenticationPermission(getInput() || {"data":{"authOptionsParam":"example"}}),
+    'checkLocalAuthenticationPermission': () => checkLocalAuthenticationPermission(getInput() || {"data":{"authOptionsParam":{}}}),
     'getLocalAuthenticationStatus': () => getLocalAuthenticationStatus(),
-    'getContacts': () => getContacts(getInput() || {"data":{"filter":"example","pager":"example"}}),
-    'pickFile': () => pickFile(getInput() || {"data":{"mimeType":[],"isCapture":true}}),
+    'getContacts': () => getContacts(getInput() || {"data":{"filter":{},"pager":{}}}),
+    'pickFile': () => pickFile(getInput() || {"data":{"mimeType":["example1","example2"],"isCapture":true}}),
     'getLocation': () => getLocation(),
     'setBackgroundStatusBarColor': () => setBackgroundStatusBarColor(getInput() || {"data":{},"color":"example"}),
     'setNavigationBarColor': () => setNavigationBarColor(getInput() || {"data":{},"color":"example"}),
@@ -234,7 +239,7 @@ export default function App() {
   };
 
   const log = useCallback((msg: string, data?: any) => {
-    const entry = data ? `${msg}: ${JSON.stringify(data)}` : msg;
+    const entry = data ? `${msg}: ${JSON.stringify(data, null, 2)}` : msg;
     setLogs(prev => [`[${new Date().toLocaleTimeString()}] ${entry}`, ...prev]);
   }, []);
 
@@ -247,7 +252,7 @@ export default function App() {
       const res = await fn();
       log(`OK ${evt.name}`, res);
     } catch (err: any) {
-      log(`ERR ${evt.name}: ${err.message}`);
+      log(`ERR ${evt.name}`, err);
     }
   }, [log]);
 
@@ -259,74 +264,62 @@ export default function App() {
   }, []);
 
   return (
-    <div style={{ fontFamily: 'system-ui', padding: 16, maxWidth: 600, margin: '0 auto' }}>
-      <h1 style={{ fontSize: 20 }}>MiniApp SDK - React Demo</h1>
+    <div className="container">
+      <h1>MiniApp SDK - React Demo</h1>
 
-      {/* Input */}
-      <Section title="Input Data (JSON)">
-        <textarea
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder='{"data":{"url":"https://example.com"}}'
-          style={{ width: '100%', minHeight: 60, fontFamily: 'monospace', fontSize: 12, padding: 8, border: '1px solid #ddd', borderRadius: 6, resize: 'vertical' as const }}
-        />
-      </Section>
+      <div className="sticky-top">
+        {/* Input */}
+        <section>
+          <h3 className="section-title">Input Data (JSON)</h3>
+          <textarea
+            rows={5}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder='{"data":{"url":"https://example.com"}}'
+            className="input-area"
+          />
+        </section>
+
+        {/* Logs */}
+        <div style={{ marginTop: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ margin: 0 }}>Logs</h3>
+            <button className="btn" onClick={() => setLogs([])}>Clear</button>
+          </div>
+          <pre className="log-area"><code style={{ width: 800, display: 'block' }}>{formatLog}</code></pre>
+        </div>
+      </div>
 
       {groups.map(g => (
-        <Section key={g.title} title={g.title}>
-          {g.events.map(evt => (
-            <div key={evt.name} style={{ position: 'relative', display: 'inline-block' }}>
-              <Btn onClick={() => setPopup(popup?.name === evt.name ? null : evt)}>{evt.name}</Btn>
-              {popup?.name === evt.name && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 100, background: '#fff', border: '1px solid #ddd', borderRadius: 8, padding: 12, minWidth: 220, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 4 }}>{evt.event}</div>
-                  {evt.desc && <div style={{ fontSize: 11, color: '#666', marginBottom: 8 }}>{evt.desc}</div>}
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <Btn onClick={() => runEvent(evt)}>Run</Btn>
-                    {evt.hasParams && <Btn onClick={() => fillInput(evt)}>Fill Input</Btn>}
+        <section key={g.title}>
+          <h3 className="section-title">{g.title}</h3>
+          <div className="btn-group">
+            {g.events.map(evt => (
+              <div key={evt.name} className="evt-wrap">
+                <button className="btn" onClick={() => setPopup(popup?.name === evt.name ? null : evt)} title={evt.desc}>{evt.name}</button>
+                {popup?.name === evt.name && (
+                  <div className="popup-custom">
+                    <div className="popup-title">{evt.event}</div>
+                    {evt.desc && <div className="popup-desc">{evt.desc}</div>}
+                    <div className="popup-actions">
+                      <button className="btn btn-run" onClick={() => runEvent(evt)}>Run</button>
+                      {evt.hasParams && <button className="btn btn-fill" onClick={() => fillInput(evt)}>Fill Input</button>}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </Section>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
       ))}
 
       {/* Generic invoke */}
-      <Section title="Generic invoke()">
-        <Btn onClick={() => runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: null })}>invoke(input)</Btn>
-      </Section>
-
-      {/* Logs */}
-      <div style={{ marginTop: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0 }}>Logs</h3>
-          <Btn onClick={() => setLogs([])}>Clear</Btn>
+      <section>
+        <h3 className="section-title">Generic invoke()</h3>
+        <div className="btn-group">
+          <button className="btn" onClick={() => runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: null })}>invoke(input)</button>
         </div>
-        <pre style={{ background: '#1e1e1e', color: '#d4d4d4', padding: 12, borderRadius: 8, fontSize: 12, maxHeight: 300, overflow: 'auto', whiteSpace: 'pre-wrap' }}>
-          {logs.length ? logs.join('\n') : 'No logs yet.'}
-        </pre>
-      </div>
-
-      {/* Overlay */}
-      {popup && <div onClick={() => setPopup(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 50 }} />}
+      </section>
     </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div style={{ marginTop: 16 }}>
-      <h3 style={{ fontSize: 14, color: '#666', borderBottom: '1px solid #eee', paddingBottom: 4 }}>{title}</h3>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>{children}</div>
-    </div>
-  );
-}
-
-function Btn({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button onClick={onClick} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #ddd', background: '#f5f5f5', cursor: 'pointer', fontSize: 12 }}>
-      {children}
-    </button>
   );
 }

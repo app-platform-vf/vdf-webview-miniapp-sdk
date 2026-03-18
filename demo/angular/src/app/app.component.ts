@@ -93,6 +93,10 @@ export class AppComponent {
     this.registerFns();
   }
 
+  get formatLog() {
+    return this.logs.length ? this.logs.join('\n') : 'No logs yet.'
+  }
+
   private getInput(): any {
     if (!this.inputValue.trim()) return null;
     try { return JSON.parse(this.inputValue); } catch { return null; }
@@ -104,15 +108,15 @@ export class AppComponent {
   }
 
   private registerFns(): void {
-    this.fns['appOpenWebview'] = () => appOpenWebview(this.getInput() || {"data":{"url":"URL của webview cần ","serviceName":"Tiêu đề hiển thị trê"}});
+    this.fns['appOpenWebview'] = () => appOpenWebview(this.getInput() || {"data":{"url":"URL của webview cần mở","serviceName":"Tiêu đề hiển thị trên app bar","isPaymentConfirm":true,"resourceType":"HTML = mở trong webview, khác = mở brows","returnUrl":"URL trả về khi thành công/thất bại/timeo","cancelUrl":"URL trả về khi người dùng cancel"}});
     this.fns['appOpenStore'] = () => appOpenStore(this.getInput() || {"data":{"fallbackUrlAndroid":"URL android","fallbackUrlIos":"URL Ios"}});
-    this.fns['exit'] = () => exit(this.getInput() || {"data":{"navigationAction":"RETURN_HOME_APP - Qu"}});
+    this.fns['exit'] = () => exit(this.getInput() || {"data":{"navigationAction":"Quay về trang chủ của host app; TH khác "}});
     this.fns['openExternalLink'] = () => openExternalLink(this.getInput() || {"data":{"uri":"Link Ngoài"}});
-    this.fns['openMiniApp'] = () => openMiniApp(this.getInput() || {"data":{"route":"example","miniappKey":"Key của Mini App cần"}});
-    this.fns['requestMultipleUserDataPermission'] = () => requestMultipleUserDataPermission(this.getInput() || {"data":{"permissionCodes":[],"useSameReason":true}});
-    this.fns['checkMultipleUserDataPermission'] = () => checkMultipleUserDataPermission(this.getInput() || {"data":{"permissionCodes":[]}});
+    this.fns['openMiniApp'] = () => openMiniApp(this.getInput() || {"data":{"route":{},"miniappKey":"Key của Mini App cần mở - ","additional":{},"launchConfig":{},"navStyle":{},"tracking":{}}});
+    this.fns['requestMultipleUserDataPermission'] = () => requestMultipleUserDataPermission(this.getInput() || {"data":{"permissionCodes":["example1","example2"],"useSameReason":true}});
+    this.fns['checkMultipleUserDataPermission'] = () => checkMultipleUserDataPermission(this.getInput() || {"data":{"permissionCodes":["example1","example2"]}});
     this.fns['requestPermissionWithCode'] = () => requestPermissionWithCode(this.getInput() || {"data":{"permissionCode":"mã quyền"}});
-    this.fns['getMultipleUserData'] = () => getMultipleUserData(this.getInput() || {"data":{"dataNames":[]}});
+    this.fns['getMultipleUserData'] = () => getMultipleUserData(this.getInput() || {"data":{"dataNames":["example1","example2"]}});
     this.fns['checkPermissionWithCode'] = () => checkPermissionWithCode(this.getInput() || {"data":{"permissionCode":"Tham so 1"}});
     this.fns['clearPermissionCache'] = () => clearPermissionCache(this.getInput() || {"data":{}});
     this.fns['requestCameraPermission'] = () => requestCameraPermission();
@@ -138,10 +142,10 @@ export class AppComponent {
     this.fns['checkPhoneCallPermission'] = () => checkPhoneCallPermission();
     this.fns['checkPaymentPermission'] = () => checkPaymentPermission();
     this.fns['checkLoginPermission'] = () => checkLoginPermission();
-    this.fns['checkLocalAuthenticationPermission'] = () => checkLocalAuthenticationPermission(this.getInput() || {"data":{"authOptionsParam":"example"}});
+    this.fns['checkLocalAuthenticationPermission'] = () => checkLocalAuthenticationPermission(this.getInput() || {"data":{"authOptionsParam":{}}});
     this.fns['getLocalAuthenticationStatus'] = () => getLocalAuthenticationStatus();
-    this.fns['getContacts'] = () => getContacts(this.getInput() || {"data":{"filter":"example","pager":"example"}});
-    this.fns['pickFile'] = () => pickFile(this.getInput() || {"data":{"mimeType":[],"isCapture":true}});
+    this.fns['getContacts'] = () => getContacts(this.getInput() || {"data":{"filter":{},"pager":{}}});
+    this.fns['pickFile'] = () => pickFile(this.getInput() || {"data":{"mimeType":["example1","example2"],"isCapture":true}});
     this.fns['getLocation'] = () => getLocation();
     this.fns['setBackgroundStatusBarColor'] = () => setBackgroundStatusBarColor(this.getInput() || {"data":{},"color":"example"});
     this.fns['setNavigationBarColor'] = () => setNavigationBarColor(this.getInput() || {"data":{},"color":"example"});
@@ -170,14 +174,14 @@ export class AppComponent {
   // Event groups
   groups: { title: string; events: EventInfo[] }[] = [
     { title: 'Navigation', events: [
-      { name: 'appOpenWebview', event: 'APP_OPEN_WEBVIEW', desc: 'Mở một WebView mới với URL và cấu hình tùy chỉnh.', hasParams: true, defaultData: '{"data":{"url":"URL của webview cần ","serviceName":"Tiêu đề hiển thị trê"}}' },
+      { name: 'appOpenWebview', event: 'APP_OPEN_WEBVIEW', desc: 'Mở một WebView mới với URL và cấu hình tùy chỉnh.', hasParams: true, defaultData: '{"data":{"url":"URL của webview cần mở","serviceName":"Tiêu đề hiển thị trên app bar","isPaymentConfirm":true,"resourceType":"HTML = mở trong webview, khác = mở brows","returnUrl":"URL trả về khi thành công/thất bại/timeo","cancelUrl":"URL trả về khi người dùng cancel"}}' },
       { name: 'appOpenStore', event: 'APP_OPEN_STORE', desc: 'Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.', hasParams: true, defaultData: '{"data":{"fallbackUrlAndroid":"URL android","fallbackUrlIos":"URL Ios"}}' },
-      { name: 'exit', event: 'EXIT', desc: 'Đóng Mini App và điều hướng về màn hình khác.', hasParams: true, defaultData: '{"data":{"navigationAction":"RETURN_HOME_APP - Qu"}}' },
+      { name: 'exit', event: 'EXIT', desc: 'Đóng Mini App và điều hướng về màn hình khác.', hasParams: true, defaultData: '{"data":{"navigationAction":"Quay về trang chủ của host app; TH khác "}}' },
       { name: 'openExternalLink', event: 'OPEN_EXTERNAL_LINK', desc: 'Mở URL bằng browser mặc định của hệ thống.', hasParams: true, defaultData: '{"data":{"uri":"Link Ngoài"}}' },
-      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: 'Mở một Mini App khác từ Mini App hiện tại.', hasParams: true, defaultData: '{"data":{"route":"example","miniappKey":"Key của Mini App cần"}}' }
+      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: 'Mở một Mini App khác từ Mini App hiện tại.', hasParams: true, defaultData: '{"data":{"route":{},"miniappKey":"Key của Mini App cần mở - ","additional":{},"launchConfig":{},"navStyle":{},"tracking":{}}}' }
     ] },
     { title: 'Request Permissions', events: [
-      { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: 'Yêu cầu nhiều quyền user data cùng một lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":[],"useSameReason":true}}' },
+      { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: 'Yêu cầu nhiều quyền user data cùng một lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["example1","example2"],"useSameReason":true}}' },
       { name: 'requestPermissionWithCode', event: 'REQUEST_PERMISSION_WITH_CODE', desc: 'Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).', hasParams: true, defaultData: '{"data":{"permissionCode":"mã quyền"}}' },
       { name: 'requestCameraPermission', event: 'REQUEST_CAMERA_PERMISSION', desc: 'Yêu cầu mở camera', hasParams: false, defaultData: null },
       { name: 'requestLocationPermission', event: 'REQUEST_LOCATION_PERMISSION', desc: 'Yêu cầu vị trí', hasParams: false, defaultData: null },
@@ -193,7 +197,7 @@ export class AppComponent {
       { name: 'requestLocalAuthenticationPermission', event: 'REQUEST_LOCAL_AUTHENTICATION_PERMISSION', desc: 'Yêu cầu xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: null }
     ] },
     { title: 'Check Permissions', events: [
-      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: 'Kiểm tra trạng thái nhiều quyền user data cùng lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":[]}}' },
+      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: 'Kiểm tra trạng thái nhiều quyền user data cùng lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["example1","example2"]}}' },
       { name: 'checkPermissionWithCode', event: 'CHECK_PERMISSION_WITH_CODE', desc: 'Kiểm tra trạng thái quyền cụ thể.', hasParams: true, defaultData: '{"data":{"permissionCode":"Tham so 1"}}' },
       { name: 'checkCameraPermission', event: 'CHECK_CAMERA_PERMISSION', desc: 'Kiểm tra quyền camera', hasParams: false, defaultData: null },
       { name: 'checkLocationPermission', event: 'CHECK_LOCATION_PERMISSION', desc: 'Kiểm tra quyền vị trí', hasParams: false, defaultData: null },
@@ -206,17 +210,17 @@ export class AppComponent {
       { name: 'checkPhoneCallPermission', event: 'CHECK_PHONE_CALL_PERMISSION', desc: 'Kiểm tra quyền gọi điện', hasParams: false, defaultData: null },
       { name: 'checkPaymentPermission', event: 'CHECK_PAYMENT_PERMISSION', desc: '', hasParams: false, defaultData: null },
       { name: 'checkLoginPermission', event: 'CHECK_LOGIN_PERMISSION', desc: '', hasParams: false, defaultData: null },
-      { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', hasParams: true, defaultData: '{"data":{"authOptionsParam":"example"}}' }
+      { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', hasParams: true, defaultData: '{"data":{"authOptionsParam":{}}}' }
     ] },
     { title: 'Data', events: [
-      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: 'Lấy nhiều trường dữ liệu người dùng từ host app.', hasParams: true, defaultData: '{"data":{"dataNames":[]}}' },
+      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: 'Lấy nhiều trường dữ liệu người dùng từ host app.', hasParams: true, defaultData: '{"data":{"dataNames":["example1","example2"]}}' },
       { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: null },
-      { name: 'getContacts', event: 'GET_CONTACTS', desc: 'Truy cập danh bạ', hasParams: true, defaultData: '{"data":{"filter":"example","pager":"example"}}' },
+      { name: 'getContacts', event: 'GET_CONTACTS', desc: 'Truy cập danh bạ', hasParams: true, defaultData: '{"data":{"filter":{},"pager":{}}}' },
       { name: 'getLocation', event: 'GET_LOCATION', desc: 'Lấy vị trí thiết bị', hasParams: false, defaultData: null }
     ] },
     { title: 'Other', events: [
       { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: 'Xóa tất cả quyền đã cache ở local.', hasParams: true, defaultData: '{"data":{}}' },
-      { name: 'pickFile', event: 'PICK_FILE', desc: 'Mở file tài liệu', hasParams: true, defaultData: '{"data":{"mimeType":[],"isCapture":true}}' },
+      { name: 'pickFile', event: 'PICK_FILE', desc: 'Mở file tài liệu', hasParams: true, defaultData: '{"data":{"mimeType":["example1","example2"],"isCapture":true}}' },
       { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: 'Mở dialog chia sẻ nội dung text.', hasParams: true, defaultData: '{"data":{},"content":"example"}' }
     ] },
     { title: 'UI Customization', events: [
@@ -250,7 +254,7 @@ export class AppComponent {
   ];
 
   log(msg: string, data?: any): void {
-    const entry = data ? `${msg}: ${JSON.stringify(data)}` : msg;
+    const entry = data ? `${msg}: ${JSON.stringify(data, null, 2)}` : msg;
     this.logs.unshift(`[${new Date().toLocaleTimeString()}] ${entry}`);
   }
 
@@ -263,7 +267,7 @@ export class AppComponent {
       const res = await fn();
       this.log(`OK ${evt.name}`, res);
     } catch (err) {
-      this.log(`ERR ${evt.name}: ${(err as any).message}`);
+      this.log(`ERR ${evt.name}`, err);
     }
   }
 

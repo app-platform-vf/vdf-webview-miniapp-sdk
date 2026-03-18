@@ -33,7 +33,7 @@ export function sendToNative(message: MiniAppRequestBase): void {
       break;
     case 'web':
     default:
-      window.postMessage(json, '*');
+      window.miniappSdkToWebview?.(json);
       break;
   }
 }

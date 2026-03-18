@@ -44,7 +44,7 @@ export interface AppOpenWebviewRequest {
     url: string; // URL của webview cần mở
     serviceName?: string; // Tiêu đề hiển thị trên app bar
     isPaymentConfirm?: boolean; // false = đóng mini app để sang gateway thanh toán
-    resourceType?: string; // "HTML" = mở trong webview, khác = mở browser mặc định
+    resourceType?: string; // HTML = mở trong webview, khác = mở browser mặc định
     returnUrl?: string; // URL trả về khi thành công/thất bại/timeout
     cancelUrl?: string; // URL trả về khi người dùng cancel
   }; // Du lieu
@@ -70,7 +70,7 @@ export interface AppOpenStoreResponse {}
 /** Đóng Mini App và điều hướng về màn hình khác. */
 export interface ExitRequest {
   data: {
-    navigationAction?: string; // RETURN_HOME_APP - Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App
+    navigationAction?: string; // Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App
   }; // Du lieu
 }
 
@@ -425,7 +425,6 @@ export interface PickFileRequest {
   data?: {
     mimeType: string[];
     isCapture?: boolean;
-    new_field?: string;
   };
 }
 

@@ -29,7 +29,7 @@
             "resourceType": {
               "type": "string",
               "required": false,
-              "description": "\"HTML\" = mở trong webview, khác = mở browser mặc định"
+              "description": "HTML = mở trong webview, khác = mở browser mặc định"
             },
             "returnUrl": {
               "type": "string",
@@ -100,7 +100,8 @@
             "navigationAction": {
               "type": "string",
               "required": false,
-              "description": "RETURN_HOME_APP - Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App"
+              "description": "Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App",
+              "default": "RETURN_HOME_APP"
             }
           }
         }
@@ -909,10 +910,6 @@
             "isCapture": {
               "type": "boolean",
               "required": false
-            },
-            "new_field": {
-              "type": "string",
-              "required": false
             }
           }
         }
@@ -1027,23 +1024,38 @@
       },
       "response": {}
     },
-
     {
       "event": "STORAGE_GET",
       "description": "Lấy dữ liệu từ storage theo key.",
       "request": {
-        "key": { "meta_data": "string", "required": true, "description": "Key cần lấy" }
+        "key": {
+          "meta_data": "string",
+          "required": true,
+          "description": "Key cần lấy"
+        }
       },
       "response": {
-        "data": { "meta_data": "any", "required": false, "description": "Dữ liệu đã lưu" }
+        "data": {
+          "meta_data": "any",
+          "required": false,
+          "description": "Dữ liệu đã lưu"
+        }
       }
     },
     {
       "event": "STORAGE_SET",
       "description": "Lưu dữ liệu vào storage theo key.",
       "request": {
-        "key": { "meta_data": "string", "required": true, "description": "Key lưu trữ" },
-        "data": { "meta_data": "any", "required": true, "description": "Dữ liệu cần lưu" }
+        "key": {
+          "meta_data": "string",
+          "required": true,
+          "description": "Key lưu trữ"
+        },
+        "data": {
+          "meta_data": "any",
+          "required": true,
+          "description": "Dữ liệu cần lưu"
+        }
       },
       "response": {}
     },
@@ -1051,7 +1063,11 @@
       "event": "STORAGE_REMOVE",
       "description": "Xóa dữ liệu từ storage theo key.",
       "request": {
-        "key": { "meta_data": "string", "required": true, "description": "Key cần xóa" }
+        "key": {
+          "meta_data": "string",
+          "required": true,
+          "description": "Key cần xóa"
+        }
       },
       "response": {}
     },
@@ -1066,19 +1082,43 @@
       "description": "Lấy thông tin dung lượng storage.",
       "request": {},
       "response": {
-        "keys": { "meta_data": "array", "required": false, "items": "string", "description": "Danh sách key" },
-        "currentSize": { "meta_data": "number", "required": false, "description": "Dung lượng hiện tại (bytes)" },
-        "limitSize": { "meta_data": "number", "required": false, "description": "Giới hạn dung lượng (bytes)" }
+        "keys": {
+          "meta_data": "array",
+          "required": false,
+          "items": "string",
+          "description": "Danh sách key"
+        },
+        "currentSize": {
+          "meta_data": "number",
+          "required": false,
+          "description": "Dung lượng hiện tại (bytes)"
+        },
+        "limitSize": {
+          "meta_data": "number",
+          "required": false,
+          "description": "Giới hạn dung lượng (bytes)"
+        }
       }
     },
-
     {
       "event": "UI_SHOW_TOAST",
       "description": "Hiển thị toast notification.",
       "request": {
-        "title": { "meta_data": "string", "required": true, "description": "Nội dung toast" },
-        "icon": { "meta_data": "string", "required": false, "description": "Icon: success | error | loading | none" },
-        "duration": { "meta_data": "number", "required": false, "description": "Thời gian hiển thị (ms)" }
+        "title": {
+          "meta_data": "string",
+          "required": true,
+          "description": "Nội dung toast"
+        },
+        "icon": {
+          "meta_data": "string",
+          "required": false,
+          "description": "Icon: success | error | loading | none"
+        },
+        "duration": {
+          "meta_data": "number",
+          "required": false,
+          "description": "Thời gian hiển thị (ms)"
+        }
       },
       "response": {}
     },
@@ -1092,8 +1132,16 @@
       "event": "UI_SHOW_LOADING",
       "description": "Hiển thị loading indicator.",
       "request": {
-        "title": { "meta_data": "string", "required": false, "description": "Text hiển thị" },
-        "mask": { "meta_data": "boolean", "required": false, "description": "Hiện overlay chặn tương tác" }
+        "title": {
+          "meta_data": "string",
+          "required": false,
+          "description": "Text hiển thị"
+        },
+        "mask": {
+          "meta_data": "boolean",
+          "required": false,
+          "description": "Hiện overlay chặn tương tác"
+        }
       },
       "response": {}
     },
@@ -1107,34 +1155,78 @@
       "event": "UI_SHOW_DIALOG",
       "description": "Hiển thị dialog xác nhận.",
       "request": {
-        "title": { "meta_data": "string", "required": false, "description": "Tiêu đề dialog" },
-        "content": { "meta_data": "string", "required": true, "description": "Nội dung dialog" },
-        "confirmText": { "meta_data": "string", "required": false, "description": "Text nút xác nhận" },
-        "cancelText": { "meta_data": "string", "required": false, "description": "Text nút hủy" },
-        "showCancel": { "meta_data": "boolean", "required": false, "description": "Hiện nút hủy" }
+        "title": {
+          "meta_data": "string",
+          "required": false,
+          "description": "Tiêu đề dialog"
+        },
+        "content": {
+          "meta_data": "string",
+          "required": true,
+          "description": "Nội dung dialog"
+        },
+        "confirmText": {
+          "meta_data": "string",
+          "required": false,
+          "description": "Text nút xác nhận"
+        },
+        "cancelText": {
+          "meta_data": "string",
+          "required": false,
+          "description": "Text nút hủy"
+        },
+        "showCancel": {
+          "meta_data": "boolean",
+          "required": false,
+          "description": "Hiện nút hủy"
+        }
       },
       "response": {
-        "confirm": { "meta_data": "boolean", "required": false, "description": "Người dùng nhấn xác nhận" },
-        "cancel": { "meta_data": "boolean", "required": false, "description": "Người dùng nhấn hủy" }
+        "confirm": {
+          "meta_data": "boolean",
+          "required": false,
+          "description": "Người dùng nhấn xác nhận"
+        },
+        "cancel": {
+          "meta_data": "boolean",
+          "required": false,
+          "description": "Người dùng nhấn hủy"
+        }
       }
     },
     {
       "event": "UI_SHOW_ACTION_SHEET",
       "description": "Hiển thị action sheet.",
       "request": {
-        "itemList": { "meta_data": "array", "required": true, "items": "string", "description": "Danh sách lựa chọn" }
+        "itemList": {
+          "meta_data": "array",
+          "required": true,
+          "items": "string",
+          "description": "Danh sách lựa chọn"
+        }
       },
       "response": {
-        "tapIndex": { "meta_data": "number", "required": false, "description": "Index được chọn" }
+        "tapIndex": {
+          "meta_data": "number",
+          "required": false,
+          "description": "Index được chọn"
+        }
       }
     },
-
     {
       "event": "NAVIGATOR_PUSH",
       "description": "Mở trang mới (thêm vào navigation stack).",
       "request": {
-        "url": { "meta_data": "string", "required": true, "description": "URL trang đích" },
-        "params": { "meta_data": "object", "required": false, "description": "Tham số truyền kèm" }
+        "url": {
+          "meta_data": "string",
+          "required": true,
+          "description": "URL trang đích"
+        },
+        "params": {
+          "meta_data": "object",
+          "required": false,
+          "description": "Tham số truyền kèm"
+        }
       },
       "response": {}
     },
@@ -1142,7 +1234,11 @@
       "event": "NAVIGATOR_POP",
       "description": "Quay lại trang trước.",
       "request": {
-        "delta": { "meta_data": "number", "required": false, "description": "Số trang quay lại (mặc định 1)" }
+        "delta": {
+          "meta_data": "number",
+          "required": false,
+          "description": "Số trang quay lại (mặc định 1)"
+        }
       },
       "response": {}
     },
@@ -1150,7 +1246,11 @@
       "event": "NAVIGATOR_SWITCH_TAB",
       "description": "Chuyển sang tab khác.",
       "request": {
-        "url": { "meta_data": "string", "required": true, "description": "URL của tab" }
+        "url": {
+          "meta_data": "string",
+          "required": true,
+          "description": "URL của tab"
+        }
       },
       "response": {}
     },
@@ -1158,8 +1258,17 @@
       "event": "NAVIGATOR_REDIRECT",
       "description": "Redirect (thay thế trang hiện tại).",
       "request": {
-        "url": { "meta_data": "string", "required": true, "description": "URL trang đích" },
-        "params": { "meta_data": "object", "required": false, "description": "Tham số truyền kèm" }
+        "url": {
+          "meta_data": "string",
+          "required": true,
+          "description": "URL trang đích"
+        },
+        "params": {
+          "meta_data": "object",
+          "required": false,
+          "description": "Tham số truyền kèm",
+          "fields": {}
+        }
       },
       "response": {}
     },
@@ -1167,7 +1276,11 @@
       "event": "NAVIGATOR_RE_LAUNCH",
       "description": "Quay về trang chủ và xóa navigation stack.",
       "request": {
-        "url": { "meta_data": "string", "required": true, "description": "URL trang chủ" }
+        "url": {
+          "meta_data": "string",
+          "required": true,
+          "description": "URL trang chủ"
+        }
       },
       "response": {}
     }
