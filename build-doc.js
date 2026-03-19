@@ -120,6 +120,7 @@ function generateHTML(events) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Super MiniApp SDK - API Documentation</title>
+<base href="/miniapp/01km259cd43861c023e04cyqv3-pre-release/">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;color:#1f1f1f;display:flex;min-height:100vh}
@@ -157,6 +158,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .stat-card{background:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .stat-card .num{font-size:24px;font-weight:700;color:#1677ff}
 .stat-card .label{font-size:12px;color:#999}
+.getting-started{margin-bottom:32px}
+.getting-started .category-title{margin-top:24px}
+.framework-title{font-size:15px;color:#1f1f1f;margin:16px 0 8px;padding-left:4px}
+.code-block{background:#1e1e1e;color:#d4d4d4;padding:16px;border-radius:6px;overflow-x:auto;font-size:13px;line-height:1.6;font-family:'SF Mono',Monaco,Consolas,monospace;white-space:pre}
+.code-block code{background:none;padding:0;color:inherit;font-size:inherit}
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
 </style>
 </head>
@@ -177,6 +183,113 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="stat-card"><div class="num">${events.length}</div><div class="label">Total Events</div></div>
     <div class="stat-card"><div class="num">${Object.keys(grouped).length}</div><div class="label">Categories</div></div>
   </div>
+  <div class="getting-started">
+    <h2 class="category-title">Cai dat</h2>
+    <div class="event-card">
+      <p style="color:#555;font-size:13px;margin-bottom:12px"><strong>Buoc 1:</strong> Tai file thu vien va code demo</p>
+      <a class="demo-link" href="webview-sdk-core-1.0.0.tgz" download style="margin-bottom:16px">Tai webview-sdk-core-1.0.0.tgz</a>
+      <a class="demo-link" href="demo.zip" download style="margin-bottom:16px">Tai code demo</a>
+
+      <p style="color:#555;font-size:13px;margin-top:16px;margin-bottom:8px"><strong>Buoc 2:</strong> Copy file <code>webview-sdk-core-1.0.0.tgz</code> vao thu muc <code>core-lib/</code> trong project</p>
+      <pre class="code-block"><code>mkdir -p core-lib
+cp webview-sdk-core-1.0.0.tgz core-lib/</code></pre>
+
+      <p style="color:#555;font-size:13px;margin-top:16px;margin-bottom:8px"><strong>Buoc 3:</strong> Them dependency vao <code>package.json</code></p>
+      <pre class="code-block"><code>{
+  "dependencies": {
+    "@webview-sdk/core": "file:core-lib/webview-sdk-core-1.0.0.tgz"
+  }
+}</code></pre>
+
+      <p style="color:#555;font-size:13px;margin-top:16px;margin-bottom:8px"><strong>Buoc 4:</strong> Cai dat</p>
+      <pre class="code-block"><code>npm install</code></pre>
+
+      <p style="color:#555;font-size:13px;margin-top:12px">Chi can 1 package duy nhat cho moi framework (React, Vue, Angular, vanilla JS).</p>
+    </div>
+
+    <h2 class="category-title">Bat dau nhanh</h2>
+    <div class="event-card">
+      <pre class="code-block"><code>import { getSharedMiniApp, getLocation, appOpenWebview, isSuccess } from '@webview-sdk/core'
+
+const app = getSharedMiniApp({ debug: true })
+app.ready()
+
+// Goi API qua generated function (type-safe)
+const res = await getLocation()
+if (isSuccess(res)) {
+  console.log(res.data)
+}
+
+// Goi API co tham so
+await appOpenWebview({ data: { url: 'https://example.com', serviceName: 'Demo' } })
+
+// Goi API qua invoke (dynamic)
+const res2 = await app.invoke('GET_LOCATION')</code></pre>
+    </div>
+
+    <h3 class="framework-title">React</h3>
+    <div class="event-card">
+      <pre class="code-block"><code>import { useEffect } from 'react'
+import { getSharedMiniApp, getLocation, isSuccess } from '@webview-sdk/core'
+
+const app = getSharedMiniApp({ debug: true })
+
+function App() {
+  useEffect(() =&gt; { app.ready() }, [])
+
+  const handleClick = async () =&gt; {
+    const res = await getLocation()
+    if (isSuccess(res)) console.log(res.data)
+  }
+
+  return &lt;button onClick={handleClick}&gt;Get Location&lt;/button&gt;
+}</code></pre>
+    </div>
+
+    <h3 class="framework-title">Vue 3</h3>
+    <div class="event-card">
+      <pre class="code-block"><code>&lt;script setup&gt;
+import { onMounted } from 'vue'
+import { getSharedMiniApp, getLocation, isSuccess } from '@webview-sdk/core'
+
+const app = getSharedMiniApp({ debug: true })
+onMounted(() =&gt; { app.ready() })
+
+async function handleClick() {
+  const res = await getLocation()
+  if (isSuccess(res)) console.log(res.data)
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;button @click="handleClick"&gt;Get Location&lt;/button&gt;
+&lt;/template&gt;</code></pre>
+    </div>
+
+    <h3 class="framework-title">Angular</h3>
+    <div class="event-card">
+      <pre class="code-block"><code>import { Component } from '@angular/core'
+import { getSharedMiniApp, MiniApp, getLocation, isSuccess } from '@webview-sdk/core'
+
+@Component({
+  template: \`&lt;button (click)="handleClick()"&gt;Get Location&lt;/button&gt;\`
+})
+export class AppComponent {
+  private app: MiniApp
+
+  constructor() {
+    this.app = getSharedMiniApp({ debug: true })
+    this.app.ready()
+  }
+
+  async handleClick() {
+    const res = await getLocation()
+    if (isSuccess(res)) console.log(res.data)
+  }
+}</code></pre>
+    </div>
+  </div>
+
   ${content}
 </div>
 </body>
@@ -192,11 +305,10 @@ function buildDocs() {
   const events = eventsData.events || []
 
   const html = generateHTML(events)
-  fs.writeFileSync(path.join(OUTPUT_DIR, "api.html"), html)
+  fs.writeFileSync(path.join(OUTPUT_DIR, "index.html"), html)
 
   console.log(`Docs generated: ${events.length} events`)
-  console.log("  -> " + path.join(OUTPUT_DIR, "api.html") + " (API docs)")
-  console.log("  -> " + path.join(OUTPUT_DIR, "index.html") + " (demo page)")
+  console.log("  -> " + path.join(OUTPUT_DIR, "index.html") + " (API docs)")
 }
 
 buildDocs()
