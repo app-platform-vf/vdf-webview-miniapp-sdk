@@ -76,7 +76,7 @@ function groupEvents(events) {
     else if (((evt.event.startsWith("SAVE_") || evt.event.startsWith("GET_")) && evt.event.endsWith("VALUE")) || evt.event.includes("STORAGE")) prefix = "Storage"
     else if (evt.event.includes("LOCATION")) prefix = "Location"
     else if (evt.event.endsWith("COLOR") || evt.event.endsWith("APPEARANCE")) prefix = "UI"
-    else prefix = "Other event"
+    else prefix = "Get data event"
     if (!groups[prefix]) groups[prefix] = []
     groups[prefix].push(evt)
   })
@@ -92,12 +92,12 @@ function buildSampleData(requestDef) {
       if (def.fields && Object.keys(def.fields).length > 0) {
         const inner = {}
         Object.entries(def.fields).forEach(([k, v]) => {
-            if (v.type === "string") inner[k] = v.description ? v.description.slice(0, 40) : "example"
-            else if (v.type === "number") inner[k] = 1
-            else if (v.type === "boolean") inner[k] = v.default !== undefined ? v.default : true
-            else if (v.type === "array") inner[k] = v.items === "string" ? ["example1", "example2"] : []
-            else if (v.type === "object") inner[k] = {}
-            else inner[k] = "example"
+          if (v.type === "string") inner[k] = v.description ? v.description.slice(0, 40) : "example"
+          else if (v.type === "number") inner[k] = 1
+          else if (v.type === "boolean") inner[k] = v.default !== undefined ? v.default : true
+          else if (v.type === "array") inner[k] = v.items === "string" ? ["example1", "example2"] : []
+          else if (v.type === "object") inner[k] = {}
+          else inner[k] = "example"
         })
         parts[key] = inner
       } else {
