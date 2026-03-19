@@ -34,6 +34,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .default{background:#fff7e6;color:#d48806;font-size:11px}
 .meta-badge{display:inline-block;padding:1px 8px;border-radius:4px;font-size:10px;font-weight:600;background:#f6ffed;color:#52c41a;margin-left:8px}
 .meta-badge.stringify{background:#fff0f6;color:#eb2f96}
+.data-note{font-size:11px;font-weight:400;color:#1677ff;background:#e6f4ff;padding:1px 6px;border-radius:3px;text-transform:none;letter-spacing:0;font-family:'SF Mono',Monaco,Consolas,monospace}
 .empty{color:#ccc;font-size:12px;font-style:italic;margin:4px 0}
 .resp-info{margin-bottom:4px}
 .demo-link{display:inline-block;margin-top:8px;padding:8px 20px;background:#1677ff;color:#fff;border-radius:6px;text-decoration:none;font-size:14px}
@@ -58,6 +59,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <a class="demo-link" href="https://staging1.viettelmoney.vn/miniapp/01km03s38mdqyz1xd1fj03yz90-pre-release/" style="display:block;text-align:center">Demo React</a>
     <a class="demo-link" href="https://staging1.viettelmoney.vn/miniapp/01km03swe6njmgnx0jfva6dgvd-pre-release/" style="display:block;text-align:center">Demo Vue</a>
   </div>
+  <div class="nav-group">
+    <div class="nav-title">Getting Started</div>
+    <a class="nav-item" href="#cai-dat">Cai dat</a>
+    <a class="nav-item" href="#bat-dau-nhanh">Bat dau nhanh</a>
+    <a class="nav-item" href="#giao-thuc-chung">Giao thuc chung</a>
+  </div>
   <div class="nav-group"><div class="nav-title">Navigation</div><a class="nav-item" href="#APP_OPEN_WEBVIEW">appOpenWebview()</a><a class="nav-item" href="#APP_OPEN_STORE">appOpenStore()</a><a class="nav-item" href="#EXIT">exit()</a><a class="nav-item" href="#OPEN_EXTERNAL_LINK">openExternalLink()</a><a class="nav-item" href="#OPEN_MINI_APP">openMiniApp()</a></div><div class="nav-group"><div class="nav-title">User Data Permission</div><a class="nav-item" href="#REQUEST_MULTIPLE_USER_DATA_PERMISSION">requestMultipleUserDataPermission()</a><a class="nav-item" href="#CHECK_MULTIPLE_USER_DATA_PERMISSION">checkMultipleUserDataPermission()</a><a class="nav-item" href="#REQUEST_PERMISSION_WITH_CODE">requestPermissionWithCode()</a><a class="nav-item" href="#CHECK_PERMISSION_WITH_CODE">checkPermissionWithCode()</a></div><div class="nav-group"><div class="nav-title">User Data</div><a class="nav-item" href="#GET_MULTIPLE_USER_DATA">getMultipleUserData()</a></div><div class="nav-group"><div class="nav-title">Permission Cache</div><a class="nav-item" href="#CLEAR_PERMISSION_CACHE">clearPermissionCache()</a></div><div class="nav-group"><div class="nav-title">Device Permission (Request)</div><a class="nav-item" href="#REQUEST_CAMERA_PERMISSION">requestCameraPermission()</a><a class="nav-item" href="#REQUEST_LOCATION_PERMISSION">requestLocationPermission()</a><a class="nav-item" href="#REQUEST_PHOTOS_PERMISSION">requestPhotosPermission()</a><a class="nav-item" href="#REQUEST_VIDEOS_PERMISSION">requestVideosPermission()</a><a class="nav-item" href="#REQUEST_AUDIO_PERMISSION">requestAudioPermission()</a><a class="nav-item" href="#REQUEST_RECORD_AUDIO_PERMISSION">requestRecordAudioPermission()</a><a class="nav-item" href="#REQUEST_CONTACTS_PERMISSION">requestContactsPermission()</a><a class="nav-item" href="#REQUEST_DOCUMENT_PERMISSION">requestDocumentPermission()</a><a class="nav-item" href="#REQUEST_PHONE_CALL_PERMISSION">requestPhoneCallPermission()</a><a class="nav-item" href="#REQUEST_PAYMENT_PERMISSION">requestPaymentPermission()</a><a class="nav-item" href="#REQUEST_LOGIN_PERMISSION">requestLoginPermission()</a><a class="nav-item" href="#REQUEST_LOCAL_AUTHENTICATION_PERMISSION">requestLocalAuthenticationPermission()</a></div><div class="nav-group"><div class="nav-title">Device Permission (Check)</div><a class="nav-item" href="#CHECK_CAMERA_PERMISSION">checkCameraPermission()</a><a class="nav-item" href="#CHECK_LOCATION_PERMISSION">checkLocationPermission()</a><a class="nav-item" href="#CHECK_PHOTOS_PERMISSION">checkPhotosPermission()</a><a class="nav-item" href="#CHECK_VIDEOS_PERMISSION">checkVideosPermission()</a><a class="nav-item" href="#CHECK_AUDIO_PERMISSION">checkAudioPermission()</a><a class="nav-item" href="#CHECK_RECORD_AUDIO_PERMISSION">checkRecordAudioPermission()</a><a class="nav-item" href="#CHECK_CONTACTS_PERMISSION">checkContactsPermission()</a><a class="nav-item" href="#CHECK_DOCUMENT_PERMISSION">checkDocumentPermission()</a><a class="nav-item" href="#CHECK_PHONE_CALL_PERMISSION">checkPhoneCallPermission()</a><a class="nav-item" href="#CHECK_PAYMENT_PERMISSION">checkPaymentPermission()</a><a class="nav-item" href="#CHECK_LOGIN_PERMISSION">checkLoginPermission()</a><a class="nav-item" href="#CHECK_LOCAL_AUTHENTICATION_PERMISSION">checkLocalAuthenticationPermission()</a></div><div class="nav-group"><div class="nav-title">Biometric Authentication</div><a class="nav-item" href="#EXECUTE_LOCAL_AUTHENTICATION">executeLocalAuthentication()</a><a class="nav-item" href="#GET_LOCAL_AUTHENTICATION_STATUS">getLocalAuthenticationStatus()</a></div><div class="nav-group"><div class="nav-title">Contacts</div><a class="nav-item" href="#GET_CONTACTS">getContacts()</a></div><div class="nav-group"><div class="nav-title">File Picker</div><a class="nav-item" href="#PICK_FILE">pickFile()</a></div><div class="nav-group"><div class="nav-title">Local Storage</div><a class="nav-item" href="#SAVE_STRING_VALUE">saveStringValue()</a><a class="nav-item" href="#SAVE_BOOLEAN_VALUE">saveBooleanValue()</a><a class="nav-item" href="#SAVE_INTEGER_VALUE">saveIntegerValue()</a><a class="nav-item" href="#SAVE_LONG_VALUE">saveLongValue()</a><a class="nav-item" href="#SAVE_FLOAT_VALUE">saveFloatValue()</a><a class="nav-item" href="#GET_STRING_VALUE">getStringValue()</a><a class="nav-item" href="#GET_BOOLEAN_VALUE">getBooleanValue()</a><a class="nav-item" href="#GET_INTEGER_VALUE">getIntegerValue()</a><a class="nav-item" href="#GET_LONG_VALUE">getLongValue()</a><a class="nav-item" href="#GET_FLOAT_VALUE">getFloatValue()</a><a class="nav-item" href="#CLEAR_STORAGE">clearStorage()</a></div><div class="nav-group"><div class="nav-title">Location</div><a class="nav-item" href="#GET_LOCATION">getLocation()</a></div><div class="nav-group"><div class="nav-title">UI Customization</div><a class="nav-item" href="#SET_BACKGROUND_STATUS_BAR_COLOR">setBackgroundStatusBarColor()</a><a class="nav-item" href="#SET_NAVIGATION_BAR_COLOR">setNavigationBarColor()</a><a class="nav-item" href="#UPDATE_STATUS_BAR_APPEARANCE">updateStatusBarAppearance()</a><a class="nav-item" href="#UPDATE_NAVIGATION_BAR_APPEARANCE">updateNavigationBarAppearance()</a></div><div class="nav-group"><div class="nav-title">Share</div><a class="nav-item" href="#SHARE_TEXT_CONTENT">shareTextContent()</a></div>
 </div>
 <div class="main">
@@ -68,7 +75,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="stat-card"><div class="num">13</div><div class="label">Categories</div></div>
   </div>
   <div class="getting-started">
-    <h2 class="category-title">Cai dat</h2>
+    <h2 class="category-title" id="cai-dat">Cai dat</h2>
     <div class="event-card">
       <p style="color:#555;font-size:13px;margin-bottom:12px"><strong>Buoc 1:</strong> Tai file thu vien va code demo</p>
       <a class="demo-link" href="webview-sdk-core-1.0.0.tgz" download style="margin-bottom:16px">Tai webview-sdk-core-1.0.0.tgz</a>
@@ -91,7 +98,7 @@ cp webview-sdk-core-1.0.0.tgz core-lib/</code></pre>
       <p style="color:#555;font-size:13px;margin-top:12px">Chi can 1 package duy nhat cho moi framework (React, Vue, Angular, vanilla JS).</p>
     </div>
 
-    <h2 class="category-title">Bat dau nhanh</h2>
+    <h2 class="category-title" id="bat-dau-nhanh">Bat dau nhanh</h2>
     <div class="event-card">
       <pre class="code-block"><code>import { getSharedMiniApp, getLocation, appOpenWebview, isSuccess } from '@webview-sdk/core'
 
@@ -172,6 +179,47 @@ export class AppComponent {
   }
 }</code></pre>
     </div>
+    <h2 class="category-title" id="giao-thuc-chung">Giao thuc chung (Base Protocol)</h2>
+    <div class="event-card">
+      <p style="color:#555;font-size:13px;margin-bottom:12px">Tat ca request va response deu ke thua cac truong chung ben duoi. Phan <strong>Request</strong> va <strong>Response</strong> cua moi event chi hien thi truong <code>data</code> rieng.</p>
+
+      <div class="section-label">MiniAppRequestBase — Tat ca Request deu co</div>
+      <table class="fields-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>event</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Ten event (VD: GET_LOCATION)</td></tr>
+          <tr><td><code>sender</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Nguon gui, mac dinh "MINIAPP_WEBVIEW"</td></tr>
+          <tr><td><code>request_id</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>ID duy nhat cua request, dung de map response</td></tr>
+          <tr><td><code>data</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Du lieu rieng cua tung event (xem chi tiet ben duoi)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-label">MiniAppResponseBase — Tat ca Response deu co</div>
+      <table class="fields-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>event</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Ten event tuong ung voi request</td></tr>
+          <tr><td><code>sender</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Nguon gui, mac dinh "MINIAPP_SDK"</td></tr>
+          <tr><td><code>response_id</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>ID cua response</td></tr>
+          <tr><td><code>request_id</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>ID cua request tuong ung</td></tr>
+          <tr><td><code>eventStatus</code></td><td><code>EventStatus</code></td><td><span class="req">required</span></td><td>Trang thai xu ly (errorCode, errorMessageVN, errorMessageEN, realMsg)</td></tr>
+          <tr><td><code>errorData</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Du lieu loi chi tiet (neu co)</td></tr>
+          <tr><td><code>message</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Thong bao bo sung</td></tr>
+          <tr><td><code>data</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Du lieu tra ve rieng cua tung event (xem chi tiet ben duoi)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-label">EventStatus</div>
+      <table class="fields-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>errorCode</code></td><td><code>string</code></td><td>"SDK000" = thanh cong. Dung <code>isSuccess(res)</code> de kiem tra</td></tr>
+          <tr><td><code>errorMessageVN</code></td><td><code>string</code></td><td>Thong bao loi tieng Viet</td></tr>
+          <tr><td><code>errorMessageEN</code></td><td><code>string</code></td><td>Thong bao loi tieng Anh</td></tr>
+          <tr><td><code>realMsg</code></td><td><code>string</code></td><td>Thong bao goc tu native</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div class="category-section">
@@ -182,15 +230,15 @@ export class AppComponent {
           <span class="event-code">APP_OPEN_WEBVIEW</span>
         </div>
         <p class="event-desc">Mở một WebView mới với URL và cấu hình tùy chỉnh.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>url</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>URL của webview cần mở</td></tr><tr><td><code>serviceName</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Tiêu đề hiển thị trên app bar</td></tr><tr><td><code>isPaymentConfirm</code></td><td><code>boolean</code></td><td><span class="opt">optional</span></td><td>false = đóng mini app để sang gateway thanh toán</td></tr><tr><td><code>resourceType</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>HTML = mở trong webview, khác = mở browser mặc định</td></tr><tr><td><code>returnUrl</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>URL trả về khi thành công/thất bại/timeout</td></tr><tr><td><code>cancelUrl</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>URL trả về khi người dùng cancel</td></tr></tbody></table>
-        <div class="section-label">Response</div><div class="resp-info"></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>url</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>url</td></tr><tr><td><code>type</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>RETURN - Người dùng hoàn tất và quay lại, kèm theo URL; CANCEL - Người dùng hủy, kèm theo URL; CLOSED - Người dùng tự đóng webview, không có URL</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>url</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>URL của webview cần mở</td></tr><tr><td><code>serviceName</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Tiêu đề hiển thị trên app bar</td></tr><tr><td><code>isPaymentConfirm</code></td><td><code>boolean</code></td><td><span class="opt">optional</span></td><td>false = đóng mini app để sang gateway thanh toán</td></tr><tr><td><code>resourceType</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>HTML = mở trong webview, khác = mở browser mặc định</td></tr><tr><td><code>returnUrl</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>URL trả về khi thành công/thất bại/timeout</td></tr><tr><td><code>cancelUrl</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>URL trả về khi người dùng cancel</td></tr></tbody></table>
+        <div class="section-label">Response <span class="data-note">data</span></div><div class="resp-info"></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>url</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>url</td></tr><tr><td><code>type</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>RETURN - Người dùng hoàn tất và quay lại, kèm theo URL; CANCEL - Người dùng hủy, kèm theo URL; CLOSED - Người dùng tự đóng webview, không có URL</td></tr></tbody></table>
       </div><div class="event-card" id="APP_OPEN_STORE">
         <div class="event-header">
           <span class="fn-name">appOpenStore()</span>
           <span class="event-code">APP_OPEN_STORE</span>
         </div>
         <p class="event-desc">Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>fallbackUrlAndroid</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>URL android</td></tr><tr><td><code>fallbackUrlIos</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>URL Ios</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>fallbackUrlAndroid</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>URL android</td></tr><tr><td><code>fallbackUrlIos</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>URL Ios</td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div><div class="event-card" id="EXIT">
         <div class="event-header">
@@ -198,7 +246,7 @@ export class AppComponent {
           <span class="event-code">EXIT</span>
         </div>
         <p class="event-desc">Đóng Mini App và điều hướng về màn hình khác.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>navigationAction</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App <code class="default">RETURN_HOME_APP</code></td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>navigationAction</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App <code class="default">RETURN_HOME_APP</code></td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div><div class="event-card" id="OPEN_EXTERNAL_LINK">
         <div class="event-header">
@@ -206,7 +254,7 @@ export class AppComponent {
           <span class="event-code">OPEN_EXTERNAL_LINK</span>
         </div>
         <p class="event-desc">Mở URL bằng browser mặc định của hệ thống.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>uri</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Link Ngoài <code class="default">https://google.com</code></td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>uri</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Link Ngoài <code class="default">https://google.com</code></td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div><div class="event-card" id="OPEN_MINI_APP">
         <div class="event-header">
@@ -214,7 +262,7 @@ export class AppComponent {
           <span class="event-code">OPEN_MINI_APP</span>
         </div>
         <p class="event-desc">Mở một Mini App khác từ Mini App hiện tại.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>route</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Định tuyến màn hình trong Mini App  <code class="default">{       "screenName": "home"     }</code></td></tr><tr><td><code>miniappKey</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Key của Mini App cần mở  <code class="default">01K5FY191HP42SMMJXHWG545ZZ</code></td></tr><tr><td><code>additional</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Dữ liệu bổ sung truyền cho Mini App  <code class="default">{       "param1": "value1",       "param2": "value2"     }</code></td></tr><tr><td><code>launchConfig</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)	;   <code class="default">{       "mode": "present"     }</code></td></tr><tr><td><code>navStyle</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Style cho navigation bar <code class="default">{       "color": "#FF0000",       "hidden": "false"     }</code></td></tr><tr><td><code>tracking</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Thông tin tracking <code class="default">{       "campaign": "promotion",       "utmSource": "miniapp"     }</code></td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>route</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Định tuyến màn hình trong Mini App  <code class="default">{       "screenName": "home"     }</code></td></tr><tr><td><code>miniappKey</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Key của Mini App cần mở  <code class="default">01K5FY191HP42SMMJXHWG545ZZ</code></td></tr><tr><td><code>additional</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Dữ liệu bổ sung truyền cho Mini App  <code class="default">{       "param1": "value1",       "param2": "value2"     }</code></td></tr><tr><td><code>launchConfig</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)	;   <code class="default">{       "mode": "present"     }</code></td></tr><tr><td><code>navStyle</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Style cho navigation bar <code class="default">{       "color": "#FF0000",       "hidden": "false"     }</code></td></tr><tr><td><code>tracking</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Thông tin tracking <code class="default">{       "campaign": "promotion",       "utmSource": "miniapp"     }</code></td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div>
     </div><div class="category-section">
@@ -225,23 +273,23 @@ export class AppComponent {
           <span class="event-code">REQUEST_MULTIPLE_USER_DATA_PERMISSION</span>
         </div>
         <p class="event-desc">Yêu cầu nhiều quyền user data cùng một lúc.</p>
-        <div class="section-label">Request <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>permissionCodes</code></td><td><code>array</code></td><td><span class="opt">optional</span></td><td>Danh sách mã quyền <code class="default">["USER_AGE_PERMISSION"]</code></td></tr><tr><td><code>useSameReason</code></td><td><code>boolean</code></td><td><span class="opt">optional</span></td><td>useSameReason <code class="default">true</code></td></tr></tbody></table>
-        <div class="section-label">Response</div><div class="resp-info"> <span class="meta-badge">array</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>permissionCode</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Mã quyền</td></tr><tr><td><code>result</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Granted - Quyền đã được cấp;  Denied -  Quyền bị từ chối; NotFound -  Permission code không tồn tại</td></tr><tr><td><code>message</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Nội dung </td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>permissionCodes</code></td><td><code>array</code></td><td><span class="opt">optional</span></td><td>Danh sách mã quyền <code class="default">["USER_AGE_PERMISSION"]</code></td></tr><tr><td><code>useSameReason</code></td><td><code>boolean</code></td><td><span class="opt">optional</span></td><td>useSameReason <code class="default">true</code></td></tr></tbody></table>
+        <div class="section-label">Response <span class="data-note">data</span></div><div class="resp-info"> <span class="meta-badge">array</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>permissionCode</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Mã quyền</td></tr><tr><td><code>result</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Granted - Quyền đã được cấp;  Denied -  Quyền bị từ chối; NotFound -  Permission code không tồn tại</td></tr><tr><td><code>message</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Nội dung </td></tr></tbody></table>
       </div><div class="event-card" id="CHECK_MULTIPLE_USER_DATA_PERMISSION">
         <div class="event-header">
           <span class="fn-name">checkMultipleUserDataPermission()</span>
           <span class="event-code">CHECK_MULTIPLE_USER_DATA_PERMISSION</span>
         </div>
         <p class="event-desc">Kiểm tra trạng thái nhiều quyền user data cùng lúc.</p>
-        <div class="section-label">Request <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>permissionCodes</code></td><td><code>array</code></td><td><span class="opt">optional</span></td><td>Danh sách mã quyền <code class="default">["USER_AGE_PERMISSION"]</code></td></tr></tbody></table>
-        <div class="section-label">Response</div><div class="resp-info"> <span class="meta-badge">array</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>permissionCode</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Mã quyền</td></tr><tr><td><code>result</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Granted - Quyền đã được cấp;  Denied -  Quyền bị từ chối; NotFound -  Permission code không tồn tại</td></tr><tr><td><code>message</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Nội dung </td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>permissionCodes</code></td><td><code>array</code></td><td><span class="opt">optional</span></td><td>Danh sách mã quyền <code class="default">["USER_AGE_PERMISSION"]</code></td></tr></tbody></table>
+        <div class="section-label">Response <span class="data-note">data</span></div><div class="resp-info"> <span class="meta-badge">array</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>permissionCode</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Mã quyền</td></tr><tr><td><code>result</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Granted - Quyền đã được cấp;  Denied -  Quyền bị từ chối; NotFound -  Permission code không tồn tại</td></tr><tr><td><code>message</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Nội dung </td></tr></tbody></table>
       </div><div class="event-card" id="REQUEST_PERMISSION_WITH_CODE">
         <div class="event-header">
           <span class="fn-name">requestPermissionWithCode()</span>
           <span class="event-code">REQUEST_PERMISSION_WITH_CODE</span>
         </div>
         <p class="event-desc">Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>permissionCode</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>mã quyền <code class="default">USER_AGE_PERMISSION</code></td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>permissionCode</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>mã quyền <code class="default">USER_AGE_PERMISSION</code></td></tr></tbody></table>
         <div class="section-label">Response</div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>permissionCode</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr><tr><td><code>result</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr><tr><td><code>message</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr></tbody></table>
       </div><div class="event-card" id="CHECK_PERMISSION_WITH_CODE">
         <div class="event-header">
@@ -249,7 +297,7 @@ export class AppComponent {
           <span class="event-code">CHECK_PERMISSION_WITH_CODE</span>
         </div>
         <p class="event-desc">Kiểm tra trạng thái quyền cụ thể.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>permissionCode</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Tham so 1</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>permissionCode</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Tham so 1</td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div>
     </div><div class="category-section">
@@ -260,7 +308,7 @@ export class AppComponent {
           <span class="event-code">GET_MULTIPLE_USER_DATA</span>
         </div>
         <p class="event-desc">Lấy nhiều trường dữ liệu người dùng từ host app.</p>
-        <div class="section-label">Request <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>dataNames</code></td><td><code>array</code></td><td><span class="opt">optional</span></td><td>Danh sách data cần lấy <code class="default">["age"]</code></td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>dataNames</code></td><td><code>array</code></td><td><span class="opt">optional</span></td><td>Danh sách data cần lấy <code class="default">["age"]</code></td></tr></tbody></table>
         <div class="section-label">Response</div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>age</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr><tr><td><code>userName</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr><tr><td><code>fullName</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr><tr><td><code>email</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr><tr><td><code>phone</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr><tr><td><code>avatar</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr><tr><td><code>gender</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr><tr><td><code>address</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr><tr><td><code>userId</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr></tbody></table>
       </div>
     </div><div class="category-section">
@@ -480,7 +528,7 @@ export class AppComponent {
           <span class="event-code">EXECUTE_LOCAL_AUTHENTICATION</span>
         </div>
         <p class="event-desc">Thực hiện xác thực sinh trắc học (vân tay, Face ID).</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>authOptionsParam</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td> <code class="default">{       "sensitiveTransaction": true,       "authClassification": ["WEAK", "STRONG", "DEVICE"],       "sticky": false,       "isShowErrorDialog": true     }</code></td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>authOptionsParam</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td> <code class="default">{       "sensitiveTransaction": true,       "authClassification": ["WEAK", "STRONG", "DEVICE"],       "sticky": false,       "isShowErrorDialog": true     }</code></td></tr></tbody></table>
         <div class="section-label">Response</div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>result</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr><tr><td><code>description</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr></tbody></table>
       </div><div class="event-card" id="GET_LOCAL_AUTHENTICATION_STATUS">
         <div class="event-header">
@@ -499,8 +547,8 @@ export class AppComponent {
           <span class="event-code">GET_CONTACTS</span>
         </div>
         <p class="event-desc">Lấy danh sách contacts từ danh bạ hệ thống. </p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>filter</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td> <code class="default">{       "contactName": "John"     }</code></td></tr><tr><td><code>pager</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td> <code class="default">{       "pageNumber": 1,       "limitRow": 100     }</code></td></tr></tbody></table>
-        <div class="section-label">Response</div><div class="resp-info"></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>contactList</code></td><td><code>array</code></td><td><span class="opt">optional</span></td><td></td></tr><tr><td><code>countContacts</code></td><td><code>number</code></td><td><span class="opt">optional</span></td><td></td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>filter</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td> <code class="default">{       "contactName": "John"     }</code></td></tr><tr><td><code>pager</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td> <code class="default">{       "pageNumber": 1,       "limitRow": 100     }</code></td></tr></tbody></table>
+        <div class="section-label">Response <span class="data-note">data</span></div><div class="resp-info"></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>contactList</code></td><td><code>array</code></td><td><span class="opt">optional</span></td><td></td></tr><tr><td><code>countContacts</code></td><td><code>number</code></td><td><span class="opt">optional</span></td><td></td></tr></tbody></table>
       </div>
     </div><div class="category-section">
       <h2 class="category-title">File Picker</h2>
@@ -510,8 +558,8 @@ export class AppComponent {
           <span class="event-code">PICK_FILE</span>
         </div>
         <p class="event-desc">Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:</p>
-        <div class="section-label">Request <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>mimeType</code></td><td><code>array</code></td><td><span class="opt">optional</span></td><td>Mảng các MIME types cho phép <code class="default">["image/*", "video/*"]</code></td></tr><tr><td><code>isCapture</code></td><td><code>boolean</code></td><td><span class="opt">optional</span></td><td>true = Mở camera, false = Chọn từ thư viện <code class="default">true</code></td></tr><tr><td><code>source</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>IOS only: PhotoLibrary hoặc Folder <code class="default">PhotoLibrary</code></td></tr></tbody></table>
-        <div class="section-label">Response</div><div class="resp-info"></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>hostUrl</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>mimeType</code></td><td><code>array</code></td><td><span class="opt">optional</span></td><td>Mảng các MIME types cho phép <code class="default">["image/*", "video/*"]</code></td></tr><tr><td><code>isCapture</code></td><td><code>boolean</code></td><td><span class="opt">optional</span></td><td>true = Mở camera, false = Chọn từ thư viện <code class="default">true</code></td></tr><tr><td><code>source</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>IOS only: PhotoLibrary hoặc Folder <code class="default">PhotoLibrary</code></td></tr></tbody></table>
+        <div class="section-label">Response <span class="data-note">data</span></div><div class="resp-info"></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>hostUrl</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr></tbody></table>
       </div>
     </div><div class="category-section">
       <h2 class="category-title">Local Storage</h2>
@@ -521,7 +569,7 @@ export class AppComponent {
           <span class="event-code">SAVE_STRING_VALUE</span>
         </div>
         <p class="event-desc">Lưu giá trị kiểu string.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>value</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Giá trị lưu</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>value</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Giá trị lưu</td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div><div class="event-card" id="SAVE_BOOLEAN_VALUE">
         <div class="event-header">
@@ -529,7 +577,7 @@ export class AppComponent {
           <span class="event-code">SAVE_BOOLEAN_VALUE</span>
         </div>
         <p class="event-desc">Lưu giá trị kiểu boolean.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>value</code></td><td><code>boolean</code></td><td><span class="req">required</span></td><td>Giá trị lưu</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>value</code></td><td><code>boolean</code></td><td><span class="req">required</span></td><td>Giá trị lưu</td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div><div class="event-card" id="SAVE_INTEGER_VALUE">
         <div class="event-header">
@@ -537,7 +585,7 @@ export class AppComponent {
           <span class="event-code">SAVE_INTEGER_VALUE</span>
         </div>
         <p class="event-desc">Lưu giá trị kiểu int.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>value</code></td><td><code>number</code></td><td><span class="req">required</span></td><td>Giá trị lưu</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>value</code></td><td><code>number</code></td><td><span class="req">required</span></td><td>Giá trị lưu</td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div><div class="event-card" id="SAVE_LONG_VALUE">
         <div class="event-header">
@@ -545,7 +593,7 @@ export class AppComponent {
           <span class="event-code">SAVE_LONG_VALUE</span>
         </div>
         <p class="event-desc">Lưu giá trị kiểu long.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>value</code></td><td><code>number</code></td><td><span class="req">required</span></td><td>Giá trị lưu</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>value</code></td><td><code>number</code></td><td><span class="req">required</span></td><td>Giá trị lưu</td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div><div class="event-card" id="SAVE_FLOAT_VALUE">
         <div class="event-header">
@@ -553,7 +601,7 @@ export class AppComponent {
           <span class="event-code">SAVE_FLOAT_VALUE</span>
         </div>
         <p class="event-desc">Lưu giá trị kiểu float.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>value</code></td><td><code>any</code></td><td><span class="req">required</span></td><td>Giá trị lưu</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>value</code></td><td><code>any</code></td><td><span class="req">required</span></td><td>Giá trị lưu</td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div><div class="event-card" id="GET_STRING_VALUE">
         <div class="event-header">
@@ -561,7 +609,7 @@ export class AppComponent {
           <span class="event-code">GET_STRING_VALUE</span>
         </div>
         <p class="event-desc">Lấy giá trị kiểu string.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>defaultValue</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Giá trị mặc định</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>defaultValue</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Giá trị mặc định</td></tr></tbody></table>
         <div class="section-label">Response</div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>value</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td></td></tr></tbody></table>
       </div><div class="event-card" id="GET_BOOLEAN_VALUE">
         <div class="event-header">
@@ -569,7 +617,7 @@ export class AppComponent {
           <span class="event-code">GET_BOOLEAN_VALUE</span>
         </div>
         <p class="event-desc">Lấy giá trị kiểu boolean.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>defaultValue</code></td><td><code>boolean</code></td><td><span class="req">required</span></td><td>Giá trị mặc định</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>defaultValue</code></td><td><code>boolean</code></td><td><span class="req">required</span></td><td>Giá trị mặc định</td></tr></tbody></table>
         <div class="section-label">Response</div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>value</code></td><td><code>boolean</code></td><td><span class="opt">optional</span></td><td></td></tr></tbody></table>
       </div><div class="event-card" id="GET_INTEGER_VALUE">
         <div class="event-header">
@@ -577,7 +625,7 @@ export class AppComponent {
           <span class="event-code">GET_INTEGER_VALUE</span>
         </div>
         <p class="event-desc">Lấy giá trị kiểu int.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>defaultValue</code></td><td><code>number</code></td><td><span class="req">required</span></td><td>Giá trị mặc định</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>defaultValue</code></td><td><code>number</code></td><td><span class="req">required</span></td><td>Giá trị mặc định</td></tr></tbody></table>
         <div class="section-label">Response</div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>value</code></td><td><code>number</code></td><td><span class="opt">optional</span></td><td></td></tr></tbody></table>
       </div><div class="event-card" id="GET_LONG_VALUE">
         <div class="event-header">
@@ -585,7 +633,7 @@ export class AppComponent {
           <span class="event-code">GET_LONG_VALUE</span>
         </div>
         <p class="event-desc">Lấy giá trị kiểu long.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>defaultValue</code></td><td><code>number</code></td><td><span class="req">required</span></td><td>Giá trị mặc định</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>defaultValue</code></td><td><code>number</code></td><td><span class="req">required</span></td><td>Giá trị mặc định</td></tr></tbody></table>
         <div class="section-label">Response</div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>value</code></td><td><code>number</code></td><td><span class="opt">optional</span></td><td></td></tr></tbody></table>
       </div><div class="event-card" id="GET_FLOAT_VALUE">
         <div class="event-header">
@@ -593,7 +641,7 @@ export class AppComponent {
           <span class="event-code">GET_FLOAT_VALUE</span>
         </div>
         <p class="event-desc">Lấy giá trị kiểu float.</p>
-        <div class="section-label">Request </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>defaultValue</code></td><td><code>any</code></td><td><span class="req">required</span></td><td>Giá trị mặc định</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> </div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>key</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Key lưu</td></tr><tr><td><code>defaultValue</code></td><td><code>any</code></td><td><span class="req">required</span></td><td>Giá trị mặc định</td></tr></tbody></table>
         <div class="section-label">Response</div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>value</code></td><td><code>any</code></td><td><span class="opt">optional</span></td><td></td></tr></tbody></table>
       </div><div class="event-card" id="CLEAR_STORAGE">
         <div class="event-header">
@@ -623,7 +671,7 @@ export class AppComponent {
           <span class="event-code">SET_BACKGROUND_STATUS_BAR_COLOR</span>
         </div>
         <p class="event-desc">Thay đổi màu nền status bar.</p>
-        <div class="section-label">Request <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>color</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Mã màu <code class="default">#FF5722</code></td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>color</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Mã màu <code class="default">#FF5722</code></td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div><div class="event-card" id="SET_NAVIGATION_BAR_COLOR">
         <div class="event-header">
@@ -631,7 +679,7 @@ export class AppComponent {
           <span class="event-code">SET_NAVIGATION_BAR_COLOR</span>
         </div>
         <p class="event-desc">Thay đổi màu nền navigation bar.</p>
-        <div class="section-label">Request <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>color</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Mã màu <code class="default">#2196F3</code></td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>color</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Mã màu <code class="default">#2196F3</code></td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div><div class="event-card" id="UPDATE_STATUS_BAR_APPEARANCE">
         <div class="event-header">
@@ -639,7 +687,7 @@ export class AppComponent {
           <span class="event-code">UPDATE_STATUS_BAR_APPEARANCE</span>
         </div>
         <p class="event-desc">Chuyển đổi status bar giữa dark mode và light mode.</p>
-        <div class="section-label">Request <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>appearance</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>LIGHT hoặc DARK - Appearance mode cho status bar <code class="default">DARK</code></td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>appearance</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>LIGHT hoặc DARK - Appearance mode cho status bar <code class="default">DARK</code></td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div><div class="event-card" id="UPDATE_NAVIGATION_BAR_APPEARANCE">
         <div class="event-header">
@@ -647,7 +695,7 @@ export class AppComponent {
           <span class="event-code">UPDATE_NAVIGATION_BAR_APPEARANCE</span>
         </div>
         <p class="event-desc">Chuyển đổi navigation bar giữa dark mode và light mode.</p>
-        <div class="section-label">Request <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>appearance</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>LIGHT hoặc DARK - Appearance mode cho status bar <code class="default">LIGHT </code></td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>appearance</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>LIGHT hoặc DARK - Appearance mode cho status bar <code class="default">LIGHT </code></td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div>
     </div><div class="category-section">
@@ -658,7 +706,7 @@ export class AppComponent {
           <span class="event-code">SHARE_TEXT_CONTENT</span>
         </div>
         <p class="event-desc">Mở dialog chia sẻ nội dung text.</p>
-        <div class="section-label">Request <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>content</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Text nội dung</td></tr></tbody></table>
+        <div class="section-label">Request <span class="data-note">data</span> <span class="meta-badge stringify">data is JSON.stringify()</span></div><table class="fields-table"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody><tr><td><code>content</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Text nội dung</td></tr></tbody></table>
         <div class="section-label">Response</div><p class="empty">No response data</p>
       </div>
     </div>

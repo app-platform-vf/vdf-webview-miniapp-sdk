@@ -90,12 +90,13 @@ function generateHTML(events) {
 
       let requestHTML = ""
       if (hasRequest) {
-        requestHTML = `<div class="section-label">Request ${stringifyNote}</div>` + renderFields(ev.request.data.fields)
+        requestHTML = `<div class="section-label">Request <span class="data-note">data</span> ${stringifyNote}</div>` + renderFields(ev.request.data.fields)
       } else {
         requestHTML = `<div class="section-label">Request</div><p class="empty">No request parameters</p>`
       }
 
-      const responseHTML = `<div class="section-label">Response</div>` + renderResponseFields(ev.response)
+      const hasResponse = ev.response && ev.response.data && ev.response.data.fields && Object.keys(ev.response.data.fields).length > 0
+      const responseHTML = `<div class="section-label">Response${hasResponse ? ' <span class="data-note">data</span>' : ''}</div>` + renderResponseFields(ev.response)
 
       return `<div class="event-card" id="${ev.event}">
         <div class="event-header">
@@ -150,6 +151,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .default{background:#fff7e6;color:#d48806;font-size:11px}
 .meta-badge{display:inline-block;padding:1px 8px;border-radius:4px;font-size:10px;font-weight:600;background:#f6ffed;color:#52c41a;margin-left:8px}
 .meta-badge.stringify{background:#fff0f6;color:#eb2f96}
+.data-note{font-size:11px;font-weight:400;color:#1677ff;background:#e6f4ff;padding:1px 6px;border-radius:3px;text-transform:none;letter-spacing:0;font-family:'SF Mono',Monaco,Consolas,monospace}
 .empty{color:#ccc;font-size:12px;font-style:italic;margin:4px 0}
 .resp-info{margin-bottom:4px}
 .demo-link{display:inline-block;margin-top:8px;padding:8px 20px;background:#1677ff;color:#fff;border-radius:6px;text-decoration:none;font-size:14px}
@@ -174,6 +176,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <a class="demo-link" href="https://staging1.viettelmoney.vn/miniapp/01km03s38mdqyz1xd1fj03yz90-pre-release/" style="display:block;text-align:center">Demo React</a>
     <a class="demo-link" href="https://staging1.viettelmoney.vn/miniapp/01km03swe6njmgnx0jfva6dgvd-pre-release/" style="display:block;text-align:center">Demo Vue</a>
   </div>
+  <div class="nav-group">
+    <div class="nav-title">Getting Started</div>
+    <a class="nav-item" href="#cai-dat">Cai dat</a>
+    <a class="nav-item" href="#bat-dau-nhanh">Bat dau nhanh</a>
+    <a class="nav-item" href="#giao-thuc-chung">Giao thuc chung</a>
+  </div>
   ${sidebar}
 </div>
 <div class="main">
@@ -184,7 +192,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="stat-card"><div class="num">${Object.keys(grouped).length}</div><div class="label">Categories</div></div>
   </div>
   <div class="getting-started">
-    <h2 class="category-title">Cai dat</h2>
+    <h2 class="category-title" id="cai-dat">Cai dat</h2>
     <div class="event-card">
       <p style="color:#555;font-size:13px;margin-bottom:12px"><strong>Buoc 1:</strong> Tai file thu vien va code demo</p>
       <a class="demo-link" href="webview-sdk-core-1.0.0.tgz" download style="margin-bottom:16px">Tai webview-sdk-core-1.0.0.tgz</a>
@@ -207,7 +215,7 @@ cp webview-sdk-core-1.0.0.tgz core-lib/</code></pre>
       <p style="color:#555;font-size:13px;margin-top:12px">Chi can 1 package duy nhat cho moi framework (React, Vue, Angular, vanilla JS).</p>
     </div>
 
-    <h2 class="category-title">Bat dau nhanh</h2>
+    <h2 class="category-title" id="bat-dau-nhanh">Bat dau nhanh</h2>
     <div class="event-card">
       <pre class="code-block"><code>import { getSharedMiniApp, getLocation, appOpenWebview, isSuccess } from '@webview-sdk/core'
 
@@ -287,6 +295,47 @@ export class AppComponent {
     if (isSuccess(res)) console.log(res.data)
   }
 }</code></pre>
+    </div>
+    <h2 class="category-title" id="giao-thuc-chung">Giao thuc chung (Base Protocol)</h2>
+    <div class="event-card">
+      <p style="color:#555;font-size:13px;margin-bottom:12px">Tat ca request va response deu ke thua cac truong chung ben duoi. Phan <strong>Request</strong> va <strong>Response</strong> cua moi event chi hien thi truong <code>data</code> rieng.</p>
+
+      <div class="section-label">MiniAppRequestBase — Tat ca Request deu co</div>
+      <table class="fields-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>event</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Ten event (VD: GET_LOCATION)</td></tr>
+          <tr><td><code>sender</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Nguon gui, mac dinh "MINIAPP_WEBVIEW"</td></tr>
+          <tr><td><code>request_id</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>ID duy nhat cua request, dung de map response</td></tr>
+          <tr><td><code>data</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Du lieu rieng cua tung event (xem chi tiet ben duoi)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-label">MiniAppResponseBase — Tat ca Response deu co</div>
+      <table class="fields-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>event</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Ten event tuong ung voi request</td></tr>
+          <tr><td><code>sender</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>Nguon gui, mac dinh "MINIAPP_SDK"</td></tr>
+          <tr><td><code>response_id</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>ID cua response</td></tr>
+          <tr><td><code>request_id</code></td><td><code>string</code></td><td><span class="req">required</span></td><td>ID cua request tuong ung</td></tr>
+          <tr><td><code>eventStatus</code></td><td><code>EventStatus</code></td><td><span class="req">required</span></td><td>Trang thai xu ly (errorCode, errorMessageVN, errorMessageEN, realMsg)</td></tr>
+          <tr><td><code>errorData</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Du lieu loi chi tiet (neu co)</td></tr>
+          <tr><td><code>message</code></td><td><code>string</code></td><td><span class="opt">optional</span></td><td>Thong bao bo sung</td></tr>
+          <tr><td><code>data</code></td><td><code>object</code></td><td><span class="opt">optional</span></td><td>Du lieu tra ve rieng cua tung event (xem chi tiet ben duoi)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-label">EventStatus</div>
+      <table class="fields-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>errorCode</code></td><td><code>string</code></td><td>"SDK000" = thanh cong. Dung <code>isSuccess(res)</code> de kiem tra</td></tr>
+          <tr><td><code>errorMessageVN</code></td><td><code>string</code></td><td>Thong bao loi tieng Viet</td></tr>
+          <tr><td><code>errorMessageEN</code></td><td><code>string</code></td><td>Thong bao loi tieng Anh</td></tr>
+          <tr><td><code>realMsg</code></td><td><code>string</code></td><td>Thong bao goc tu native</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
