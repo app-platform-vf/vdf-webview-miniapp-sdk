@@ -120,7 +120,8 @@
             "uri": {
               "type": "string",
               "required": false,
-              "description": "Link Ngoài"
+              "description": "Link Ngoài",
+              "default": "https://google.com"
             }
           }
         }
@@ -139,32 +140,38 @@
             "route": {
               "type": "object",
               "required": false,
-              "description": "Định tuyến màn hình trong Mini App - \"route\": {       \"screenName\": \"home\"     }"
+              "description": "Định tuyến màn hình trong Mini App ",
+              "default": "{       \"screenName\": \"home\"     }"
             },
             "miniappKey": {
               "type": "string",
               "required": false,
-              "description": "Key của Mini App cần mở - "
+              "description": "Key của Mini App cần mở ",
+              "default": "01K5FY191HP42SMMJXHWG545ZZ"
             },
             "additional": {
               "type": "object",
               "required": false,
-              "description": "Dữ liệu bổ sung truyền cho Mini App - \"additional\": {       \"param1\": \"value1\",       \"param2\": \"value2\"     }"
+              "description": "Dữ liệu bổ sung truyền cho Mini App ",
+              "default": "{       \"param1\": \"value1\",       \"param2\": \"value2\"     }"
             },
             "launchConfig": {
               "type": "object",
               "required": false,
-              "description": "Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)\t;  "
+              "description": "Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)\t;  ",
+              "default": "{       \"mode\": \"present\"     }"
             },
             "navStyle": {
               "type": "object",
               "required": false,
-              "description": "Style cho navigation bar - {       \"color\": \"#FF0000\",       \"hidden\": \"false\"     }"
+              "description": "Style cho navigation bar",
+              "default": "{       \"color\": \"#FF0000\",       \"hidden\": \"false\"     }"
             },
             "tracking": {
               "type": "object",
               "required": false,
-              "description": "Thông tin tracking - {       \"campaign\": \"promotion\",       \"utmSource\": \"miniapp\"     }"
+              "description": "Thông tin tracking",
+              "default": "{       \"campaign\": \"promotion\",       \"utmSource\": \"miniapp\"     }"
             }
           }
         }
@@ -183,7 +190,8 @@
             "permissionCodes": {
               "type": "array",
               "items": "string",
-              "description": "Danh sách mã quyền"
+              "description": "Danh sách mã quyền",
+              "default": "[\"USER_AGE_PERMISSION\"]"
             },
             "useSameReason": {
               "type": "boolean",
@@ -232,7 +240,8 @@
             "permissionCodes": {
               "type": "array",
               "items": "string",
-              "description": "Danh sách mã quyền"
+              "description": "Danh sách mã quyền",
+              "default": "[\"USER_AGE_PERMISSION\"]"
             }
           }
         }
@@ -275,7 +284,8 @@
             "permissionCode": {
               "type": "string",
               "required": true,
-              "description": "mã quyền"
+              "description": "mã quyền",
+              "default": "USER_AGE_PERMISSION"
             }
           }
         }
@@ -290,38 +300,6 @@
           "required": false
         },
         "message": {
-          "meta_data": "string",
-          "required": false
-        }
-      }
-    },
-    {
-      "event": "GET_MULTIPLE_USER_DATA",
-      "description": "Lấy nhiều trường dữ liệu người dùng từ host app.",
-      "request": {
-        "data": {
-          "meta_data": "stringify",
-          "required": true,
-          "description": "Du lieu",
-          "fields": {
-            "dataNames": {
-              "type": "array",
-              "items": "string",
-              "description": "Danh sách data cần lấy"
-            }
-          }
-        }
-      },
-      "response": {
-        "age": {
-          "meta_data": "string",
-          "required": false
-        },
-        "userName": {
-          "meta_data": "string",
-          "required": false
-        },
-        "fullName": {
           "meta_data": "string",
           "required": false
         }
@@ -347,6 +325,63 @@
       "response": {}
     },
     {
+      "event": "GET_MULTIPLE_USER_DATA",
+      "description": "Lấy nhiều trường dữ liệu người dùng từ host app.",
+      "request": {
+        "data": {
+          "meta_data": "stringify",
+          "required": true,
+          "description": "Du lieu",
+          "fields": {
+            "dataNames": {
+              "type": "array",
+              "items": "string",
+              "description": "Danh sách data cần lấy",
+              "default": "[\"age\"]"
+            }
+          }
+        }
+      },
+      "response": {
+        "age": {
+          "meta_data": "string",
+          "required": false
+        },
+        "userName": {
+          "meta_data": "string",
+          "required": false
+        },
+        "fullName": {
+          "meta_data": "string",
+          "required": false
+        },
+        "email": {
+          "meta_data": "string",
+          "required": false
+        },
+        "phone": {
+          "meta_data": "string",
+          "required": false
+        },
+        "avatar": {
+          "meta_data": "string",
+          "required": false
+        },
+        "gender": {
+          "meta_data": "string",
+          "required": false
+        },
+        "address": {
+          "meta_data": "string",
+          "required": false
+        },
+        "userId": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
       "event": "CLEAR_PERMISSION_CACHE",
       "description": "Xóa tất cả quyền đã cache ở local.",
       "request": {
@@ -359,8 +394,14 @@
       },
       "response": {
         "eventStatus": {
-          "meta_data": "string",
-          "required": false
+          "meta_data": "object",
+          "required": false,
+          "fields": {
+            "errorCode": {
+              "type": "string",
+              "required": false
+            }
+          }
         }
       }
     },
@@ -804,6 +845,25 @@
     {
       "event": "CHECK_LOCAL_AUTHENTICATION_PERMISSION",
       "description": "kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "EXECUTE_LOCAL_AUTHENTICATION",
+      "description": "Thực hiện xác thực sinh trắc học (vân tay, Face ID).",
       "request": {
         "data": {
           "meta_data": "object",
@@ -811,7 +871,8 @@
           "fields": {
             "authOptionsParam": {
               "type": "object",
-              "required": false
+              "required": false,
+              "default": "{       \"sensitiveTransaction\": true,       \"authClassification\": [\"WEAK\", \"STRONG\", \"DEVICE\"],       \"sticky\": false,       \"isShowErrorDialog\": true     }"
             }
           }
         }
@@ -834,33 +895,39 @@
       "response": {
         "isHardwareSupportStrongBiometric": {
           "meta_data": "boolean",
-          "required": false
+          "required": false,
+          "description": "Phần cứng hỗ trợ sinh trắc mạnh"
         },
         "isHardwareSupportBiometric": {
           "meta_data": "boolean",
-          "required": false
+          "required": false,
+          "description": "Phần cứng hỗ trợ sinh trắc"
         },
         "isDeviceSecure": {
           "meta_data": "boolean",
-          "required": false
+          "required": false,
+          "description": "Thiết bị đã bật bảo mật"
         },
         "canAuthenticateWithDeviceCredential": {
           "meta_data": "boolean",
-          "required": false
+          "required": false,
+          "description": "Có thể xác thực bằng PIN/password"
         },
         "canAuthenticateWithBiometrics": {
           "meta_data": "boolean",
-          "required": false
+          "required": false,
+          "description": "Có thể xác thực bằng sinh trắc"
         },
         "canAuthenticateWithStrongBiometrics": {
           "meta_data": "boolean",
-          "required": false
+          "required": false,
+          "description": "Có thể xác thực bằng sinh trắc mạnh"
         }
       }
     },
     {
       "event": "GET_CONTACTS",
-      "description": "Truy cập danh bạ",
+      "description": "Lấy danh sách contacts từ danh bạ hệ thống. ",
       "request": {
         "data": {
           "meta_data": "object",
@@ -868,11 +935,13 @@
           "fields": {
             "filter": {
               "type": "object",
-              "required": false
+              "required": false,
+              "default": "{       \"contactName\": \"John\"     }"
             },
             "pager": {
               "type": "object",
-              "required": false
+              "required": false,
+              "default": "{       \"pageNumber\": 1,       \"limitRow\": 100     }"
             }
           }
         }
@@ -881,11 +950,11 @@
         "data": {
           "meta_data": "object",
           "required": false,
-          "items": "object",
+          "items": "any",
           "fields": {
             "contactList": {
               "type": "array",
-              "items": "object"
+              "items": "any"
             },
             "countContacts": {
               "type": "number",
@@ -897,7 +966,7 @@
     },
     {
       "event": "PICK_FILE",
-      "description": "Mở file tài liệu",
+      "description": "Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:",
       "request": {
         "data": {
           "meta_data": "stringify",
@@ -905,11 +974,21 @@
           "fields": {
             "mimeType": {
               "type": "array",
-              "items": "string"
+              "items": "string",
+              "description": "Mảng các MIME types cho phép",
+              "default": "[\"image/*\", \"video/*\"]"
             },
             "isCapture": {
               "type": "boolean",
-              "required": false
+              "required": false,
+              "description": "true = Mở camera, false = Chọn từ thư viện",
+              "default": true
+            },
+            "source": {
+              "type": "string",
+              "required": false,
+              "description": "IOS only: PhotoLibrary hoặc Folder",
+              "default": "PhotoLibrary"
             }
           }
         }
@@ -928,8 +1007,269 @@
       }
     },
     {
+      "event": "SAVE_STRING_VALUE",
+      "description": "Lưu giá trị kiểu string.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "fields": {
+            "key": {
+              "type": "string",
+              "required": true,
+              "description": "Key lưu"
+            },
+            "value": {
+              "type": "string",
+              "required": true,
+              "description": "Giá trị lưu"
+            }
+          }
+        }
+      },
+      "response": {}
+    },
+    {
+      "event": "SAVE_BOOLEAN_VALUE",
+      "description": "Lưu giá trị kiểu boolean.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "fields": {
+            "key": {
+              "type": "string",
+              "required": true,
+              "description": "Key lưu"
+            },
+            "value": {
+              "type": "boolean",
+              "required": true,
+              "description": "Giá trị lưu"
+            }
+          }
+        }
+      },
+      "response": {}
+    },
+    {
+      "event": "SAVE_INTEGER_VALUE",
+      "description": "Lưu giá trị kiểu int.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "fields": {
+            "key": {
+              "type": "string",
+              "required": true,
+              "description": "Key lưu"
+            },
+            "value": {
+              "type": "number",
+              "required": true,
+              "description": "Giá trị lưu"
+            }
+          }
+        }
+      },
+      "response": {}
+    },
+    {
+      "event": "SAVE_LONG_VALUE",
+      "description": "Lưu giá trị kiểu long.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "fields": {
+            "key": {
+              "type": "string",
+              "required": true,
+              "description": "Key lưu"
+            },
+            "value": {
+              "type": "number",
+              "required": true,
+              "description": "Giá trị lưu"
+            }
+          }
+        }
+      },
+      "response": {}
+    },
+    {
+      "event": "SAVE_FLOAT_VALUE",
+      "description": "Lưu giá trị kiểu float.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "fields": {
+            "key": {
+              "type": "string",
+              "required": true,
+              "description": "Key lưu"
+            },
+            "value": {
+              "type": "any",
+              "required": true,
+              "description": "Giá trị lưu"
+            }
+          }
+        }
+      },
+      "response": {}
+    },
+    {
+      "event": "GET_STRING_VALUE",
+      "description": "Lấy giá trị kiểu string.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "fields": {
+            "key": {
+              "type": "string",
+              "required": true,
+              "description": "Key lưu"
+            },
+            "defaultValue": {
+              "type": "string",
+              "required": true,
+              "description": "Giá trị mặc định"
+            }
+          }
+        }
+      },
+      "response": {
+        "value": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "GET_BOOLEAN_VALUE",
+      "description": "Lấy giá trị kiểu boolean.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "fields": {
+            "key": {
+              "type": "string",
+              "required": true,
+              "description": "Key lưu"
+            },
+            "defaultValue": {
+              "type": "boolean",
+              "required": true,
+              "description": "Giá trị mặc định"
+            }
+          }
+        }
+      },
+      "response": {
+        "value": {
+          "meta_data": "boolean",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "GET_INTEGER_VALUE",
+      "description": "Lấy giá trị kiểu int.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "fields": {
+            "key": {
+              "type": "string",
+              "required": true,
+              "description": "Key lưu"
+            },
+            "defaultValue": {
+              "type": "number",
+              "required": true,
+              "description": "Giá trị mặc định"
+            }
+          }
+        }
+      },
+      "response": {
+        "value": {
+          "meta_data": "number",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "GET_LONG_VALUE",
+      "description": "Lấy giá trị kiểu long.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "fields": {
+            "key": {
+              "type": "string",
+              "required": true,
+              "description": "Key lưu"
+            },
+            "defaultValue": {
+              "type": "number",
+              "required": true,
+              "description": "Giá trị mặc định"
+            }
+          }
+        }
+      },
+      "response": {
+        "value": {
+          "meta_data": "number",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "GET_FLOAT_VALUE",
+      "description": "Lấy giá trị kiểu float.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "fields": {
+            "key": {
+              "type": "string",
+              "required": true,
+              "description": "Key lưu"
+            },
+            "defaultValue": {
+              "type": "any",
+              "required": true,
+              "description": "Giá trị mặc định"
+            }
+          }
+        }
+      },
+      "response": {
+        "value": {
+          "meta_data": "any",
+          "required": false
+        }
+      }
+    },
+    {
+      "event": "CLEAR_STORAGE",
+      "description": "Lấy giá trị kiểu float.",
+      "request": {},
+      "response": {}
+    },
+    {
       "event": "GET_LOCATION",
-      "description": "Lấy vị trí thiết bị",
+      "description": "Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.",
       "request": {},
       "response": {
         "latitude": {
@@ -949,11 +1289,14 @@
         "data": {
           "meta_data": "stringify",
           "required": false,
-          "fields": {}
-        },
-        "color": {
-          "meta_data": "string",
-          "required": false
+          "fields": {
+            "color": {
+              "type": "string",
+              "required": false,
+              "description": "Mã màu",
+              "default": "#FF5722"
+            }
+          }
         }
       },
       "response": {}
@@ -965,11 +1308,14 @@
         "data": {
           "meta_data": "stringify",
           "required": false,
-          "fields": {}
-        },
-        "color": {
-          "meta_data": "string",
-          "required": false
+          "fields": {
+            "color": {
+              "type": "string",
+              "required": false,
+              "description": "Mã màu",
+              "default": "#2196F3"
+            }
+          }
         }
       },
       "response": {}
@@ -981,12 +1327,14 @@
         "data": {
           "meta_data": "stringify",
           "required": false,
-          "fields": {}
-        },
-        "appearance": {
-          "meta_data": "string",
-          "required": false,
-          "description": "\"LIGHT\" hoặc \"DARK\""
+          "fields": {
+            "appearance": {
+              "type": "string",
+              "required": false,
+              "description": "LIGHT hoặc DARK - Appearance mode cho status bar",
+              "default": "DARK"
+            }
+          }
         }
       },
       "response": {}
@@ -998,12 +1346,14 @@
         "data": {
           "meta_data": "stringify",
           "required": false,
-          "fields": {}
-        },
-        "appearance": {
-          "meta_data": "string",
-          "required": false,
-          "description": "\"LIGHT\" hoặc \"DARK\""
+          "fields": {
+            "appearance": {
+              "type": "string",
+              "required": false,
+              "description": "LIGHT hoặc DARK - Appearance mode cho status bar",
+              "default": "LIGHT "
+            }
+          }
         }
       },
       "response": {}
@@ -1015,271 +1365,13 @@
         "data": {
           "meta_data": "stringify",
           "required": false,
-          "fields": {}
-        },
-        "content": {
-          "meta_data": "string",
-          "required": false
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "STORAGE_GET",
-      "description": "Lấy dữ liệu từ storage theo key.",
-      "request": {
-        "key": {
-          "meta_data": "string",
-          "required": true,
-          "description": "Key cần lấy"
-        }
-      },
-      "response": {
-        "data": {
-          "meta_data": "any",
-          "required": false,
-          "description": "Dữ liệu đã lưu"
-        }
-      }
-    },
-    {
-      "event": "STORAGE_SET",
-      "description": "Lưu dữ liệu vào storage theo key.",
-      "request": {
-        "key": {
-          "meta_data": "string",
-          "required": true,
-          "description": "Key lưu trữ"
-        },
-        "data": {
-          "meta_data": "any",
-          "required": true,
-          "description": "Dữ liệu cần lưu"
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "STORAGE_REMOVE",
-      "description": "Xóa dữ liệu từ storage theo key.",
-      "request": {
-        "key": {
-          "meta_data": "string",
-          "required": true,
-          "description": "Key cần xóa"
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "STORAGE_CLEAR",
-      "description": "Xóa toàn bộ dữ liệu trong storage.",
-      "request": {},
-      "response": {}
-    },
-    {
-      "event": "STORAGE_INFO",
-      "description": "Lấy thông tin dung lượng storage.",
-      "request": {},
-      "response": {
-        "keys": {
-          "meta_data": "array",
-          "required": false,
-          "items": "string",
-          "description": "Danh sách key"
-        },
-        "currentSize": {
-          "meta_data": "number",
-          "required": false,
-          "description": "Dung lượng hiện tại (bytes)"
-        },
-        "limitSize": {
-          "meta_data": "number",
-          "required": false,
-          "description": "Giới hạn dung lượng (bytes)"
-        }
-      }
-    },
-    {
-      "event": "UI_SHOW_TOAST",
-      "description": "Hiển thị toast notification.",
-      "request": {
-        "title": {
-          "meta_data": "string",
-          "required": true,
-          "description": "Nội dung toast"
-        },
-        "icon": {
-          "meta_data": "string",
-          "required": false,
-          "description": "Icon: success | error | loading | none"
-        },
-        "duration": {
-          "meta_data": "number",
-          "required": false,
-          "description": "Thời gian hiển thị (ms)"
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "UI_HIDE_TOAST",
-      "description": "Ẩn toast hiện tại.",
-      "request": {},
-      "response": {}
-    },
-    {
-      "event": "UI_SHOW_LOADING",
-      "description": "Hiển thị loading indicator.",
-      "request": {
-        "title": {
-          "meta_data": "string",
-          "required": false,
-          "description": "Text hiển thị"
-        },
-        "mask": {
-          "meta_data": "boolean",
-          "required": false,
-          "description": "Hiện overlay chặn tương tác"
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "UI_HIDE_LOADING",
-      "description": "Ẩn loading indicator.",
-      "request": {},
-      "response": {}
-    },
-    {
-      "event": "UI_SHOW_DIALOG",
-      "description": "Hiển thị dialog xác nhận.",
-      "request": {
-        "title": {
-          "meta_data": "string",
-          "required": false,
-          "description": "Tiêu đề dialog"
-        },
-        "content": {
-          "meta_data": "string",
-          "required": true,
-          "description": "Nội dung dialog"
-        },
-        "confirmText": {
-          "meta_data": "string",
-          "required": false,
-          "description": "Text nút xác nhận"
-        },
-        "cancelText": {
-          "meta_data": "string",
-          "required": false,
-          "description": "Text nút hủy"
-        },
-        "showCancel": {
-          "meta_data": "boolean",
-          "required": false,
-          "description": "Hiện nút hủy"
-        }
-      },
-      "response": {
-        "confirm": {
-          "meta_data": "boolean",
-          "required": false,
-          "description": "Người dùng nhấn xác nhận"
-        },
-        "cancel": {
-          "meta_data": "boolean",
-          "required": false,
-          "description": "Người dùng nhấn hủy"
-        }
-      }
-    },
-    {
-      "event": "UI_SHOW_ACTION_SHEET",
-      "description": "Hiển thị action sheet.",
-      "request": {
-        "itemList": {
-          "meta_data": "array",
-          "required": true,
-          "items": "string",
-          "description": "Danh sách lựa chọn"
-        }
-      },
-      "response": {
-        "tapIndex": {
-          "meta_data": "number",
-          "required": false,
-          "description": "Index được chọn"
-        }
-      }
-    },
-    {
-      "event": "NAVIGATOR_PUSH",
-      "description": "Mở trang mới (thêm vào navigation stack).",
-      "request": {
-        "url": {
-          "meta_data": "string",
-          "required": true,
-          "description": "URL trang đích"
-        },
-        "params": {
-          "meta_data": "object",
-          "required": false,
-          "description": "Tham số truyền kèm"
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "NAVIGATOR_POP",
-      "description": "Quay lại trang trước.",
-      "request": {
-        "delta": {
-          "meta_data": "number",
-          "required": false,
-          "description": "Số trang quay lại (mặc định 1)"
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "NAVIGATOR_SWITCH_TAB",
-      "description": "Chuyển sang tab khác.",
-      "request": {
-        "url": {
-          "meta_data": "string",
-          "required": true,
-          "description": "URL của tab"
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "NAVIGATOR_REDIRECT",
-      "description": "Redirect (thay thế trang hiện tại).",
-      "request": {
-        "url": {
-          "meta_data": "string",
-          "required": true,
-          "description": "URL trang đích"
-        },
-        "params": {
-          "meta_data": "object",
-          "required": false,
-          "description": "Tham số truyền kèm",
-          "fields": {}
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "NAVIGATOR_RE_LAUNCH",
-      "description": "Quay về trang chủ và xóa navigation stack.",
-      "request": {
-        "url": {
-          "meta_data": "string",
-          "required": true,
-          "description": "URL trang chủ"
+          "fields": {
+            "content": {
+              "type": "string",
+              "required": false,
+              "description": "Text nội dung"
+            }
+          }
         }
       },
       "response": {}

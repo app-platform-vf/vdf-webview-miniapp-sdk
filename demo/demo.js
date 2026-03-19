@@ -69,15 +69,14 @@ function groupEvents(events) {
   const groups = {}
   events.forEach(evt => {
     let prefix
-    if (evt.event.startsWith("REQUEST_") && evt.event.includes("PERMISSION")) prefix = "Request Permissions"
-    else if (evt.event.startsWith("CHECK_") && evt.event.includes("PERMISSION")) prefix = "Check Permissions"
-    else if (evt.event.startsWith("APP_") || evt.event.startsWith("OPEN_") || evt.event === "EXIT") prefix = "Navigation"
-    else if (evt.event.startsWith("GET_")) prefix = "Data"
-    else if (evt.event.startsWith("SET_") || evt.event.startsWith("UPDATE_")) prefix = "UI Customization"
-    else if (evt.event.startsWith("STORAGE_")) prefix = "Storage"
-    else if (evt.event.startsWith("UI_")) prefix = "UI"
-    else if (evt.event.startsWith("NAVIGATOR_")) prefix = "Navigator"
-    else prefix = "Other"
+    if (evt.event.includes("USER_DATA") && evt.event.includes("PERMISSION")) prefix = "UserData Permission"
+    else if (evt.event.startsWith("EXIT") || evt.event.includes("OPEN")) prefix = "Routing"
+    else if ((evt.event.startsWith("REQUEST") && evt.event.includes("PERMISSION")) || evt.event.includes("EXECUTE_LOCAL_AUTHENTICATION")) prefix = "Device Request Permission"
+    else if (evt.event.startsWith("CHECK") && evt.event.includes("PERMISSION")) prefix = "Device Check Permission"
+    else if (((evt.event.startsWith("SAVE_") || evt.event.startsWith("GET_")) && evt.event.endsWith("VALUE")) || evt.event.includes("STORAGE")) prefix = "Storage"
+    else if (evt.event.includes("LOCATION")) prefix = "Location"
+    else if (evt.event.endsWith("COLOR") || evt.event.endsWith("APPEARANCE")) prefix = "UI"
+    else prefix = "Other event"
     if (!groups[prefix]) groups[prefix] = []
     groups[prefix].push(evt)
   })

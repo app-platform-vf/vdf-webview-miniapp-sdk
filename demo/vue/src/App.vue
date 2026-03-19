@@ -10,8 +10,8 @@ import {
   requestMultipleUserDataPermission,
   checkMultipleUserDataPermission,
   requestPermissionWithCode,
-  getMultipleUserData,
   checkPermissionWithCode,
+  getMultipleUserData,
   clearPermissionCache,
   requestCameraPermission,
   requestLocationPermission,
@@ -37,31 +37,27 @@ import {
   checkPaymentPermission,
   checkLoginPermission,
   checkLocalAuthenticationPermission,
+  executeLocalAuthentication,
   getLocalAuthenticationStatus,
   getContacts,
   pickFile,
+  saveStringValue,
+  saveBooleanValue,
+  saveIntegerValue,
+  saveLongValue,
+  saveFloatValue,
+  getStringValue,
+  getBooleanValue,
+  getIntegerValue,
+  getLongValue,
+  getFloatValue,
+  clearStorage,
   getLocation,
   setBackgroundStatusBarColor,
   setNavigationBarColor,
   updateStatusBarAppearance,
   updateNavigationBarAppearance,
   shareTextContent,
-  storageGet,
-  storageSet,
-  storageRemove,
-  storageClear,
-  storageInfo,
-  uiShowToast,
-  uiHideToast,
-  uiShowLoading,
-  uiHideLoading,
-  uiShowDialog,
-  uiShowActionSheet,
-  navigatorPush,
-  navigatorPop,
-  navigatorSwitchTab,
-  navigatorRedirect,
-  navigatorReLaunch,
 } from '@webview-sdk/core';
 
 const app = getSharedMiniApp({ debug: true });
@@ -86,12 +82,12 @@ const fns: Record<string, () => Promise<any>> = {
   'appOpenStore': () => appOpenStore(getInput() || {'data':{'fallbackUrlAndroid':'URL android','fallbackUrlIos':'URL Ios'}}),
   'exit': () => exit(getInput() || {'data':{'navigationAction':'Quay về trang chủ của host app; TH khác '}}),
   'openExternalLink': () => openExternalLink(getInput() || {'data':{'uri':'Link Ngoài'}}),
-  'openMiniApp': () => openMiniApp(getInput() || {'data':{'route':{},'miniappKey':'Key của Mini App cần mở - ','additional':{},'launchConfig':{},'navStyle':{},'tracking':{}}}),
+  'openMiniApp': () => openMiniApp(getInput() || {'data':{'route':{},'miniappKey':'Key của Mini App cần mở ','additional':{},'launchConfig':{},'navStyle':{},'tracking':{}}}),
   'requestMultipleUserDataPermission': () => requestMultipleUserDataPermission(getInput() || {'data':{'permissionCodes':['example1','example2'],'useSameReason':true}}),
   'checkMultipleUserDataPermission': () => checkMultipleUserDataPermission(getInput() || {'data':{'permissionCodes':['example1','example2']}}),
   'requestPermissionWithCode': () => requestPermissionWithCode(getInput() || {'data':{'permissionCode':'mã quyền'}}),
-  'getMultipleUserData': () => getMultipleUserData(getInput() || {'data':{'dataNames':['example1','example2']}}),
   'checkPermissionWithCode': () => checkPermissionWithCode(getInput() || {'data':{'permissionCode':'Tham so 1'}}),
+  'getMultipleUserData': () => getMultipleUserData(getInput() || {'data':{'dataNames':['example1','example2']}}),
   'clearPermissionCache': () => clearPermissionCache(getInput() || {'data':{}}),
   'requestCameraPermission': () => requestCameraPermission(),
   'requestLocationPermission': () => requestLocationPermission(),
@@ -116,32 +112,28 @@ const fns: Record<string, () => Promise<any>> = {
   'checkPhoneCallPermission': () => checkPhoneCallPermission(),
   'checkPaymentPermission': () => checkPaymentPermission(),
   'checkLoginPermission': () => checkLoginPermission(),
-  'checkLocalAuthenticationPermission': () => checkLocalAuthenticationPermission(getInput() || {'data':{'authOptionsParam':{}}}),
+  'checkLocalAuthenticationPermission': () => checkLocalAuthenticationPermission(),
+  'executeLocalAuthentication': () => executeLocalAuthentication(getInput() || {'data':{'authOptionsParam':{}}}),
   'getLocalAuthenticationStatus': () => getLocalAuthenticationStatus(),
   'getContacts': () => getContacts(getInput() || {'data':{'filter':{},'pager':{}}}),
-  'pickFile': () => pickFile(getInput() || {'data':{'mimeType':['example1','example2'],'isCapture':true}}),
+  'pickFile': () => pickFile(getInput() || {'data':{'mimeType':['example1','example2'],'isCapture':true,'source':'IOS only: PhotoLibrary hoặc Folder'}}),
+  'saveStringValue': () => saveStringValue(getInput() || {'data':{'key':'Key lưu','value':'Giá trị lưu'}}),
+  'saveBooleanValue': () => saveBooleanValue(getInput() || {'data':{'key':'Key lưu','value':true}}),
+  'saveIntegerValue': () => saveIntegerValue(getInput() || {'data':{'key':'Key lưu','value':1}}),
+  'saveLongValue': () => saveLongValue(getInput() || {'data':{'key':'Key lưu','value':1}}),
+  'saveFloatValue': () => saveFloatValue(getInput() || {'data':{'key':'Key lưu','value':'example'}}),
+  'getStringValue': () => getStringValue(getInput() || {'data':{'key':'Key lưu','defaultValue':'Giá trị mặc định'}}),
+  'getBooleanValue': () => getBooleanValue(getInput() || {'data':{'key':'Key lưu','defaultValue':true}}),
+  'getIntegerValue': () => getIntegerValue(getInput() || {'data':{'key':'Key lưu','defaultValue':1}}),
+  'getLongValue': () => getLongValue(getInput() || {'data':{'key':'Key lưu','defaultValue':1}}),
+  'getFloatValue': () => getFloatValue(getInput() || {'data':{'key':'Key lưu','defaultValue':'example'}}),
+  'clearStorage': () => clearStorage(),
   'getLocation': () => getLocation(),
-  'setBackgroundStatusBarColor': () => setBackgroundStatusBarColor(getInput() || {'data':{},'color':'example'}),
-  'setNavigationBarColor': () => setNavigationBarColor(getInput() || {'data':{},'color':'example'}),
-  'updateStatusBarAppearance': () => updateStatusBarAppearance(getInput() || {'data':{},'appearance':'example'}),
-  'updateNavigationBarAppearance': () => updateNavigationBarAppearance(getInput() || {'data':{},'appearance':'example'}),
-  'shareTextContent': () => shareTextContent(getInput() || {'data':{},'content':'example'}),
-  'storageGet': () => storageGet(getInput() || {'key':'example'}),
-  'storageSet': () => storageSet(getInput() || {'key':'example','data':'example'}),
-  'storageRemove': () => storageRemove(getInput() || {'key':'example'}),
-  'storageClear': () => storageClear(),
-  'storageInfo': () => storageInfo(),
-  'uiShowToast': () => uiShowToast(getInput() || {'title':'example','icon':'example','duration':1}),
-  'uiHideToast': () => uiHideToast(),
-  'uiShowLoading': () => uiShowLoading(getInput() || {'title':'example','mask':true}),
-  'uiHideLoading': () => uiHideLoading(),
-  'uiShowDialog': () => uiShowDialog(getInput() || {'title':'example','content':'example','confirmText':'example','cancelText':'example','showCancel':true}),
-  'uiShowActionSheet': () => uiShowActionSheet(getInput() || {'itemList':[]}),
-  'navigatorPush': () => navigatorPush(getInput() || {'url':'example','params':{}}),
-  'navigatorPop': () => navigatorPop(getInput() || {'delta':1}),
-  'navigatorSwitchTab': () => navigatorSwitchTab(getInput() || {'url':'example'}),
-  'navigatorRedirect': () => navigatorRedirect(getInput() || {'url':'example','params':{}}),
-  'navigatorReLaunch': () => navigatorReLaunch(getInput() || {'url':'example'}),
+  'setBackgroundStatusBarColor': () => setBackgroundStatusBarColor(getInput() || {'data':{'color':'Mã màu'}}),
+  'setNavigationBarColor': () => setNavigationBarColor(getInput() || {'data':{'color':'Mã màu'}}),
+  'updateStatusBarAppearance': () => updateStatusBarAppearance(getInput() || {'data':{'appearance':'LIGHT hoặc DARK - Appearance mode cho st'}}),
+  'updateNavigationBarAppearance': () => updateNavigationBarAppearance(getInput() || {'data':{'appearance':'LIGHT hoặc DARK - Appearance mode cho st'}}),
+  'shareTextContent': () => shareTextContent(getInput() || {'data':{'content':'Text nội dung'}}),
   'invoke': () => app.invoke(getInput()?.event || 'GET_LOCATION', getInput()),
 };
 
@@ -154,15 +146,18 @@ interface EventInfo {
 }
 
 const groups: { title: string; events: EventInfo[] }[] = [
-  { title: 'Navigation', events: [
+  { title: 'Routing', events: [
       { name: 'appOpenWebview', event: 'APP_OPEN_WEBVIEW', desc: 'Mở một WebView mới với URL và cấu hình tùy chỉnh.', hasParams: true, defaultData: '{"data":{"url":"URL của webview cần mở","serviceName":"Tiêu đề hiển thị trên app bar","isPaymentConfirm":true,"resourceType":"HTML = mở trong webview, khác = mở brows","returnUrl":"URL trả về khi thành công/thất bại/timeo","cancelUrl":"URL trả về khi người dùng cancel"}}' },
       { name: 'appOpenStore', event: 'APP_OPEN_STORE', desc: 'Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.', hasParams: true, defaultData: '{"data":{"fallbackUrlAndroid":"URL android","fallbackUrlIos":"URL Ios"}}' },
       { name: 'exit', event: 'EXIT', desc: 'Đóng Mini App và điều hướng về màn hình khác.', hasParams: true, defaultData: '{"data":{"navigationAction":"Quay về trang chủ của host app; TH khác "}}' },
       { name: 'openExternalLink', event: 'OPEN_EXTERNAL_LINK', desc: 'Mở URL bằng browser mặc định của hệ thống.', hasParams: true, defaultData: '{"data":{"uri":"Link Ngoài"}}' },
-      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: 'Mở một Mini App khác từ Mini App hiện tại.', hasParams: true, defaultData: '{"data":{"route":{},"miniappKey":"Key của Mini App cần mở - ","additional":{},"launchConfig":{},"navStyle":{},"tracking":{}}}' }
+      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: 'Mở một Mini App khác từ Mini App hiện tại.', hasParams: true, defaultData: '{"data":{"route":{},"miniappKey":"Key của Mini App cần mở ","additional":{},"launchConfig":{},"navStyle":{},"tracking":{}}}' }
   ] },
-  { title: 'Request Permissions', events: [
+  { title: 'UserData Permission', events: [
       { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: 'Yêu cầu nhiều quyền user data cùng một lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["example1","example2"],"useSameReason":true}}' },
+      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: 'Kiểm tra trạng thái nhiều quyền user data cùng lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["example1","example2"]}}' }
+  ] },
+  { title: 'Device Request Permission', events: [
       { name: 'requestPermissionWithCode', event: 'REQUEST_PERMISSION_WITH_CODE', desc: 'Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).', hasParams: true, defaultData: '{"data":{"permissionCode":"mã quyền"}}' },
       { name: 'requestCameraPermission', event: 'REQUEST_CAMERA_PERMISSION', desc: 'Yêu cầu mở camera', hasParams: false, defaultData: '' },
       { name: 'requestLocationPermission', event: 'REQUEST_LOCATION_PERMISSION', desc: 'Yêu cầu vị trí', hasParams: false, defaultData: '' },
@@ -175,10 +170,10 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'requestPhoneCallPermission', event: 'REQUEST_PHONE_CALL_PERMISSION', desc: 'Yêu cầu thực hiện cuộc gọi trên thiết bị', hasParams: false, defaultData: '' },
       { name: 'requestPaymentPermission', event: 'REQUEST_PAYMENT_PERMISSION', desc: '', hasParams: false, defaultData: '' },
       { name: 'requestLoginPermission', event: 'REQUEST_LOGIN_PERMISSION', desc: '', hasParams: false, defaultData: '' },
-      { name: 'requestLocalAuthenticationPermission', event: 'REQUEST_LOCAL_AUTHENTICATION_PERMISSION', desc: 'Yêu cầu xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: '' }
+      { name: 'requestLocalAuthenticationPermission', event: 'REQUEST_LOCAL_AUTHENTICATION_PERMISSION', desc: 'Yêu cầu xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: '' },
+      { name: 'executeLocalAuthentication', event: 'EXECUTE_LOCAL_AUTHENTICATION', desc: 'Thực hiện xác thực sinh trắc học (vân tay, Face ID).', hasParams: true, defaultData: '{"data":{"authOptionsParam":{}}}' }
   ] },
-  { title: 'Check Permissions', events: [
-      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: 'Kiểm tra trạng thái nhiều quyền user data cùng lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["example1","example2"]}}' },
+  { title: 'Device Check Permission', events: [
       { name: 'checkPermissionWithCode', event: 'CHECK_PERMISSION_WITH_CODE', desc: 'Kiểm tra trạng thái quyền cụ thể.', hasParams: true, defaultData: '{"data":{"permissionCode":"Tham so 1"}}' },
       { name: 'checkCameraPermission', event: 'CHECK_CAMERA_PERMISSION', desc: 'Kiểm tra quyền camera', hasParams: false, defaultData: '' },
       { name: 'checkLocationPermission', event: 'CHECK_LOCATION_PERMISSION', desc: 'Kiểm tra quyền vị trí', hasParams: false, defaultData: '' },
@@ -191,46 +186,37 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'checkPhoneCallPermission', event: 'CHECK_PHONE_CALL_PERMISSION', desc: 'Kiểm tra quyền gọi điện', hasParams: false, defaultData: '' },
       { name: 'checkPaymentPermission', event: 'CHECK_PAYMENT_PERMISSION', desc: '', hasParams: false, defaultData: '' },
       { name: 'checkLoginPermission', event: 'CHECK_LOGIN_PERMISSION', desc: '', hasParams: false, defaultData: '' },
-      { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', hasParams: true, defaultData: '{"data":{"authOptionsParam":{}}}' }
+      { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: '' }
   ] },
-  { title: 'Data', events: [
+  { title: 'Other event', events: [
       { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: 'Lấy nhiều trường dữ liệu người dùng từ host app.', hasParams: true, defaultData: '{"data":{"dataNames":["example1","example2"]}}' },
-      { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: '' },
-      { name: 'getContacts', event: 'GET_CONTACTS', desc: 'Truy cập danh bạ', hasParams: true, defaultData: '{"data":{"filter":{},"pager":{}}}' },
-      { name: 'getLocation', event: 'GET_LOCATION', desc: 'Lấy vị trí thiết bị', hasParams: false, defaultData: '' }
-  ] },
-  { title: 'Other', events: [
       { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: 'Xóa tất cả quyền đã cache ở local.', hasParams: true, defaultData: '{"data":{}}' },
-      { name: 'pickFile', event: 'PICK_FILE', desc: 'Mở file tài liệu', hasParams: true, defaultData: '{"data":{"mimeType":["example1","example2"],"isCapture":true}}' },
-      { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: 'Mở dialog chia sẻ nội dung text.', hasParams: true, defaultData: '{"data":{},"content":"example"}' }
-  ] },
-  { title: 'UI Customization', events: [
-      { name: 'setBackgroundStatusBarColor', event: 'SET_BACKGROUND_STATUS_BAR_COLOR', desc: 'Thay đổi màu nền status bar.', hasParams: true, defaultData: '{"data":{},"color":"example"}' },
-      { name: 'setNavigationBarColor', event: 'SET_NAVIGATION_BAR_COLOR', desc: 'Thay đổi màu nền navigation bar.', hasParams: true, defaultData: '{"data":{},"color":"example"}' },
-      { name: 'updateStatusBarAppearance', event: 'UPDATE_STATUS_BAR_APPEARANCE', desc: 'Chuyển đổi status bar giữa dark mode và light mode.', hasParams: true, defaultData: '{"data":{},"appearance":"example"}' },
-      { name: 'updateNavigationBarAppearance', event: 'UPDATE_NAVIGATION_BAR_APPEARANCE', desc: 'Chuyển đổi navigation bar giữa dark mode và light mode.', hasParams: true, defaultData: '{"data":{},"appearance":"example"}' }
+      { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: '' },
+      { name: 'getContacts', event: 'GET_CONTACTS', desc: 'Lấy danh sách contacts từ danh bạ hệ thống. ', hasParams: true, defaultData: '{"data":{"filter":{},"pager":{}}}' },
+      { name: 'pickFile', event: 'PICK_FILE', desc: 'Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:', hasParams: true, defaultData: '{"data":{"mimeType":["example1","example2"],"isCapture":true,"source":"IOS only: PhotoLibrary hoặc Folder"}}' },
+      { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: 'Mở dialog chia sẻ nội dung text.', hasParams: true, defaultData: '{"data":{"content":"Text nội dung"}}' }
   ] },
   { title: 'Storage', events: [
-      { name: 'storageGet', event: 'STORAGE_GET', desc: 'Lấy dữ liệu từ storage theo key.', hasParams: true, defaultData: '{"key":"example"}' },
-      { name: 'storageSet', event: 'STORAGE_SET', desc: 'Lưu dữ liệu vào storage theo key.', hasParams: true, defaultData: '{"key":"example","data":"example"}' },
-      { name: 'storageRemove', event: 'STORAGE_REMOVE', desc: 'Xóa dữ liệu từ storage theo key.', hasParams: true, defaultData: '{"key":"example"}' },
-      { name: 'storageClear', event: 'STORAGE_CLEAR', desc: 'Xóa toàn bộ dữ liệu trong storage.', hasParams: false, defaultData: '' },
-      { name: 'storageInfo', event: 'STORAGE_INFO', desc: 'Lấy thông tin dung lượng storage.', hasParams: false, defaultData: '' }
+      { name: 'saveStringValue', event: 'SAVE_STRING_VALUE', desc: 'Lưu giá trị kiểu string.', hasParams: true, defaultData: '{"data":{"key":"Key lưu","value":"Giá trị lưu"}}' },
+      { name: 'saveBooleanValue', event: 'SAVE_BOOLEAN_VALUE', desc: 'Lưu giá trị kiểu boolean.', hasParams: true, defaultData: '{"data":{"key":"Key lưu","value":true}}' },
+      { name: 'saveIntegerValue', event: 'SAVE_INTEGER_VALUE', desc: 'Lưu giá trị kiểu int.', hasParams: true, defaultData: '{"data":{"key":"Key lưu","value":1}}' },
+      { name: 'saveLongValue', event: 'SAVE_LONG_VALUE', desc: 'Lưu giá trị kiểu long.', hasParams: true, defaultData: '{"data":{"key":"Key lưu","value":1}}' },
+      { name: 'saveFloatValue', event: 'SAVE_FLOAT_VALUE', desc: 'Lưu giá trị kiểu float.', hasParams: true, defaultData: '{"data":{"key":"Key lưu","value":"example"}}' },
+      { name: 'getStringValue', event: 'GET_STRING_VALUE', desc: 'Lấy giá trị kiểu string.', hasParams: true, defaultData: '{"data":{"key":"Key lưu","defaultValue":"Giá trị mặc định"}}' },
+      { name: 'getBooleanValue', event: 'GET_BOOLEAN_VALUE', desc: 'Lấy giá trị kiểu boolean.', hasParams: true, defaultData: '{"data":{"key":"Key lưu","defaultValue":true}}' },
+      { name: 'getIntegerValue', event: 'GET_INTEGER_VALUE', desc: 'Lấy giá trị kiểu int.', hasParams: true, defaultData: '{"data":{"key":"Key lưu","defaultValue":1}}' },
+      { name: 'getLongValue', event: 'GET_LONG_VALUE', desc: 'Lấy giá trị kiểu long.', hasParams: true, defaultData: '{"data":{"key":"Key lưu","defaultValue":1}}' },
+      { name: 'getFloatValue', event: 'GET_FLOAT_VALUE', desc: 'Lấy giá trị kiểu float.', hasParams: true, defaultData: '{"data":{"key":"Key lưu","defaultValue":"example"}}' },
+      { name: 'clearStorage', event: 'CLEAR_STORAGE', desc: 'Lấy giá trị kiểu float.', hasParams: false, defaultData: '' }
+  ] },
+  { title: 'Location', events: [
+      { name: 'getLocation', event: 'GET_LOCATION', desc: 'Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.', hasParams: false, defaultData: '' }
   ] },
   { title: 'UI', events: [
-      { name: 'uiShowToast', event: 'UI_SHOW_TOAST', desc: 'Hiển thị toast notification.', hasParams: true, defaultData: '{"title":"example","icon":"example","duration":1}' },
-      { name: 'uiHideToast', event: 'UI_HIDE_TOAST', desc: 'Ẩn toast hiện tại.', hasParams: false, defaultData: '' },
-      { name: 'uiShowLoading', event: 'UI_SHOW_LOADING', desc: 'Hiển thị loading indicator.', hasParams: true, defaultData: '{"title":"example","mask":true}' },
-      { name: 'uiHideLoading', event: 'UI_HIDE_LOADING', desc: 'Ẩn loading indicator.', hasParams: false, defaultData: '' },
-      { name: 'uiShowDialog', event: 'UI_SHOW_DIALOG', desc: 'Hiển thị dialog xác nhận.', hasParams: true, defaultData: '{"title":"example","content":"example","confirmText":"example","cancelText":"example","showCancel":true}' },
-      { name: 'uiShowActionSheet', event: 'UI_SHOW_ACTION_SHEET', desc: 'Hiển thị action sheet.', hasParams: true, defaultData: '{"itemList":[]}' }
-  ] },
-  { title: 'Navigator', events: [
-      { name: 'navigatorPush', event: 'NAVIGATOR_PUSH', desc: 'Mở trang mới (thêm vào navigation stack).', hasParams: true, defaultData: '{"url":"example","params":{}}' },
-      { name: 'navigatorPop', event: 'NAVIGATOR_POP', desc: 'Quay lại trang trước.', hasParams: true, defaultData: '{"delta":1}' },
-      { name: 'navigatorSwitchTab', event: 'NAVIGATOR_SWITCH_TAB', desc: 'Chuyển sang tab khác.', hasParams: true, defaultData: '{"url":"example"}' },
-      { name: 'navigatorRedirect', event: 'NAVIGATOR_REDIRECT', desc: 'Redirect (thay thế trang hiện tại).', hasParams: true, defaultData: '{"url":"example","params":{}}' },
-      { name: 'navigatorReLaunch', event: 'NAVIGATOR_RE_LAUNCH', desc: 'Quay về trang chủ và xóa navigation stack.', hasParams: true, defaultData: '{"url":"example"}' }
+      { name: 'setBackgroundStatusBarColor', event: 'SET_BACKGROUND_STATUS_BAR_COLOR', desc: 'Thay đổi màu nền status bar.', hasParams: true, defaultData: '{"data":{"color":"Mã màu"}}' },
+      { name: 'setNavigationBarColor', event: 'SET_NAVIGATION_BAR_COLOR', desc: 'Thay đổi màu nền navigation bar.', hasParams: true, defaultData: '{"data":{"color":"Mã màu"}}' },
+      { name: 'updateStatusBarAppearance', event: 'UPDATE_STATUS_BAR_APPEARANCE', desc: 'Chuyển đổi status bar giữa dark mode và light mode.', hasParams: true, defaultData: '{"data":{"appearance":"LIGHT hoặc DARK - Appearance mode cho st"}}' },
+      { name: 'updateNavigationBarAppearance', event: 'UPDATE_NAVIGATION_BAR_APPEARANCE', desc: 'Chuyển đổi navigation bar giữa dark mode và light mode.', hasParams: true, defaultData: '{"data":{"appearance":"LIGHT hoặc DARK - Appearance mode cho st"}}' }
   ] }
 ];
 
