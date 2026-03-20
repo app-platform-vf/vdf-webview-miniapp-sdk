@@ -1,0 +1,443 @@
+---
+sidebar_label: 'Device Check Permission'
+sidebar_position: 6
+hide_title: false
+title: Device Check Permission
+---
+
+### 1. checkPermissionWithCode()
+
+**Event Code:** `CHECK_PERMISSION_WITH_CODE` - Kiểm tra trạng thái quyền cụ thể.
+
+**Request data**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | **required** | Tham so 1 `USER_AGE_PERMISSION` |
+
+
+**Response**
+
+*No response data*
+
+**Ví dụ sử dụng**
+
+```typescript
+import { checkPermissionWithCode, isSuccess } from '@webview-sdk/core'
+
+const res = await checkPermissionWithCode({ data: {
+      permissionCode: "USER_AGE_PERMISSION"
+    } })
+if (isSuccess(res)) {
+  console.log('Thanh cong')
+}
+```
+
+---
+
+
+
+### 2. checkCameraPermission()
+
+**Event Code:** `CHECK_CAMERA_PERMISSION` - Kiểm tra quyền camera
+
+**Request**
+
+*No request parameters*
+
+**Response**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | *optional* |  |
+| `result` | `string` | *optional* |  |
+| `message` | `string` | *optional* |  |
+
+
+**Ví dụ sử dụng**
+
+```typescript
+import { checkCameraPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await checkCameraPermission()
+if (isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+---
+
+
+
+### 3. checkLocationPermission()
+
+**Event Code:** `CHECK_LOCATION_PERMISSION` - Kiểm tra quyền vị trí
+
+**Request**
+
+*No request parameters*
+
+**Response**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | *optional* |  |
+| `result` | `string` | *optional* |  |
+| `message` | `string` | *optional* |  |
+
+
+**Ví dụ sử dụng**
+
+```typescript
+import { checkLocationPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await checkLocationPermission()
+if (isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+---
+
+
+
+### 4. checkPhotosPermission()
+
+**Event Code:** `CHECK_PHOTOS_PERMISSION` - Kiểm tra quyền truy cập ảnh
+
+**Request**
+
+*No request parameters*
+
+**Response**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | *optional* |  |
+| `result` | `string` | *optional* |  |
+| `message` | `string` | *optional* |  |
+
+
+**Ví dụ sử dụng**
+
+```typescript
+import { checkPhotosPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await checkPhotosPermission()
+if (isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+---
+
+
+
+### 5. checkVideosPermission()
+
+**Event Code:** `CHECK_VIDEOS_PERMISSION` - Kiểm tra quyền truy cập video
+
+**Request**
+
+*No request parameters*
+
+**Response**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | *optional* |  |
+| `result` | `string` | *optional* |  |
+| `message` | `string` | *optional* |  |
+
+
+**Ví dụ sử dụng**
+
+```typescript
+import { checkVideosPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await checkVideosPermission()
+if (isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+---
+
+
+
+### 6. checkAudioPermission()
+
+**Event Code:** `CHECK_AUDIO_PERMISSION` - Kiểm tra quyền truy cập file audio
+
+**Request**
+
+*No request parameters*
+
+**Response**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | *optional* |  |
+| `result` | `string` | *optional* |  |
+| `message` | `string` | *optional* |  |
+
+
+**Ví dụ sử dụng**
+
+```typescript
+import { checkAudioPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await checkAudioPermission()
+if (isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+---
+
+
+
+### 7. checkRecordAudioPermission()
+
+**Event Code:** `CHECK_RECORD_AUDIO_PERMISSION` - Kiểm tra quyền ghi âm trên thiết bị
+
+**Request**
+
+*No request parameters*
+
+**Response**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | *optional* |  |
+| `result` | `string` | *optional* |  |
+| `message` | `string` | *optional* |  |
+
+
+**Ví dụ sử dụng**
+
+```typescript
+import { checkRecordAudioPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await checkRecordAudioPermission()
+if (isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+---
+
+
+
+### 8. checkContactsPermission()
+
+**Event Code:** `CHECK_CONTACTS_PERMISSION` - Kiểm tra quyền truy cập danh bạ
+
+**Request**
+
+*No request parameters*
+
+**Response**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | *optional* |  |
+| `result` | `string` | *optional* |  |
+| `message` | `string` | *optional* |  |
+
+
+**Ví dụ sử dụng**
+
+```typescript
+import { checkContactsPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await checkContactsPermission()
+if (isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+---
+
+
+
+### 9. checkDocumentPermission()
+
+**Event Code:** `CHECK_DOCUMENT_PERMISSION` - Kiểm tra quyền truy cập file tài liệu
+
+**Request**
+
+*No request parameters*
+
+**Response**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | *optional* |  |
+| `result` | `string` | *optional* |  |
+| `message` | `string` | *optional* |  |
+
+
+**Ví dụ sử dụng**
+
+```typescript
+import { checkDocumentPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await checkDocumentPermission()
+if (isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+---
+
+
+
+### 10. checkPhoneCallPermission()
+
+**Event Code:** `CHECK_PHONE_CALL_PERMISSION` - Kiểm tra quyền gọi điện
+
+**Request**
+
+*No request parameters*
+
+**Response**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | *optional* |  |
+| `result` | `string` | *optional* |  |
+| `message` | `string` | *optional* |  |
+
+
+**Ví dụ sử dụng**
+
+```typescript
+import { checkPhoneCallPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await checkPhoneCallPermission()
+if (isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+---
+
+
+
+### 11. checkPaymentPermission()
+
+**Event Code:** `CHECK_PAYMENT_PERMISSION` - **Request**
+
+*No request parameters*
+
+**Response**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | *optional* |  |
+| `result` | `string` | *optional* |  |
+| `message` | `string` | *optional* |  |
+
+
+**Ví dụ sử dụng**
+
+```typescript
+import { checkPaymentPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await checkPaymentPermission()
+if (isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+---
+
+
+
+### 12. checkLoginPermission()
+
+**Event Code:** `CHECK_LOGIN_PERMISSION` - **Request**
+
+*No request parameters*
+
+**Response**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | *optional* |  |
+| `result` | `string` | *optional* |  |
+| `message` | `string` | *optional* |  |
+
+
+**Ví dụ sử dụng**
+
+```typescript
+import { checkLoginPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await checkLoginPermission()
+if (isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+---
+
+
+
+### 13. checkLocalAuthenticationPermission()
+
+**Event Code:** `CHECK_LOCAL_AUTHENTICATION_PERMISSION` - kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).
+
+**Request**
+
+*No request parameters*
+
+**Response**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | *optional* |  |
+| `result` | `string` | *optional* |  |
+| `message` | `string` | *optional* |  |
+
+
+**Ví dụ sử dụng**
+
+```typescript
+import { checkLocalAuthenticationPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await checkLocalAuthenticationPermission()
+if (isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+---
+
+
+

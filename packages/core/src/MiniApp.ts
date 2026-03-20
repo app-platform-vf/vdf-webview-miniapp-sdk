@@ -43,7 +43,7 @@ export class MiniApp {
       appId: config.appId ?? '',
       debug: config.debug ?? false,
       token: config.token ?? '',
-      timeout: config.timeout ?? 5000,
+      timeout: config.timeout ?? 90000,
     };
 
     if (this.config.debug) {

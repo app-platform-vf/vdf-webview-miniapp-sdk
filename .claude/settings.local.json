@@ -25,7 +25,11 @@
       "Read(//tmp/**)",
       "Bash(npx tsc:*)",
       "Bash(npm install:*)",
-      "Bash(node demo/demo.js)"
+      "Bash(node demo/demo.js)",
+      "Bash(node scripts/copy-core-lib.js)",
+      "Bash(xxd d:/SDK/webview-sdk/scripts/copy-core-lib.js)",
+      "Bash(node -e \"console.log\\(''''ok''''\\)\")",
+      "Bash(node -e \"require\\(''''d:/SDK/webview-sdk/scripts/copy-core-lib.js''''\\)\")"
     ]
   }
 }

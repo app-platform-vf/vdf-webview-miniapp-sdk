@@ -239,6 +239,124 @@ app.useMiddleware(async (message, next) => {
 
 ---
 
+## Generated API Functions
+
+Tat ca ham duoc tu dong sinh tu `events.json`. Import truc tiep tu `@webview-sdk/core`.
+
+### Navigation
+
+| Function | Event | Mo ta |
+|----------|-------|-------|
+| `appOpenWebview(payload)` | `APP_OPEN_WEBVIEW` | Mo mot WebView moi voi URL va cau hinh tuy chinh |
+| `appOpenStore(payload)` | `APP_OPEN_STORE` | Mo ung dung tu App Store/Google Play hoac launch app da cai |
+| `exit(payload)` | `EXIT` | Dong Mini App va dieu huong ve man hinh khac |
+| `openExternalLink(payload)` | `OPEN_EXTERNAL_LINK` | Mo URL bang browser mac dinh cua he thong |
+| `openMiniApp(payload)` | `OPEN_MINI_APP` | Mo mot Mini App khac tu Mini App hien tai |
+
+### User Data Permission
+
+| Function | Event | Mo ta |
+|----------|-------|-------|
+| `requestMultipleUserDataPermission(payload)` | `REQUEST_MULTIPLE_USER_DATA_PERMISSION` | Yeu cau nhieu quyen user data cung mot luc |
+| `checkMultipleUserDataPermission(payload)` | `CHECK_MULTIPLE_USER_DATA_PERMISSION` | Kiem tra trang thai nhieu quyen user data cung luc |
+| `requestPermissionWithCode(payload)` | `REQUEST_PERMISSION_WITH_CODE` | Yeu cau quyen cu the theo permission code |
+| `checkPermissionWithCode(payload)` | `CHECK_PERMISSION_WITH_CODE` | Kiem tra trang thai quyen cu the |
+
+### User Data
+
+| Function | Event | Mo ta |
+|----------|-------|-------|
+| `getMultipleUserData(payload)` | `GET_MULTIPLE_USER_DATA` | Lay nhieu truong du lieu nguoi dung tu host app |
+| `clearPermissionCache(payload)` | `CLEAR_PERMISSION_CACHE` | Xoa tat ca quyen da cache o local |
+
+### Device Permission — Request
+
+| Function | Event | Mo ta |
+|----------|-------|-------|
+| `requestCameraPermission()` | `REQUEST_CAMERA_PERMISSION` | Yeu cau mo camera |
+| `requestLocationPermission()` | `REQUEST_LOCATION_PERMISSION` | Yeu cau vi tri |
+| `requestPhotosPermission()` | `REQUEST_PHOTOS_PERMISSION` | Yeu cau truy cap anh tren thiet bi |
+| `requestVideosPermission()` | `REQUEST_VIDEOS_PERMISSION` | Yeu cau truy cap video tren thiet bi |
+| `requestAudioPermission()` | `REQUEST_AUDIO_PERMISSION` | Yeu cau truy cap audio tren thiet bi |
+| `requestRecordAudioPermission()` | `REQUEST_RECORD_AUDIO_PERMISSION` | Yeu cau ghi am tren thiet bi |
+| `requestContactsPermission()` | `REQUEST_CONTACTS_PERMISSION` | Yeu cau truy cap danh ba tren thiet bi |
+| `requestDocumentPermission()` | `REQUEST_DOCUMENT_PERMISSION` | Yeu cau truy cap tai lieu tren thiet bi |
+| `requestPhoneCallPermission()` | `REQUEST_PHONE_CALL_PERMISSION` | Yeu cau thuc hien cuoc goi tren thiet bi |
+| `requestPaymentPermission()` | `REQUEST_PAYMENT_PERMISSION` | Yeu cau quyen thanh toan |
+| `requestLoginPermission()` | `REQUEST_LOGIN_PERMISSION` | Yeu cau quyen dang nhap |
+| `requestLocalAuthenticationPermission()` | `REQUEST_LOCAL_AUTHENTICATION_PERMISSION` | Yeu cau xac thuc sinh trac hoc (van tay, Face ID) |
+
+### Device Permission — Check
+
+| Function | Event | Mo ta |
+|----------|-------|-------|
+| `checkCameraPermission()` | `CHECK_CAMERA_PERMISSION` | Kiem tra quyen camera |
+| `checkLocationPermission()` | `CHECK_LOCATION_PERMISSION` | Kiem tra quyen vi tri |
+| `checkPhotosPermission()` | `CHECK_PHOTOS_PERMISSION` | Kiem tra quyen truy cap anh |
+| `checkVideosPermission()` | `CHECK_VIDEOS_PERMISSION` | Kiem tra quyen truy cap video |
+| `checkAudioPermission()` | `CHECK_AUDIO_PERMISSION` | Kiem tra quyen truy cap file audio |
+| `checkRecordAudioPermission()` | `CHECK_RECORD_AUDIO_PERMISSION` | Kiem tra quyen ghi am tren thiet bi |
+| `checkContactsPermission()` | `CHECK_CONTACTS_PERMISSION` | Kiem tra quyen truy cap danh ba |
+| `checkDocumentPermission()` | `CHECK_DOCUMENT_PERMISSION` | Kiem tra quyen truy cap file tai lieu |
+| `checkPhoneCallPermission()` | `CHECK_PHONE_CALL_PERMISSION` | Kiem tra quyen goi dien |
+| `checkPaymentPermission()` | `CHECK_PAYMENT_PERMISSION` | Kiem tra quyen thanh toan |
+| `checkLoginPermission()` | `CHECK_LOGIN_PERMISSION` | Kiem tra quyen dang nhap |
+| `checkLocalAuthenticationPermission()` | `CHECK_LOCAL_AUTHENTICATION_PERMISSION` | Kiem tra quyen xac thuc sinh trac hoc |
+
+### Biometric Authentication
+
+| Function | Event | Mo ta |
+|----------|-------|-------|
+| `executeLocalAuthentication(payload?)` | `EXECUTE_LOCAL_AUTHENTICATION` | Thuc hien xac thuc sinh trac hoc (van tay, Face ID) |
+| `getLocalAuthenticationStatus()` | `GET_LOCAL_AUTHENTICATION_STATUS` | Lay trang thai xac thuc sinh trac hoc |
+
+### Contacts & File
+
+| Function | Event | Mo ta |
+|----------|-------|-------|
+| `getContacts(payload?)` | `GET_CONTACTS` | Lay danh sach contacts tu danh ba he thong |
+| `pickFile(payload?)` | `PICK_FILE` | Mo trinh chon file tu thu vien hoac camera |
+
+### Local Storage
+
+| Function | Event | Mo ta |
+|----------|-------|-------|
+| `saveStringValue(payload)` | `SAVE_STRING_VALUE` | Luu gia tri kieu string |
+| `saveBooleanValue(payload)` | `SAVE_BOOLEAN_VALUE` | Luu gia tri kieu boolean |
+| `saveIntegerValue(payload)` | `SAVE_INTEGER_VALUE` | Luu gia tri kieu int |
+| `saveLongValue(payload)` | `SAVE_LONG_VALUE` | Luu gia tri kieu long |
+| `saveFloatValue(payload)` | `SAVE_FLOAT_VALUE` | Luu gia tri kieu float |
+| `getStringValue(payload)` | `GET_STRING_VALUE` | Lay gia tri kieu string |
+| `getBooleanValue(payload)` | `GET_BOOLEAN_VALUE` | Lay gia tri kieu boolean |
+| `getIntegerValue(payload)` | `GET_INTEGER_VALUE` | Lay gia tri kieu int |
+| `getLongValue(payload)` | `GET_LONG_VALUE` | Lay gia tri kieu long |
+| `getFloatValue(payload)` | `GET_FLOAT_VALUE` | Lay gia tri kieu float |
+| `clearStorage()` | `CLEAR_STORAGE` | Xoa toan bo local storage |
+
+### Location & UI
+
+| Function | Event | Mo ta |
+|----------|-------|-------|
+| `getLocation()` | `GET_LOCATION` | Lay vi tri GPS hien tai. Phai co quyen LOCATION_PERMISSION truoc |
+| `setBackgroundStatusBarColor(payload?)` | `SET_BACKGROUND_STATUS_BAR_COLOR` | Thay doi mau nen status bar |
+| `setNavigationBarColor(payload?)` | `SET_NAVIGATION_BAR_COLOR` | Thay doi mau nen navigation bar |
+| `updateStatusBarAppearance(payload?)` | `UPDATE_STATUS_BAR_APPEARANCE` | Chuyen doi status bar giua dark/light mode |
+| `updateNavigationBarAppearance(payload?)` | `UPDATE_NAVIGATION_BAR_APPEARANCE` | Chuyen doi navigation bar giua dark/light mode |
+
+### Share
+
+| Function | Event | Mo ta |
+|----------|-------|-------|
+| `shareTextContent(payload?)` | `SHARE_TEXT_CONTENT` | Mo dialog chia se noi dung text |
+
+### Utility
+
+| Function | Mo ta |
+|----------|-------|
+| `isSuccess(response)` | Kiem tra response co thanh cong khong (`errorCode === 'SDK000'`) |
+
+---
+
 ## Giao thuc Message (Bridge Protocol)
 
 Message format la `MiniAppRequestBase` — flat object, khong co `payload` wrapper:
@@ -293,12 +411,11 @@ WebView (JS)                              Native App
 
 ### Platform Support
 
-| Platform | Bridge object |
-|----------|--------------|
-| React Native | `window.ReactNativeWebView.postMessage()` |
-| Android | `window.AndroidBridge.postMessage()` |
-| iOS (WKWebView) | `window.webkit.messageHandlers.bridge.postMessage()` |
-| Web (fallback) | `window.postMessage()` |
+| Platform | Bridge object | Mo ta |
+|----------|--------------|-------|
+| Android | `window.AndroidWebview.miniappWebviewToSdk(msg)` | Ben android dinh nghia interface nay de webview co the goi event |
+| iOS (WKWebView) | `window.webkit.messageHandlers.miniappWebviewToSdk.postMessage(msg)` | Ben iOS dinh nghia interface nay de webview co the goi event |
+| Web (fallback) | `window.miniappSdkToWebview(msg)` | Ben webview dinh nghia function nay de native co the gui message xuong webview |
 
 ---
 
@@ -337,63 +454,31 @@ demo/
   vue/                           Demo Vue 3 (chi dung @webview-sdk/core)
 ```
 
-## Huong dan cho Native Developer
-
-De tich hop SDK tu phia native, can:
-
-1. **Nhan message tu WebView**: Lang nghe message dang JSON tu WebView bridge
-2. **Parse request**: Doc truong `event` de biet API nao duoc goi, doc `request_id` de gui response lai
-3. **Thuc thi API**: Xu ly logic theo `event` (VD: `GET_LOCATION` -> doc GPS)
-4. **Gui response**: Gui message ve WebView voi cung `request_id`, dat `eventStatus.errorCode = "SDK000"` neu thanh cong
-5. **Gui event xuong WebView**: Push event qua `evaluateJavascript` hoac `postMessage`
-
-**Vi du xu ly phia Android (Kotlin):**
-```kotlin
-webView.addJavascriptInterface(object {
-    @JavascriptInterface
-    fun postMessage(json: String) {
-        val request = JSONObject(json)
-        val event = request.getString("event")
-        val requestId = request.getString("request_id")
-
-        when (event) {
-            "GET_LOCATION" -> {
-                val response = JSONObject().apply {
-                    put("event", event)
-                    put("sender", "MINIAPP_SDK")
-                    put("request_id", requestId)
-                    put("data", JSONObject().apply {
-                        put("latitude", 10.76)
-                        put("longitude", 106.66)
-                    })
-                    put("eventStatus", JSONObject().apply {
-                        put("errorCode", "SDK000")
-                        put("errorMessageVN", "Thanh cong")
-                        put("errorMessageEN", "Success")
-                    })
-                }
-                webView.evaluateJavascript(
-                    "window.postMessage('${response}')", null
-                )
-            }
-        }
-    }
-}, "AndroidBridge")
-```
 
 ## Build & Generate
 
 ```bash
-# Sinh API tu events.json
+#1 Sinh API tu events.json
 node packages/core/src/event.js
 
-# Build all packages
+#2 Build all packages
 npm run build
 
-# Pack tgz
+#3 Sinh API docs tu events.json
+node build-doc.js
+
+#4
+# Dong goi code den dist/webview-sdk-core-1.0.0.tgz
+# Copy dist/webview-sdk-core-1.0.0.tgz den demo/{platform}/core-lib/webview-sdk-core-1.0.0.tgz
+# Chạy npm install @webview-sdk/core ---- Định nghĩa trong demo/{platform}/package.json -> @webview-sdk/core",
+# Chạy demo/demo.js để tự động sinh code trong thư mục demo theo event.json định nghĩa
+node scripts/copy-core-lib.js
+
+
+#5 Pack tgz
+# Bao gồm chạy lệnh #1, #2, #4
 npm run pack
 ```
 
-## License
 
-MIT
+
