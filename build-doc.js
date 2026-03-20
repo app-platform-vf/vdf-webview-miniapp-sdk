@@ -1,179 +1,430 @@
 const fs = require("fs")
 const path = require("path")
 
-const SRC_DIR = "./packages"
+const EVENTS_JSON = "./packages/core/src/events.json"
 const OUTPUT_DIR = "./docs-site"
 
+function toCamelCase(str) {
+  return str.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase())
+}
 
-function scanDir(dir) {
-  let files = []
-  const items = fs.readdirSync(dir)
-  items.forEach(item => {
-    const full = path.join(dir, item)
-    const stat = fs.statSync(full)
-    if (stat.isDirectory()) {
-      files = files.concat(scanDir(full))
-    } else if (item.endsWith(".ts")) {
-      files.push(full)
+function categorizeEvent(event) {
+  if (event.includes("USER_DATA") && event.includes("PERMISSION")) return "UserData Permission"
+  if (event.startsWith("EXIT") || event.includes("OPEN")) return "Routing"
+  if ((event.startsWith("REQUEST") && event.includes("PERMISSION")) || event.includes("EXECUTE_LOCAL_AUTHENTICATION")) return "Device Request Permission"
+  if (event.startsWith("CHECK") && event.includes("PERMISSION")) return "Device Check Permission"
+  if (((event.startsWith("SAVE_") || event.startsWith("GET_")) && event.endsWith("VALUE")) || event.includes("STORAGE")) return "Storage"
+  if (event.includes("LOCATION")) return "Location"
+  if (event.endsWith("COLOR") || event.endsWith("APPEARANCE")) return "UI"
+  return "Get data event"
+}
+
+function renderFields(fields, prefix = "") {
+  if (!fields || Object.keys(fields).length === 0) return ""
+  let rows = ""
+  for (const [name, info] of Object.entries(fields)) {
+    const type = info.type || info.meta_data || "any"
+    const required = info.required ? '**required**' : '*optional*'
+    const desc = info.description || ""
+    const def = info.default ? ` \`${info.default}\`` : ""
+    rows += `| \`${prefix}${name}\` | \`${type}\` | ${required} | ${desc}${def} |\n`
+  }
+  return `| Field | Type | Required | Description |\n|---|---|---|---|\n${rows}`
+}
+
+function renderResponseFields(response) {
+  if (!response || Object.keys(response).length === 0) return '*No response data*'
+
+  if (response.data && response.data.fields) {
+    const metaNote = response.data.meta_data === "array" ? ' `[array]`' : ""
+    return `${metaNote}\n\n` + renderFields(response.data.fields)
+  }
+
+  const fields = {}
+  for (const [key, val] of Object.entries(response)) {
+    if (typeof val === "object" && val !== null) {
+      fields[key] = val
+      if (val.fields) {
+        return renderFields({ [key]: val, ...val.fields })
+      }
     }
+  }
+  if (Object.keys(fields).length > 0) return renderFields(fields)
+  return '*No response data*'
+}
+
+/**
+ * Sinh ra ví dụ sử dụng TypeScript cho một event,
+ * khớp với hàm được generate bởi event.js (api.generated.ts).
+ */
+function renderUsageExample(ev) {
+  const fnName = toCamelCase(ev.event)
+
+  // --- Xây dựng phần call argument ---
+  const reqData = ev.request && ev.request.data
+  const hasDataFields = reqData && reqData.fields && Object.keys(reqData.fields).length > 0
+
+  let callArg = ''
+  if (hasDataFields) {
+    // Lấy giá trị mẫu từ 'default' hoặc dùng placeholder theo type
+    const fieldLines = Object.entries(reqData.fields).map(([name, info]) => {
+      let val
+      if (info.default !== undefined) {
+        // default đã là chuỗi đại diện, dùng trực tiếp
+        const d = info.default
+        if (typeof d === 'boolean') val = String(d)
+        else if (typeof d === 'number') val = String(d)
+        else if (typeof d === 'string' && (d.startsWith('[') || d.startsWith('{'))) val = d.replace(/\s+/g, ' ')
+        else val = JSON.stringify(d)
+      } else {
+        // Fallback placeholder theo type
+        const t = info.type || 'string'
+        if (t === 'boolean') val = 'true'
+        else if (t === 'number') val = '0'
+        else if (t === 'object') val = '{}'
+        else if (t === 'array') val = '[]'
+        else val = `'...'`
+      }
+      return `      ${name}: ${val}`
+    })
+    // stringify: hàm generated tự JSON.stringify bên trong, caller truyền object bình thường
+    callArg = `{ data: {\n${fieldLines.join(',\n')}\n    } }`
+  }
+
+  // --- Xây dựng phần truy cập response ---
+  let responseAccess = ''
+  const res = ev.response || {}
+  const hasDataResponse = res.data && res.data.fields && Object.keys(res.data.fields).length > 0
+  const flatResponseKeys = Object.keys(res).filter(k => k !== 'data')
+
+  if (hasDataResponse) {
+    const fieldNames = Object.keys(res.data.fields)
+    const isArray = res.data.meta_data === 'array'
+    if (isArray) {
+      responseAccess = `if (isSuccess(res)) {\n  // res.data la mang: ${fieldNames.slice(0, 3).join(', ')}...\n  res.data.forEach(item => console.log(item))\n}`
+    } else {
+      const accesses = fieldNames.slice(0, 3).map(f => `  console.log(res.data.${f})`).join('\n')
+      responseAccess = `if (isSuccess(res)) {\n${accesses}\n}`
+    }
+  } else if (flatResponseKeys.length > 0) {
+    const accesses = flatResponseKeys.slice(0, 3).map(f => `  console.log(res.${f})`).join('\n')
+    responseAccess = `if (isSuccess(res)) {\n${accesses}\n}`
+  } else {
+    responseAccess = `if (isSuccess(res)) {\n  console.log('Thanh cong')\n}`
+  }
+
+  // --- Tổng hợp example ---
+  const importLine = `import { ${fnName}, isSuccess } from '@webview-sdk/core'`
+  const callLine = callArg
+    ? `const res = await ${fnName}(${callArg})`
+    : `const res = await ${fnName}()`
+
+  return `**Ví dụ sử dụng**\n\n\`\`\`typescript\n${importLine}\n\n${callLine}\n${responseAccess}\n\`\`\`\n\n`
+}
+
+function getFrontMatter(title, position) {
+  return `---
+sidebar_label: '${title}'
+sidebar_position: ${position}
+hide_title: false
+title: ${title}
+---
+
+`;
+}
+
+const categoryOrder = [
+    "Routing", "UserData Permission", "Device Request Permission", "Device Check Permission",
+    "Storage", "Location", "UI", "Get data event"
+  ]
+
+function generateMarkdown(events) {
+  const grouped = {}
+  events.forEach(ev => {
+    const cat = categorizeEvent(ev.event)
+    if (!grouped[cat]) grouped[cat] = []
+    grouped[cat].push(ev)
   })
-  return files
+
+  const docs = []
+  let position = 1
+
+  // 1. Getting Started
+  let gettingStartedContent = `# Super MiniApp SDK - API Documentation
+
+> Tự động sinh từ events.json — 56 events.
+
+**Demo Links:**
+- [Demo Angular](https://staging1.viettelmoney.vn/miniapp/01km03tv28thk14tt8bq4adha5-pre-release/)
+- [Demo React](https://staging1.viettelmoney.vn/miniapp/01km03s38mdqyz1xd1fj03yz90-pre-release/)
+- [Demo Vue](https://staging1.viettelmoney.vn/miniapp/01km03swe6njmgnx0jfva6dgvd-pre-release/)
+
+## 1. Getting Started
+
+### 1.1 Cài đặt
+
+**Bước 1:** Tải file thư viện và code demo
+- [Tải webview-sdk-core-1.0.0.tgz](pathname:///files/webview-sdk-core-1.0.0.tgz)
+- [Tải code demo](pathname:///files/demo.zip)
+
+**Bước 2:** Copy file \`webview-sdk-core-1.0.0.tgz\` vào thư mục \`core-lib/\` trong project
+\`\`\`bash
+mkdir -p core-lib
+cp webview-sdk-core-1.0.0.tgz core-lib/
+\`\`\`
+
+**Bước 3:** Thêm dependency vào \`package.json\`
+\`\`\`json
+{
+  "dependencies": {
+    "@webview-sdk/core": "file:core-lib/webview-sdk-core-1.0.0.tgz"
+  }
+}
+\`\`\`
+
+**Bước 4:** Cài đặt
+\`\`\`bash
+npm install
+\`\`\`
+
+*Chỉ cần 1 package duy nhất cho mọi framework (React, Vue, Angular, vanilla JS).*
+
+### 1.2 Bắt đầu nhanh
+
+\`\`\`typescript
+import { getSharedMiniApp, getLocation, appOpenWebview, isSuccess } from '@webview-sdk/core'
+
+const app = getSharedMiniApp({ debug: true })
+app.ready()
+
+// Gọi API qua generated function (type-safe)
+const res = await getLocation()
+if (isSuccess(res)) {
+  console.log(res.data)
 }
 
-function parseFile(file) {
-  const content = fs.readFileSync(file, "utf8")
-  const classes = []
-  const functions = []
-  const exports = []
+// Gọi API có tham số
+await appOpenWebview({ data: { url: 'https://example.com', serviceName: 'Demo' } })
 
-  // Parse classes
-  const classRegex = /export\s+class\s+(\w+)/g
-  let match
-  while ((match = classRegex.exec(content))) {
-    classes.push(match[1])
+// Gọi API qua invoke (dynamic)
+const res2 = await app.invoke('GET_LOCATION')
+\`\`\`
+
+#### React
+\`\`\`tsx
+import { useEffect } from 'react'
+import { getSharedMiniApp, getLocation, isSuccess } from '@webview-sdk/core'
+
+const app = getSharedMiniApp({ debug: true })
+
+function App() {
+  useEffect(() => { app.ready() }, [])
+
+  const handleClick = async () => {
+    const res = await getLocation()
+    if (isSuccess(res)) console.log(res.data)
   }
 
-  // Parse exported functions
-  const funcRegex = /export\s+(?:async\s+)?function\s+(\w+)/g
-  while ((match = funcRegex.exec(content))) {
-    functions.push(match[1])
-  }
-
-  // Parse export types/interfaces
-  const typeRegex = /export\s+(?:type|interface)\s+(\w+)/g
-  while ((match = typeRegex.exec(content))) {
-    exports.push(match[1])
-  }
-
-  // Parse methods in classes
-  const methods = []
-  const methodRegex = /^\s+(?:async\s+)?(\w+)\s*\(([^)]*)\).*{/gm
-  while ((match = methodRegex.exec(content))) {
-    const name = match[1]
-    if (!["if","for","while","switch","catch","constructor"].includes(name) && !name.startsWith("_")) {
-      methods.push({ name, params: match[2].trim() })
-    }
-  }
-
-  // Parse comments
-  const comments = {}
-  const commentRegex = /\/\*\*\s*([\s\S]*?)\s*\*\/\s*\n\s*(?:export\s+)?(?:async\s+)?(?:class|function|type|interface)\s+(\w+)/g
-  while ((match = commentRegex.exec(content))) {
-    comments[match[2]] = match[1].replace(/\s*\*\s*/g, ' ').trim()
-  }
-
-  return { classes, functions, exports, methods, comments }
+  return <button onClick={handleClick}>Get Location</button>
 }
+\`\`\`
 
-function getPackageName(filePath) {
-  const parts = filePath.replace(/\\/g, '/').split('/')
-  const pkgIdx = parts.indexOf('packages')
-  if (pkgIdx !== -1 && parts[pkgIdx + 1]) return parts[pkgIdx + 1]
-  return 'unknown'
+#### Vue 3
+\`\`\`vue
+<script setup>
+import { onMounted } from 'vue'
+import { getSharedMiniApp, getLocation, isSuccess } from '@webview-sdk/core'
+
+const app = getSharedMiniApp({ debug: true })
+onMounted(() => { app.ready() })
+
+async function handleClick() {
+  const res = await getLocation()
+  if (isSuccess(res)) console.log(res.data)
 }
+</script>
 
-function getRelPath(filePath) {
-  return filePath.replace(/\\/g, '/').replace(/^\.\//, '')
+<template>
+  <button @click="handleClick">Get Location</button>
+</template>
+\`\`\`
+
+#### Angular
+\`\`\`typescript
+import { Component } from '@angular/core'
+import { getSharedMiniApp, MiniApp, getLocation, isSuccess } from '@webview-sdk/core'
+
+@Component({
+  template: \`<button (click)="handleClick()">Get Location</button>\`
+})
+export class AppComponent {
+  private app: MiniApp
+
+  constructor() {
+    this.app = getSharedMiniApp({ debug: true })
+    this.app.ready()
+  }
+
+  async handleClick() {
+    const res = await getLocation()
+    if (isSuccess(res)) console.log(res.data)
+  }
 }
+\`\`\`
 
-function generateHTML(filesByPackage) {
-  const packages = Object.keys(filesByPackage)
+## 2. API Reference
 
-  const sidebar = packages.map(pkg => {
-    const files = filesByPackage[pkg]
-    const items = files.map(f =>
-      `<a class="nav-item" href="#${encodeURIComponent(f.relPath)}">${f.fileName}</a>`
-    ).join('')
-    return `<div class="nav-group"><div class="nav-title">${pkg}</div>${items}</div>`
-  }).join('')
+### 2.1 Khoi tao
 
-  const content = packages.map(pkg => {
-    const files = filesByPackage[pkg]
-    return files.map(f => {
-      const classesHTML = f.parsed.classes.map(c => {
-        const desc = f.parsed.comments[c] || ''
-        return `<div class="item"><span class="tag tag-class">class</span><strong>${c}</strong>${desc ? '<p class="desc">' + desc + '</p>' : ''}</div>`
-      }).join('')
+\`\`\`ts
+import { getSharedMiniApp } from '@webview-sdk/core'
 
-      const funcsHTML = f.parsed.functions.map(fn => {
-        const desc = f.parsed.comments[fn] || ''
-        return `<div class="item"><span class="tag tag-func">function</span><strong>${fn}()</strong>${desc ? '<p class="desc">' + desc + '</p>' : ''}</div>`
-      }).join('')
+const app = getSharedMiniApp({
+  appId: 'com.example.miniapp',  // ID ung dung
+  debug: true,                    // Bat log debug
+  token: '',                      // Token xac thuc
+  timeout: 5000                   // Timeout mac dinh (ms)
+})
+\`\`\`
 
-      const typesHTML = f.parsed.exports.map(t =>
-        `<div class="item"><span class="tag tag-type">type</span>${t}</div>`
-      ).join('')
+\`getSharedMiniApp()\` tao singleton — goi nhieu lan van tra ve cung 1 instance, tu dong wire generated API.
 
-      const methodsHTML = f.parsed.methods.map(m =>
-        `<div class="item method"><span class="tag tag-method">method</span>${m.name}(${m.params})</div>`
-      ).join('')
+### 2.2 Giao tiep voi Native
 
-      const sections = []
-      if (classesHTML) sections.push('<h4>Classes</h4>' + classesHTML)
-      if (funcsHTML) sections.push('<h4>Functions</h4>' + funcsHTML)
-      if (typesHTML) sections.push('<h4>Types / Interfaces</h4>' + typesHTML)
-      if (methodsHTML) sections.push('<h4>Methods</h4>' + methodsHTML)
+| Method | Mo ta |
+|--------|-------|
+| \`app.invoke(api, data?)\` | Goi native API, tra ve \`Promise\` voi ket qua |
+| \`app.sendRaw(msg)\` | Gui \`MiniAppRequestBase\` truc tiep, day la core method |
+| \`app.emit(event, data?)\` | Gui su kien 1 chieu den native |
+| \`app.on(event, callback)\` | Lang nghe su kien tu native |
+| \`app.once(event, callback)\` | Lang nghe su kien 1 lan |
+| \`app.off(event, callback?)\` | Huy lang nghe. Bo \`callback\` de huy tat ca |
 
-      if (sections.length === 0) return ''
+### 2.3 Lifecycle
 
-      return `<div class="file-section" id="${encodeURIComponent(f.relPath)}">
-        <h3>${f.relPath}</h3>
-        ${sections.join('')}
-      </div>`
-    }).filter(Boolean).join('')
-  }).join('')
+| Method | Mo ta |
+|--------|-------|
+| \`app.ready()\` | Danh dau SDK san sang, xa hang doi message |
+| \`app.destroy()\` | Huy SDK, don dep tai nguyen |
+| \`app.onReady(cb)\` | Goi khi SDK san sang |
+| \`app.onShow(cb)\` | Goi khi app hien thi |
+| \`app.onHide(cb)\` | Goi khi app bi an |
+| \`app.onError(cb)\` | Goi khi co loi |
+| \`app.onDestroy(cb)\` | Goi khi app bi huy |
 
-  return `<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Super MiniApp SDK - API Documentation</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;color:#1f1f1f;display:flex;min-height:100vh}
-.sidebar{width:260px;background:#fff;border-right:1px solid #e8e8e8;padding:20px 0;position:fixed;top:0;left:0;bottom:0;overflow-y:auto}
-.sidebar h2{padding:0 20px 16px;font-size:16px;border-bottom:1px solid #e8e8e8;margin-bottom:12px}
-.nav-group{margin-bottom:16px}
-.nav-title{padding:8px 20px;font-size:11px;text-transform:uppercase;color:#999;font-weight:700;letter-spacing:.5px}
-.nav-item{display:block;padding:4px 20px 4px 32px;font-size:13px;color:#555;text-decoration:none;line-height:1.8}
-.nav-item:hover{color:#1677ff;background:#f0f5ff}
-.main{margin-left:260px;flex:1;padding:32px 40px}
-.main h1{font-size:24px;margin-bottom:8px}
-.main>p{color:#666;margin-bottom:28px}
-.file-section{background:#fff;border-radius:8px;padding:20px 24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.file-section h3{font-size:14px;color:#1677ff;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f0f0f0}
-.file-section h4{font-size:12px;color:#999;text-transform:uppercase;margin:16px 0 8px;letter-spacing:.5px}
-.file-section h4:first-child{margin-top:0}
-.item{padding:6px 0;font-size:13px;border-bottom:1px solid #fafafa}
-.item strong{color:#1f1f1f}
-.item.method{padding-left:16px;color:#555}
-.desc{color:#888;font-size:12px;margin-top:2px}
-.tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;margin-right:6px}
-.tag-class{background:#e6f4ff;color:#1677ff}
-.tag-func{background:#f6ffed;color:#52c41a}
-.tag-type{background:#fff7e6;color:#fa8c16}
-.tag-method{background:#f9f0ff;color:#722ed1}
-.demo-link{display:inline-block;margin-top:8px;padding:8px 20px;background:#1677ff;color:#fff;border-radius:6px;text-decoration:none;font-size:14px}
-.demo-link:hover{background:#4096ff}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
-</style>
-</head>
-<body>
-<div class="sidebar">
-  <h2>MiniApp SDK</h2>
-  ${sidebar}
-  <div style="padding:16px 20px;border-top:1px solid #e8e8e8;margin-top:12px">
-    <a class="demo-link" href="index.html" style="display:block;text-align:center">Demo</a>
-  </div>
-</div>
-<div class="main">
-  <h1>API Documentation</h1>
-  <p>Tu dong sinh tu source code. <a href="index.html">Xem trang demo &rarr;</a></p>
-  ${content}
-</div>
-</body>
-</html>`
+### 2.4 Plugin
+
+\`\`\`ts
+app.use({
+  name: 'analytics',
+  install(app) {
+    app.on('navigate', (data) => {
+      app.emit('analytics.pageView', { url: data.url })
+    })
+  }
+})
+\`\`\`
+
+### 2.5 Middleware
+
+\`\`\`ts
+app.useMiddleware(async (message, next) => {
+  console.log('Before:', message.event, message)
+  await next()
+  console.log('After:', message.event)
+})
+\`\`\`
+
+`
+  docs.push({
+    filename: "getting-started.md",
+    title: "Getting Started",
+    content: getFrontMatter("Getting Started", position++) + gettingStartedContent
+  })
+
+  // 2. Giao thức chung
+  let protocolContent = `## Giao thức chung (Base Protocol)
+
+Tất cả request và response đều kế thừa các trường chung bên dưới. Phần **Request** và **Response** của mỗi event chỉ hiển thị trường \`data\` riêng.
+
+**MiniAppRequestBase — Tất cả Request đều có**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| \`event\` | \`string\` | **required** | Tên event (VD: GET_LOCATION) |
+| \`sender\` | \`string\` | **required** | Nguồn gửi, mặc định "MINIAPP_WEBVIEW" |
+| \`request_id\` | \`string\` | **required** | ID duy nhất của request, dùng để map response |
+| \`data\` | \`object\` | *optional* | Dữ liệu riêng của từng event (xem chi tiết bên dưới) |
+
+**MiniAppResponseBase — Tất cả Response đều có**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| \`event\` | \`string\` | **required** | Tên event tương ứng với request |
+| \`sender\` | \`string\` | **required** | Nguồn gửi, mặc định "MINIAPP_SDK" |
+| \`response_id\` | \`string\` | **required** | ID của response |
+| \`request_id\` | \`string\` | **required** | ID của request tương ứng |
+| \`eventStatus\` | \`EventStatus\` | **required** | Trạng thái xử lý (errorCode, errorMessageVN, errorMessageEN, realMsg) |
+| \`errorData\` | \`string\` | *optional* | Dữ liệu lỗi chi tiết (nếu có) |
+| \`message\` | \`string\` | *optional* | Thông báo bổ sung |
+| \`data\` | \`object\` | *optional* | Dữ liệu trả về riêng của từng event (xem chi tiết bên dưới) |
+
+**EventStatus**
+
+| Field | Type | Description |
+|---|---|---|
+| \`errorCode\` | \`string\` | "SDK000" = thành công. Dùng \`isSuccess(res)\` de kiem tra |
+| \`errorMessageVN\` | \`string\` | Thông báo lỗi tiếng Việt |
+| \`errorMessageEN\` | \`string\` | Thông báo lỗi tiếng Anh |
+| \`realMsg\` | \`string\` | Thông báo gốc từ native |
+`
+  docs.push({
+    filename: "base-protocol.md",
+    title: "Giao thức chung",
+    content: getFrontMatter("Giao thức chung", position++) + protocolContent
+  })
+
+  // 3. Categories
+  categoryOrder.filter(c => grouped[c]).forEach(cat => {
+    let catContent = ""
+    let index = 1
+    grouped[cat].forEach(ev => {
+      const fnName = toCamelCase(ev.event)
+      const hasRequest = ev.request && ev.request.data && ev.request.data.fields && Object.keys(ev.request.data.fields).length > 0
+      const metaData = ev.request?.data?.meta_data
+      const stringifyNote = metaData === "stringify" ? ' *(data is JSON.stringify())*' : ""
+
+      // ✅ thêm số thứ tự
+      catContent += `### ${index++}. ${fnName}()\n\n`
+
+      catContent += `**Event Code:** \`${ev.event}\` - `
+      if (ev.description) {
+        catContent += `${ev.description}\n\n`
+      }
+
+      catContent += `**Request${hasRequest ? ` data${stringifyNote}` : ''}**\n\n`
+      if (hasRequest) {
+        catContent += renderFields(ev.request.data.fields) + "\n\n"
+      } else {
+        catContent += "*No request parameters*\n\n"
+      }
+
+      const hasResponse = ev.response && ev.response.data && ev.response.data.fields && Object.keys(ev.response.data.fields).length > 0
+      catContent += `**Response${hasResponse ? ' data' : ''}**\n\n`
+      catContent += renderResponseFields(ev.response) + "\n\n"
+      catContent += renderUsageExample(ev)
+      catContent += "---\n\n\n\n"
+    })
+
+    const filename = cat.toLowerCase().replace(/[^a-z0-9]+/g, '-') + ".md"
+    docs.push({
+      filename: filename,
+      title: cat,
+      content: getFrontMatter(cat, position++) + catContent
+    })
+  })
+
+  return docs
 }
 
 function buildDocs() {
@@ -181,25 +432,20 @@ function buildDocs() {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true })
   }
 
-  const files = scanDir(SRC_DIR)
-  const filesByPackage = {}
+  if (!fs.existsSync(OUTPUT_DIR + '/SDK Function')) {
+    fs.mkdirSync(OUTPUT_DIR + '/SDK Function', { recursive: true })
+  }
 
-  files.forEach(file => {
-    const pkg = getPackageName(file)
-    const parsed = parseFile(file)
-    const relPath = getRelPath(file)
-    const fileName = path.basename(file)
+  const eventsData = JSON.parse(fs.readFileSync(EVENTS_JSON, "utf8"))
+  const events = eventsData.events || []
+  const docs = generateMarkdown(events)
 
-    if (!filesByPackage[pkg]) filesByPackage[pkg] = []
-    filesByPackage[pkg].push({ relPath, fileName, parsed })
+  docs.forEach(doc => {
+    fs.writeFileSync(path.join(OUTPUT_DIR + (categoryOrder.includes(doc.title) ? '/SDK Function' : ''), doc.filename), doc.content)
+    console.log(`  -> ${doc.filename} (generated)`)
   })
 
-  const html = generateHTML(filesByPackage)
-  fs.writeFileSync(path.join(OUTPUT_DIR, "api.html"), html)
-
-  console.log("Docs generated:")
-  console.log("  -> " + path.join(OUTPUT_DIR, "index.html") + " (demo page)")
-  console.log("  -> " + path.join(OUTPUT_DIR, "api.html") + " (API docs)")
+  console.log(`Docs generated: ${events.length} events in ${docs.length} files`)
 }
 
 buildDocs()

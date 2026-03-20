@@ -15,6 +15,49 @@ const path = require("path")
 const EVENTS_FILE = path.join(__dirname, "../packages/core/src/events.json")
 
 // ==================================================================
+// Shared CSS
+// ==================================================================
+
+const CSS_SHARED = `.container { font-family: system-ui; top: 0; left: 0; padding: 16px; margin: 0 auto; position: fixed; width: 100vw; height: 100vh; overflow: auto; background: #f9f9f9; }
+h1 { font-size: 20px; }
+.sticky-top { position: sticky; top: -20px; background: white; z-index: 1; padding-right: 20px;}
+.section-title { font-size: 14px; color: #666; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+.btn-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd; background: #f5f5f5; cursor: pointer; font-size: 12px; }
+.btn:hover { background: #e8e8e8; }
+.btn-run { background: #4CAF50; color: #fff; border-color: #4CAF50; }
+.btn-run:hover { background: #45a049; }
+.btn-fill { background: #2196F3; color: #fff; border-color: #2196F3; }
+.btn-fill:hover { background: #1e88e5; }
+.input-area { width: calc(100vw - 40px); min-height: 60px; font-family: monospace; font-size: 12px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; resize: vertical; }
+.evt-wrap { position: relative; display: inline-block; }
+.popup-custom { position: absolute; top: 100%; left: 0; z-index: 100; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; min-width: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.popup-title { font-weight: bold; font-size: 12px; margin-bottom: 4px; }
+.popup-desc { font-size: 11px; color: #666; margin-bottom: 8px; }
+.popup-actions { display: flex; gap: 6px; }
+.overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; }
+.log-area {
+    margin-top: 10px;
+    padding: 12px;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    border-radius: 6px;
+    border: 1px solid #333;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.log-area::-webkit-scrollbar { width: 8px; height: 8px; }
+.log-area::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+.log-area::-webkit-scrollbar-thumb:hover { background: #555; }
+`
+
+// ==================================================================
 // Helpers
 // ==================================================================
 
@@ -26,15 +69,14 @@ function groupEvents(events) {
   const groups = {}
   events.forEach(evt => {
     let prefix
-    if (evt.event.startsWith("REQUEST_") && evt.event.includes("PERMISSION")) prefix = "Request Permissions"
-    else if (evt.event.startsWith("CHECK_") && evt.event.includes("PERMISSION")) prefix = "Check Permissions"
-    else if (evt.event.startsWith("APP_") || evt.event.startsWith("OPEN_") || evt.event === "EXIT") prefix = "Navigation"
-    else if (evt.event.startsWith("GET_")) prefix = "Data"
-    else if (evt.event.startsWith("SET_") || evt.event.startsWith("UPDATE_")) prefix = "UI Customization"
-    else if (evt.event.startsWith("STORAGE_")) prefix = "Storage"
-    else if (evt.event.startsWith("UI_")) prefix = "UI"
-    else if (evt.event.startsWith("NAVIGATOR_")) prefix = "Navigator"
-    else prefix = "Other"
+    if (evt.event.includes("USER_DATA") && evt.event.includes("PERMISSION")) prefix = "UserData Permission"
+    else if (evt.event.startsWith("EXIT") || evt.event.includes("OPEN")) prefix = "Routing"
+    else if ((evt.event.startsWith("REQUEST") && evt.event.includes("PERMISSION")) || evt.event.includes("EXECUTE_LOCAL_AUTHENTICATION")) prefix = "Device Request Permission"
+    else if (evt.event.startsWith("CHECK") && evt.event.includes("PERMISSION")) prefix = "Device Check Permission"
+    else if (((evt.event.startsWith("SAVE_") || evt.event.startsWith("GET_")) && evt.event.endsWith("VALUE")) || evt.event.includes("STORAGE")) prefix = "Storage"
+    else if (evt.event.includes("LOCATION")) prefix = "Location"
+    else if (evt.event.endsWith("COLOR") || evt.event.endsWith("APPEARANCE")) prefix = "UI"
+    else prefix = "Get data event"
     if (!groups[prefix]) groups[prefix] = []
     groups[prefix].push(evt)
   })
@@ -45,30 +87,45 @@ function buildSampleData(requestDef) {
   if (!requestDef || Object.keys(requestDef).length === 0) return null
   const parts = {}
   Object.entries(requestDef).forEach(([key, def]) => {
-    const meta = def.meta_data || "any"
-    if (meta === "object" || meta === "stringify") {
+    const meta = def.meta_data || 'any'
+    if (meta === 'object' || meta === 'stringify') {
       if (def.fields && Object.keys(def.fields).length > 0) {
         const inner = {}
         Object.entries(def.fields).forEach(([k, v]) => {
-          if (v.required !== false || Object.keys(def.fields).indexOf(k) < 2) {
-            if (v.type === "string") inner[k] = v.description ? v.description.slice(0, 20) : "example"
-            else if (v.type === "number") inner[k] = 1
-            else if (v.type === "boolean") inner[k] = true
-            else if (v.type === "array") inner[k] = []
-            else inner[k] = "example"
+          // Priority: use default value from events.json if available
+          if (v.default !== undefined) {
+            const d = v.default
+            if (typeof d === 'boolean' || typeof d === 'number') {
+              inner[k] = d
+            } else if (typeof d === 'string' && (d.startsWith('[') || d.startsWith('{'))) {
+              // default is a JSON string (array/object) — parse to JS value
+              try { inner[k] = JSON.parse(d) } catch { inner[k] = d }
+            } else {
+              inner[k] = d
+            }
+          } else {
+            // Fallback placeholder by type
+            if (v.type === 'string') inner[k] = '...'
+            else if (v.type === 'number') inner[k] = 0
+            else if (v.type === 'boolean') inner[k] = true
+            else if (v.type === 'array') inner[k] = []
+            else if (v.type === 'object') inner[k] = {}
+            else inner[k] = '...'
           }
         })
         parts[key] = inner
       } else {
         parts[key] = {}
       }
-    } else if (meta === "array") {
+    } else if (meta === 'array') {
       parts[key] = []
     } else {
-      if (meta === "string") parts[key] = "example"
-      else if (meta === "number") parts[key] = 1
-      else if (meta === "boolean") parts[key] = true
-      else parts[key] = "example"
+      // Top-level primitive — also prefer default
+      if (def.default !== undefined) parts[key] = def.default
+      else if (meta === 'string') parts[key] = '...'
+      else if (meta === 'number') parts[key] = 0
+      else if (meta === 'boolean') parts[key] = true
+      else parts[key] = '...'
     }
   })
   return parts
@@ -142,6 +199,10 @@ export class AppComponent {
     this.registerFns();
   }
 
+  get formatLog() {
+    return this.logs.length ? this.logs.join('\\n') : 'No logs yet.'
+  }
+
   private getInput(): any {
     if (!this.inputValue.trim()) return null;
     try { return JSON.parse(this.inputValue); } catch { return null; }
@@ -176,7 +237,7 @@ ${Object.entries(groups).map(([group, evts]) => {
   ];
 
   log(msg: string, data?: any): void {
-    const entry = data ? \`\${msg}: \${JSON.stringify(data)}\` : msg;
+    const entry = data ? \`\${msg}: \${JSON.stringify(data, null, 2)}\` : msg;
     this.logs.unshift(\`[\${new Date().toLocaleTimeString()}] \${entry}\`);
   }
 
@@ -189,7 +250,7 @@ ${Object.entries(groups).map(([group, evts]) => {
       const res = await fn();
       this.log(\`OK \${evt.name}\`, res);
     } catch (err) {
-      this.log(\`ERR \${evt.name}: \${(err as any).message}\`);
+      this.log(\`ERR \${evt.name}\`, err);
     }
   }
 
@@ -209,15 +270,27 @@ ${Object.entries(groups).map(([group, evts]) => {
   const html = `<div class="container">
     <h1>MiniApp SDK - Angular Demo</h1>
 
-    <!-- Input JSON -->
-    <section>
-        <h3 class="section-title">Input Data (JSON)</h3>
-        <textarea
-            [(ngModel)]="inputValue"
-            placeholder='{"data":{"url":"https://example.com"}}'
-            class="input-area"
-        ></textarea>
-    </section>
+    <div class="sticky-top">
+        <!-- Input JSON -->
+        <section>
+            <h3 class="section-title">Input Data (JSON)</h3>
+            <textarea
+                rows="5"
+                [(ngModel)]="inputValue"
+                placeholder='{"data":{"url":"https://example.com"}}'
+                class="input-area"
+            ></textarea>
+        </section>
+
+        <!-- Logs -->
+        <div style="margin-top: 16px">
+            <div style="display: flex; justify-content: space-between; align-items: center">
+                <h3 style="margin: 0">Logs</h3>
+                <button class="btn" (click)="logs = []">Clear</button>
+            </div>
+            <pre class="log-area"><code style="width: 800px; display: block;">{{ formatLog }}</code></pre>
+        </div>
+    </div>
 
     <!-- Event groups -->
     <section *ngFor="let group of groups">
@@ -225,7 +298,7 @@ ${Object.entries(groups).map(([group, evts]) => {
         <div class="btn-group">
             <div *ngFor="let evt of group.events" class="evt-wrap">
                 <button class="btn" (click)="showPopup(evt)" [title]="evt.desc">{{ evt.name }}</button>
-                <div class="popup" *ngIf="popup?.name === evt.name">
+                <div class="popup-custom" *ngIf="popup?.name === evt.name">
                     <div class="popup-title">{{ evt.event }}</div>
                     <div class="popup-desc" *ngIf="evt.desc">{{ evt.desc }}</div>
                     <div class="popup-actions">
@@ -244,22 +317,16 @@ ${Object.entries(groups).map(([group, evts]) => {
             <button class="btn" (click)="runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: null })">invoke(input)</button>
         </div>
     </section>
-
-    <!-- Logs -->
-    <div style="margin-top: 16px">
-        <div style="display: flex; justify-content: space-between; align-items: center">
-            <h3 style="margin: 0">Logs</h3>
-            <button class="btn" (click)="logs = []">Clear</button>
-        </div>
-        <pre class="log-area">{{ logs.length ? logs.join('\\n') : 'No logs yet.' }}</pre>
-    </div>
+    <div style="padding: 50px"></div>
 </div>
 
 <!-- Overlay to close popup -->
-<div class="overlay" *ngIf="popup" (click)="popup = null"></div>
+<!-- <div class="overlay" *ngIf="popup" (click)="popup = null"></div> -->
 `
 
-  return { ts, html }
+  const scss = CSS_SHARED
+
+  return { ts, html, scss }
 }
 
 // ==================================================================
@@ -290,11 +357,12 @@ function genReactApp(events) {
     return `  { title: ${JSON.stringify(group)}, events: [\n${items.join(",\n")}\n  ] }`
   })
 
-  return `import { useState, useCallback, useEffect, useRef } from 'react';
+  return `import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import {
   getSharedMiniApp,
   ${imports.join(",\n  ")},
 } from '@webview-sdk/core';
+import './App.css';
 
 const app = getSharedMiniApp({ debug: true });
 
@@ -319,6 +387,10 @@ export default function App() {
 
   useEffect(() => { app.ready(); }, []);
 
+  const formatLog = useMemo(() => {
+    return logs.length ? logs.join('\\n') : 'No logs yet.';
+  }, [logs]);
+
   const getInput = useCallback((): any => {
     const v = inputRef.current.trim();
     if (!v) return null;
@@ -331,7 +403,7 @@ ${fnEntries.join(",\n")},
   };
 
   const log = useCallback((msg: string, data?: any) => {
-    const entry = data ? \`\${msg}: \${JSON.stringify(data)}\` : msg;
+    const entry = data ? \`\${msg}: \${JSON.stringify(data, null, 2)}\` : msg;
     setLogs(prev => [\`[\${new Date().toLocaleTimeString()}] \${entry}\`, ...prev]);
   }, []);
 
@@ -344,7 +416,7 @@ ${fnEntries.join(",\n")},
       const res = await fn();
       log(\`OK \${evt.name}\`, res);
     } catch (err: any) {
-      log(\`ERR \${evt.name}: \${err.message}\`);
+      log(\`ERR \${evt.name}\`, err);
     }
   }, [log]);
 
@@ -356,75 +428,64 @@ ${fnEntries.join(",\n")},
   }, []);
 
   return (
-    <div style={{ fontFamily: 'system-ui', padding: 16, maxWidth: 600, margin: '0 auto' }}>
-      <h1 style={{ fontSize: 20 }}>MiniApp SDK - React Demo</h1>
+    <div className="container">
+      <h1>MiniApp SDK - React Demo</h1>
 
-      {/* Input */}
-      <Section title="Input Data (JSON)">
-        <textarea
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder='{"data":{"url":"https://example.com"}}'
-          style={{ width: '100%', minHeight: 60, fontFamily: 'monospace', fontSize: 12, padding: 8, border: '1px solid #ddd', borderRadius: 6, resize: 'vertical' as const }}
-        />
-      </Section>
+      <div className="sticky-top">
+        {/* Input */}
+        <section>
+          <h3 className="section-title">Input Data (JSON)</h3>
+          <textarea
+            rows={5}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder='{"data":{"url":"https://example.com"}}'
+            className="input-area"
+          />
+        </section>
+
+        {/* Logs */}
+        <div style={{ marginTop: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ margin: 0 }}>Logs</h3>
+            <button className="btn" onClick={() => setLogs([])}>Clear</button>
+          </div>
+          <pre className="log-area"><code style={{ width: 800, display: 'block' }}>{formatLog}</code></pre>
+        </div>
+      </div>
 
       {groups.map(g => (
-        <Section key={g.title} title={g.title}>
-          {g.events.map(evt => (
-            <div key={evt.name} style={{ position: 'relative', display: 'inline-block' }}>
-              <Btn onClick={() => setPopup(popup?.name === evt.name ? null : evt)}>{evt.name}</Btn>
-              {popup?.name === evt.name && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 100, background: '#fff', border: '1px solid #ddd', borderRadius: 8, padding: 12, minWidth: 220, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 4 }}>{evt.event}</div>
-                  {evt.desc && <div style={{ fontSize: 11, color: '#666', marginBottom: 8 }}>{evt.desc}</div>}
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <Btn onClick={() => runEvent(evt)}>Run</Btn>
-                    {evt.hasParams && <Btn onClick={() => fillInput(evt)}>Fill Input</Btn>}
+        <section key={g.title}>
+          <h3 className="section-title">{g.title}</h3>
+          <div className="btn-group">
+            {g.events.map(evt => (
+              <div key={evt.name} className="evt-wrap">
+                <button className="btn" onClick={() => setPopup(popup?.name === evt.name ? null : evt)} title={evt.desc}>{evt.name}</button>
+                {popup?.name === evt.name && (
+                  <div className="popup-custom">
+                    <div className="popup-title">{evt.event}</div>
+                    {evt.desc && <div className="popup-desc">{evt.desc}</div>}
+                    <div className="popup-actions">
+                      <button className="btn btn-run" onClick={() => runEvent(evt)}>Run</button>
+                      {evt.hasParams && <button className="btn btn-fill" onClick={() => fillInput(evt)}>Fill Input</button>}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </Section>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
       ))}
 
       {/* Generic invoke */}
-      <Section title="Generic invoke()">
-        <Btn onClick={() => runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: null })}>invoke(input)</Btn>
-      </Section>
-
-      {/* Logs */}
-      <div style={{ marginTop: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0 }}>Logs</h3>
-          <Btn onClick={() => setLogs([])}>Clear</Btn>
+      <section>
+        <h3 className="section-title">Generic invoke()</h3>
+        <div className="btn-group">
+          <button className="btn" onClick={() => runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: null })}>invoke(input)</button>
         </div>
-        <pre style={{ background: '#1e1e1e', color: '#d4d4d4', padding: 12, borderRadius: 8, fontSize: 12, maxHeight: 300, overflow: 'auto', whiteSpace: 'pre-wrap' }}>
-          {logs.length ? logs.join('\\n') : 'No logs yet.'}
-        </pre>
-      </div>
-
-      {/* Overlay */}
-      {popup && <div onClick={() => setPopup(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 50 }} />}
+      </section>
+      <div style={{ padding: '50px' }}></div>
     </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div style={{ marginTop: 16 }}>
-      <h3 style={{ fontSize: 14, color: '#666', borderBottom: '1px solid #eee', paddingBottom: 4 }}>{title}</h3>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>{children}</div>
-    </div>
-  );
-}
-
-function Btn({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button onClick={onClick} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #ddd', background: '#f5f5f5', cursor: 'pointer', fontSize: 12 }}>
-      {children}
-    </button>
   );
 }
 `
@@ -460,7 +521,7 @@ function genVueApp(events) {
   })
 
   return `<script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import {
   getSharedMiniApp,
   ${imports.join(",\n  ")},
@@ -470,6 +531,10 @@ const app = getSharedMiniApp({ debug: true });
 const logs = ref<string[]>([]);
 const input = ref('');
 const popup = ref<any>(null);
+
+const formatLog = computed(() => {
+  return logs.value.length ? logs.value.join('\\n') : 'No logs yet.';
+});
 
 onMounted(() => { app.ready(); });
 
@@ -497,7 +562,7 @@ ${groupsData.join(",\n")}
 ];
 
 function log(msg: string, data?: any) {
-  const entry = data ? \`\${msg}: \${JSON.stringify(data)}\` : msg;
+  const entry = data ? \`\${msg}: \${JSON.stringify(data, null, 2)}\` : msg;
   logs.value.unshift(\`[\${new Date().toLocaleTimeString()}] \${entry}\`);
 }
 
@@ -510,7 +575,7 @@ async function runEvent(evt: EventInfo) {
     const res = await fn();
     log(\`OK \${evt.name}\`, res);
   } catch (err: any) {
-    log(\`ERR \${evt.name}: \${err.message}\`);
+    log(\`ERR \${evt.name}\`, err);
   }
 }
 
@@ -527,18 +592,30 @@ function showPopup(evt: EventInfo) {
 </script>
 
 <template>
-  <div style="font-family: system-ui; padding: 16px; max-width: 600px; margin: 0 auto">
-    <h1 style="font-size: 20px">MiniApp SDK - Vue Demo</h1>
+  <div class="container">
+    <h1>MiniApp SDK - Vue Demo</h1>
 
-    <!-- Input -->
-    <section>
-      <h3 class="section-title">Input Data (JSON)</h3>
-      <textarea
-        v-model="input"
-        placeholder='{"data":{"url":"https://example.com"}}'
-        class="input-area"
-      ></textarea>
-    </section>
+    <div class="sticky-top">
+      <!-- Input -->
+      <section>
+        <h3 class="section-title">Input Data (JSON)</h3>
+        <textarea
+          rows="5"
+          v-model="input"
+          placeholder='{"data":{"url":"https://example.com"}}'
+          class="input-area"
+        ></textarea>
+      </section>
+
+      <!-- Logs -->
+      <div style="margin-top: 16px">
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <h3 style="margin: 0">Logs</h3>
+          <button class="btn" @click="logs = []">Clear</button>
+        </div>
+        <pre class="log-area"><code style="width: 800px; display: block;">{{ formatLog }}</code></pre>
+      </div>
+    </div>
 
     <!-- Event groups -->
     <section v-for="group in groups" :key="group.title">
@@ -546,7 +623,7 @@ function showPopup(evt: EventInfo) {
       <div class="btn-group">
         <div v-for="evt in group.events" :key="evt.name" class="evt-wrap">
           <button class="btn" @click="showPopup(evt)" :title="evt.desc">{{ evt.name }}</button>
-          <div v-if="popup?.name === evt.name" class="popup">
+          <div v-if="popup?.name === evt.name" class="popup-custom">
             <div class="popup-title">{{ evt.event }}</div>
             <div v-if="evt.desc" class="popup-desc">{{ evt.desc }}</div>
             <div class="popup-actions">
@@ -565,38 +642,12 @@ function showPopup(evt: EventInfo) {
         <button class="btn" @click="runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: '' })">invoke(input)</button>
       </div>
     </section>
-
-    <!-- Logs -->
-    <div style="margin-top: 16px">
-      <div style="display: flex; justify-content: space-between; align-items: center">
-        <h3 style="margin: 0">Logs</h3>
-        <button class="btn" @click="logs = []">Clear</button>
-      </div>
-      <pre class="log-area">{{ logs.length ? logs.join('\\n') : 'No logs yet.' }}</pre>
-    </div>
-
-    <!-- Overlay -->
-    <div v-if="popup" class="overlay" @click="popup = null"></div>
+    <div style="padding: 50px"></div>
   </div>
 </template>
 
 <style>
-.section-title { font-size: 14px; color: #666; border-bottom: 1px solid #eee; padding-bottom: 4px; }
-.btn-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd; background: #f5f5f5; cursor: pointer; font-size: 12px; }
-.btn:hover { background: #e8e8e8; }
-.btn-run { background: #4CAF50; color: #fff; border-color: #4CAF50; }
-.btn-run:hover { background: #45a049; }
-.btn-fill { background: #2196F3; color: #fff; border-color: #2196F3; }
-.btn-fill:hover { background: #1e88e5; }
-.input-area { width: 100%; min-height: 60px; font-family: monospace; font-size: 12px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; resize: vertical; }
-.evt-wrap { position: relative; display: inline-block; }
-.popup { position: absolute; top: 100%; left: 0; z-index: 100; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; min-width: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-.popup-title { font-weight: bold; font-size: 12px; margin-bottom: 4px; }
-.popup-desc { font-size: 11px; color: #666; margin-bottom: 8px; }
-.popup-actions { display: flex; gap: 6px; }
-.overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; }
-.log-area { background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 8px; font-size: 12px; max-height: 300px; overflow: auto; white-space: pre-wrap; }
+${CSS_SHARED}
 </style>
 `
 }
@@ -613,13 +664,17 @@ console.log(`Found ${config.events.length} events\n`)
 const angular = genAngularComponent(config.events)
 fs.writeFileSync(path.join(__dirname, "angular/src/app/app.component.ts"), angular.ts)
 fs.writeFileSync(path.join(__dirname, "angular/src/app/app.component.html"), angular.html)
+fs.writeFileSync(path.join(__dirname, "angular/src/app/app.component.scss"), angular.scss)
 console.log("Generated: angular/src/app/app.component.ts")
 console.log("Generated: angular/src/app/app.component.html")
+console.log("Generated: angular/src/app/app.component.scss")
 
 // React
 const react = genReactApp(config.events)
 fs.writeFileSync(path.join(__dirname, "react/src/App.tsx"), react)
+fs.writeFileSync(path.join(__dirname, "react/src/App.css"), CSS_SHARED)
 console.log("Generated: react/src/App.tsx")
+console.log("Generated: react/src/App.css")
 
 // Vue
 const vue = genVueApp(config.events)

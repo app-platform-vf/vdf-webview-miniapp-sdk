@@ -1,9 +1,14 @@
 {
- "name":"@webview-sdk/core",
- "version":"1.0.0",
- "main":"dist/index.js",
- "types":"dist/index.d.ts",
- "scripts": {
-  "build": "tsc -p tsconfig.json"
- }
+    "name": "@webview-sdk/core",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc -p tsconfig.json"
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ]
 }

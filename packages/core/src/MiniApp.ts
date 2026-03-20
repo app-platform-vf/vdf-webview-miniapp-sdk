@@ -7,7 +7,7 @@ import {
   LifecycleCallback,
 } from './types';
 
-import type { MiniAppRequestBase } from './generated/types.generated';
+import type { MiniAppRequestBase, MiniAppResponseBase } from './generated/types.generated';
 import { sendToNative, parseNativeMessage, detectPlatform } from './bridge/Transport';
 import { EventBus } from './modules/EventBus';
 import { RequestManager } from './modules/RequestManager';
@@ -15,6 +15,7 @@ import { MessageQueue } from './modules/MessageQueue';
 import { MiddlewareManager } from './modules/MiddlewareManager';
 import { PluginManager } from './plugins/PluginManager';
 import { Logger } from './utils/logger';
+import { isSuccess } from './generated/api.generated';
 
 const SENDER = 'MINIAPP_WEBVIEW';
 
@@ -42,7 +43,7 @@ export class MiniApp {
       appId: config.appId ?? '',
       debug: config.debug ?? false,
       token: config.token ?? '',
-      timeout: config.timeout ?? 5000,
+      timeout: config.timeout ?? 90000,
     };
 
     if (this.config.debug) {
@@ -71,6 +72,7 @@ export class MiniApp {
         ...msg,
         sender: msg.sender || SENDER,
         request_id: msg.request_id || request_id,
+        requestId: msg.request_id || request_id,
         token: this.config.token || undefined,
         timestamp: Date.now(),
       };
@@ -90,9 +92,9 @@ export class MiniApp {
    * Goi native API va cho response
    * Tuong tu wx.request() / my.call()
    */
-  invoke(api: string, data?: any): Promise<any> {
+  invoke(event: string, data?: any): Promise<any> {
     return this.sendRaw({
-      event: api,
+      event: event,
       ...data,
     });
   }
@@ -102,10 +104,12 @@ export class MiniApp {
    * Tuong tu postMessage mot chieu
    */
   emit(event: string, data?: any): void {
+    const { request_id } = this.requestManager.create(this.config.timeout);
     const message: MiniAppRequestBase = {
       event,
       sender: SENDER,
-      request_id: '',
+      request_id: request_id,
+      requestId: request_id,
       ...data,
       token: this.config.token || undefined,
       timestamp: Date.now(),
@@ -194,13 +198,13 @@ export class MiniApp {
     this.lifecycleBus.emit('ready');
 
     // Gui handshake den native
-    sendToNative({
-      event: '__miniapp_ready',
-      sender: SENDER,
-      request_id: '',
-      appId: this.config.appId,
-      timestamp: Date.now(),
-    });
+    // sendToNative({
+    //   event: '__miniapp_ready',
+    //   sender: SENDER,
+    //   request_id: '',
+    //   appId: this.config.appId,
+    //   timestamp: Date.now(),
+    // });
 
     Logger.log('MiniApp ready');
   }
@@ -222,26 +226,26 @@ export class MiniApp {
   // ============================================================
 
   private startListening(): void {
-    this.messageHandler = (e: MessageEvent) => {
-      const msg = parseNativeMessage(e.data);
+    window.miniappSdkToWebview = (data: any) => {
+      Logger.log('Receiver raw =======' + data);
+      const msg = parseNativeMessage(data);
       if (!msg) return;
       this.handleMessage(msg);
     };
-    window.addEventListener('message', this.messageHandler);
   }
 
   private stopListening(): void {
     if (this.messageHandler) {
-      window.removeEventListener('message', this.messageHandler);
+      window.miniappSdkToWebview = () => { Logger.log('Da stopListening')};
       this.messageHandler = null;
     }
   }
 
-  private handleMessage(msg: MiniAppRequestBase): void {
+  private handleMessage(msg: MiniAppResponseBase): void {
     Logger.log('<<< received', msg.event, msg);
 
     // Response — co request_id de match
-    if (msg.request_id) {
+    if (msg.request_id || msg.requestd) {
       this.handleResponse(msg);
       return;
     }
@@ -263,16 +267,12 @@ export class MiniApp {
     this.eventBus.emit(msg.event, msg);
   }
 
-  private handleResponse(msg: MiniAppRequestBase): void {
-    if (!msg.request_id) return;
+  private handleResponse(msg: MiniAppResponseBase): void {
 
-    if (msg.errorCode || msg.errorMessage) {
-      this.requestManager.reject(msg.request_id, {
-        code: msg.errorCode,
-        message: msg.errorMessage,
-      });
+    if(isSuccess(msg)) {
+      this.requestManager.resolve(msg.request_id || msg.requestd, msg)
     } else {
-      this.requestManager.resolve(msg.request_id, msg);
+      this.requestManager.reject(msg.request_id || msg.requestd, msg)
     }
   }
 
