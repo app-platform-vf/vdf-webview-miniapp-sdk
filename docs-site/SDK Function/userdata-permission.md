@@ -5,11 +5,9 @@ hide_title: false
 title: UserData Permission
 ---
 
-### requestMultipleUserDataPermission()
+### 1. requestMultipleUserDataPermission()
 
-**Event Code:** `REQUEST_MULTIPLE_USER_DATA_PERMISSION`
-
-Yêu cầu nhiều quyền user data cùng một lúc.
+**Event Code:** `REQUEST_MULTIPLE_USER_DATA_PERMISSION` - Yêu cầu nhiều quyền user data cùng một lúc.
 
 **Request data *(data is JSON.stringify())***
 
@@ -30,13 +28,28 @@ Yêu cầu nhiều quyền user data cùng một lúc.
 | `message` | `string` | *optional* | Nội dung  |
 
 
+**Ví dụ sử dụng**
+
+```typescript
+import { requestMultipleUserDataPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await requestMultipleUserDataPermission({ data: {
+      permissionCodes: ["USER_AGE_PERMISSION"],
+      useSameReason: true
+    } })
+if (isSuccess(res)) {
+  // res.data la mang: permissionCode, result, message...
+  res.data.forEach(item => console.log(item))
+}
+```
+
 ---
 
-### checkMultipleUserDataPermission()
 
-**Event Code:** `CHECK_MULTIPLE_USER_DATA_PERMISSION`
 
-Kiểm tra trạng thái nhiều quyền user data cùng lúc.
+### 2. checkMultipleUserDataPermission()
+
+**Event Code:** `CHECK_MULTIPLE_USER_DATA_PERMISSION` - Kiểm tra trạng thái nhiều quyền user data cùng lúc.
 
 **Request data *(data is JSON.stringify())***
 
@@ -56,5 +69,21 @@ Kiểm tra trạng thái nhiều quyền user data cùng lúc.
 | `message` | `string` | *optional* | Nội dung  |
 
 
+**Ví dụ sử dụng**
+
+```typescript
+import { checkMultipleUserDataPermission, isSuccess } from '@webview-sdk/core'
+
+const res = await checkMultipleUserDataPermission({ data: {
+      permissionCodes: ["USER_AGE_PERMISSION"]
+    } })
+if (isSuccess(res)) {
+  // res.data la mang: permissionCode, result, message...
+  res.data.forEach(item => console.log(item))
+}
+```
+
 ---
+
+
 

@@ -5,11 +5,9 @@ hide_title: false
 title: Get data event
 ---
 
-### getMultipleUserData()
+### 1. getMultipleUserData()
 
-**Event Code:** `GET_MULTIPLE_USER_DATA`
-
-Lấy nhiều trường dữ liệu người dùng từ host app.
+**Event Code:** `GET_MULTIPLE_USER_DATA` - Lấy nhiều trường dữ liệu người dùng từ host app.
 
 **Request data *(data is JSON.stringify())***
 
@@ -33,13 +31,28 @@ Lấy nhiều trường dữ liệu người dùng từ host app.
 | `userId` | `string` | *optional* |  |
 
 
+**Ví dụ sử dụng**
+
+```typescript
+import { getMultipleUserData, isSuccess } from '@webview-sdk/core'
+
+const res = await getMultipleUserData({ data: {
+      dataNames: ["age"]
+    } })
+if (isSuccess(res)) {
+  console.log(res.age)
+  console.log(res.userName)
+  console.log(res.fullName)
+}
+```
+
 ---
 
-### clearPermissionCache()
 
-**Event Code:** `CLEAR_PERMISSION_CACHE`
 
-Xóa tất cả quyền đã cache ở local.
+### 2. clearPermissionCache()
+
+**Event Code:** `CLEAR_PERMISSION_CACHE` - Xóa tất cả quyền đã cache ở local.
 
 **Request**
 
@@ -53,13 +66,24 @@ Xóa tất cả quyền đã cache ở local.
 | `errorCode` | `string` | *optional* |  |
 
 
+**Ví dụ sử dụng**
+
+```typescript
+import { clearPermissionCache, isSuccess } from '@webview-sdk/core'
+
+const res = await clearPermissionCache()
+if (isSuccess(res)) {
+  console.log(res.eventStatus)
+}
+```
+
 ---
 
-### getLocalAuthenticationStatus()
 
-**Event Code:** `GET_LOCAL_AUTHENTICATION_STATUS`
 
- lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).
+### 3. getLocalAuthenticationStatus()
+
+**Event Code:** `GET_LOCAL_AUTHENTICATION_STATUS` -  lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).
 
 **Request**
 
@@ -77,13 +101,26 @@ Xóa tất cả quyền đã cache ở local.
 | `canAuthenticateWithStrongBiometrics` | `boolean` | *optional* | Có thể xác thực bằng sinh trắc mạnh |
 
 
+**Ví dụ sử dụng**
+
+```typescript
+import { getLocalAuthenticationStatus, isSuccess } from '@webview-sdk/core'
+
+const res = await getLocalAuthenticationStatus()
+if (isSuccess(res)) {
+  console.log(res.isHardwareSupportStrongBiometric)
+  console.log(res.isHardwareSupportBiometric)
+  console.log(res.isDeviceSecure)
+}
+```
+
 ---
 
-### getContacts()
 
-**Event Code:** `GET_CONTACTS`
 
-Lấy danh sách contacts từ danh bạ hệ thống. 
+### 4. getContacts()
+
+**Event Code:** `GET_CONTACTS` - Lấy danh sách contacts từ danh bạ hệ thống. 
 
 **Request data**
 
@@ -103,13 +140,28 @@ Lấy danh sách contacts từ danh bạ hệ thống.
 | `countContacts` | `number` | *optional* |  |
 
 
+**Ví dụ sử dụng**
+
+```typescript
+import { getContacts, isSuccess } from '@webview-sdk/core'
+
+const res = await getContacts({ data: {
+      filter: { "contactName": "John" },
+      pager: { "pageNumber": 1, "limitRow": 100 }
+    } })
+if (isSuccess(res)) {
+  console.log(res.data.contactList)
+  console.log(res.data.countContacts)
+}
+```
+
 ---
 
-### pickFile()
 
-**Event Code:** `PICK_FILE`
 
-Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:
+### 5. pickFile()
+
+**Event Code:** `PICK_FILE` - Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:
 
 **Request data *(data is JSON.stringify())***
 
@@ -129,13 +181,28 @@ Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tươ
 | `hostUrl` | `string` | *optional* |  |
 
 
+**Ví dụ sử dụng**
+
+```typescript
+import { pickFile, isSuccess } from '@webview-sdk/core'
+
+const res = await pickFile({ data: {
+      mimeType: ["image/*", "video/*"],
+      isCapture: true,
+      source: "PhotoLibrary"
+    } })
+if (isSuccess(res)) {
+  console.log(res.data.hostUrl)
+}
+```
+
 ---
 
-### shareTextContent()
 
-**Event Code:** `SHARE_TEXT_CONTENT`
 
-Mở dialog chia sẻ nội dung text.
+### 6. shareTextContent()
+
+**Event Code:** `SHARE_TEXT_CONTENT` - Mở dialog chia sẻ nội dung text.
 
 **Request data *(data is JSON.stringify())***
 
@@ -148,5 +215,20 @@ Mở dialog chia sẻ nội dung text.
 
 *No response data*
 
+**Ví dụ sử dụng**
+
+```typescript
+import { shareTextContent, isSuccess } from '@webview-sdk/core'
+
+const res = await shareTextContent({ data: {
+      content: '...'
+    } })
+if (isSuccess(res)) {
+  console.log('Thanh cong')
+}
+```
+
 ---
+
+
 

@@ -5,11 +5,9 @@ hide_title: false
 title: Routing
 ---
 
-### appOpenWebview()
+### 1. appOpenWebview()
 
-**Event Code:** `APP_OPEN_WEBVIEW`
-
-Mở một WebView mới với URL và cấu hình tùy chỉnh.
+**Event Code:** `APP_OPEN_WEBVIEW` - Mở một WebView mới với URL và cấu hình tùy chỉnh.
 
 **Request data**
 
@@ -33,13 +31,32 @@ Mở một WebView mới với URL và cấu hình tùy chỉnh.
 | `type` | `string` | *optional* | RETURN - Người dùng hoàn tất và quay lại, kèm theo URL; CANCEL - Người dùng hủy, kèm theo URL; CLOSED - Người dùng tự đóng webview, không có URL |
 
 
+**Ví dụ sử dụng**
+
+```typescript
+import { appOpenWebview, isSuccess } from '@webview-sdk/core'
+
+const res = await appOpenWebview({ data: {
+      url: '...',
+      serviceName: '...',
+      isPaymentConfirm: true,
+      resourceType: '...',
+      returnUrl: '...',
+      cancelUrl: '...'
+    } })
+if (isSuccess(res)) {
+  console.log(res.data.url)
+  console.log(res.data.type)
+}
+```
+
 ---
 
-### appOpenStore()
 
-**Event Code:** `APP_OPEN_STORE`
 
-Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.
+### 2. appOpenStore()
+
+**Event Code:** `APP_OPEN_STORE` - Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.
 
 **Request data**
 
@@ -53,13 +70,27 @@ Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.
 
 *No response data*
 
+**Ví dụ sử dụng**
+
+```typescript
+import { appOpenStore, isSuccess } from '@webview-sdk/core'
+
+const res = await appOpenStore({ data: {
+      fallbackUrlAndroid: '...',
+      fallbackUrlIos: '...'
+    } })
+if (isSuccess(res)) {
+  console.log('Thanh cong')
+}
+```
+
 ---
 
-### exit()
 
-**Event Code:** `EXIT`
 
-Đóng Mini App và điều hướng về màn hình khác.
+### 3. exit()
+
+**Event Code:** `EXIT` - Đóng Mini App và điều hướng về màn hình khác.
 
 **Request data**
 
@@ -72,13 +103,26 @@ Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.
 
 *No response data*
 
+**Ví dụ sử dụng**
+
+```typescript
+import { exit, isSuccess } from '@webview-sdk/core'
+
+const res = await exit({ data: {
+      navigationAction: "RETURN_HOME_APP"
+    } })
+if (isSuccess(res)) {
+  console.log('Thanh cong')
+}
+```
+
 ---
 
-### openExternalLink()
 
-**Event Code:** `OPEN_EXTERNAL_LINK`
 
-Mở URL bằng browser mặc định của hệ thống.
+### 4. openExternalLink()
+
+**Event Code:** `OPEN_EXTERNAL_LINK` - Mở URL bằng browser mặc định của hệ thống.
 
 **Request data**
 
@@ -91,13 +135,26 @@ Mở URL bằng browser mặc định của hệ thống.
 
 *No response data*
 
+**Ví dụ sử dụng**
+
+```typescript
+import { openExternalLink, isSuccess } from '@webview-sdk/core'
+
+const res = await openExternalLink({ data: {
+      uri: "https://google.com"
+    } })
+if (isSuccess(res)) {
+  console.log('Thanh cong')
+}
+```
+
 ---
 
-### openMiniApp()
 
-**Event Code:** `OPEN_MINI_APP`
 
-Mở một Mini App khác từ Mini App hiện tại.
+### 5. openMiniApp()
+
+**Event Code:** `OPEN_MINI_APP` - Mở một Mini App khác từ Mini App hiện tại.
 
 **Request data**
 
@@ -115,5 +172,25 @@ Mở một Mini App khác từ Mini App hiện tại.
 
 *No response data*
 
+**Ví dụ sử dụng**
+
+```typescript
+import { openMiniApp, isSuccess } from '@webview-sdk/core'
+
+const res = await openMiniApp({ data: {
+      route: { "screenName": "home" },
+      miniappKey: "01K5FY191HP42SMMJXHWG545ZZ",
+      additional: { "param1": "value1", "param2": "value2" },
+      launchConfig: { "mode": "present" },
+      navStyle: { "color": "#FF0000", "hidden": "false" },
+      tracking: { "campaign": "promotion", "utmSource": "miniapp" }
+    } })
+if (isSuccess(res)) {
+  console.log('Thanh cong')
+}
+```
+
 ---
+
+
 

@@ -14,9 +14,9 @@ title: Getting Started
 - [Demo React](https://staging1.viettelmoney.vn/miniapp/01km03s38mdqyz1xd1fj03yz90-pre-release/)
 - [Demo Vue](https://staging1.viettelmoney.vn/miniapp/01km03swe6njmgnx0jfva6dgvd-pre-release/)
 
-## Getting Started
+## 1. Getting Started
 
-### Cài đặt
+### 1.1 Cài đặt
 
 **Bước 1:** Tải file thư viện và code demo
 - [Tải webview-sdk-core-1.0.0.tgz](webview-sdk-core-1.0.0.tgz)
@@ -44,7 +44,7 @@ npm install
 
 *Chỉ cần 1 package duy nhất cho mọi framework (React, Vue, Angular, vanilla JS).*
 
-### Bắt đầu nhanh
+### 1.2 Bắt đầu nhanh
 
 ```typescript
 import { getSharedMiniApp, getLocation, appOpenWebview, isSuccess } from '@webview-sdk/core'
@@ -126,3 +126,67 @@ export class AppComponent {
   }
 }
 ```
+
+## 2. API Reference
+
+### 2.1 Khoi tao
+
+```ts
+import { getSharedMiniApp } from '@webview-sdk/core'
+
+const app = getSharedMiniApp({
+  appId: 'com.example.miniapp',  // ID ung dung
+  debug: true,                    // Bat log debug
+  token: '',                      // Token xac thuc
+  timeout: 5000                   // Timeout mac dinh (ms)
+})
+```
+
+`getSharedMiniApp()` tao singleton — goi nhieu lan van tra ve cung 1 instance, tu dong wire generated API.
+
+### 2.2 Giao tiep voi Native
+
+| Method | Mo ta |
+|--------|-------|
+| `app.invoke(api, data?)` | Goi native API, tra ve `Promise` voi ket qua |
+| `app.sendRaw(msg)` | Gui `MiniAppRequestBase` truc tiep, day la core method |
+| `app.emit(event, data?)` | Gui su kien 1 chieu den native |
+| `app.on(event, callback)` | Lang nghe su kien tu native |
+| `app.once(event, callback)` | Lang nghe su kien 1 lan |
+| `app.off(event, callback?)` | Huy lang nghe. Bo `callback` de huy tat ca |
+
+### 2.3 Lifecycle
+
+| Method | Mo ta |
+|--------|-------|
+| `app.ready()` | Danh dau SDK san sang, xa hang doi message |
+| `app.destroy()` | Huy SDK, don dep tai nguyen |
+| `app.onReady(cb)` | Goi khi SDK san sang |
+| `app.onShow(cb)` | Goi khi app hien thi |
+| `app.onHide(cb)` | Goi khi app bi an |
+| `app.onError(cb)` | Goi khi co loi |
+| `app.onDestroy(cb)` | Goi khi app bi huy |
+
+### 2.4 Plugin
+
+```ts
+app.use({
+  name: 'analytics',
+  install(app) {
+    app.on('navigate', (data) => {
+      app.emit('analytics.pageView', { url: data.url })
+    })
+  }
+})
+```
+
+### 2.5 Middleware
+
+```ts
+app.useMiddleware(async (message, next) => {
+  console.log('Before:', message.event, message)
+  await next()
+  console.log('After:', message.event)
+})
+```
+
