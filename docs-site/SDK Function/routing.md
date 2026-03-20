@@ -13,12 +13,12 @@ title: Routing
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `url` | `string` | **required** | URL của webview cần mở |
-| `serviceName` | `string` | *optional* | Tiêu đề hiển thị trên app bar |
+| `url` | `string` | **required** | URL của webview cần mở `https://example.com` |
+| `serviceName` | `string` | *optional* | Tiêu đề hiển thị trên app bar `Tên dịch vụ` |
 | `isPaymentConfirm` | `boolean` | *optional* | false = đóng mini app để sang gateway thanh toán |
-| `resourceType` | `string` | *optional* | HTML = mở trong webview, khác = mở browser mặc định |
-| `returnUrl` | `string` | *optional* | URL trả về khi thành công/thất bại/timeout |
-| `cancelUrl` | `string` | *optional* | URL trả về khi người dùng cancel |
+| `resourceType` | `string` | *optional* | HTML = mở trong webview, khác = mở browser mặc định `HTML` |
+| `returnUrl` | `string` | *optional* | URL trả về khi thành công/thất bại/timeout `https://example.com/return` |
+| `cancelUrl` | `string` | *optional* | URL trả về khi người dùng cancel `https://example.com/cancel` |
 
 
 **Response data**
@@ -27,8 +27,8 @@ title: Routing
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `url` | `string` | *optional* | url |
-| `type` | `string` | *optional* | RETURN - Người dùng hoàn tất và quay lại, kèm theo URL; CANCEL - Người dùng hủy, kèm theo URL; CLOSED - Người dùng tự đóng webview, không có URL |
+| `url` | `string` | *optional* | url `https://example.com/return?status=success` |
+| `type` | `string` | *optional* | RETURN - Người dùng hoàn tất và quay lại, kèm theo URL; CANCEL - Người dùng hủy, kèm theo URL; CLOSED - Người dùng tự đóng webview, không có URL `RETURN` |
 
 
 **Ví dụ sử dụng**
@@ -37,12 +37,12 @@ title: Routing
 import { appOpenWebview, isSuccess } from '@webview-sdk/core'
 
 const res = await appOpenWebview({ data: {
-      url: '...',
-      serviceName: '...',
-      isPaymentConfirm: true,
-      resourceType: '...',
-      returnUrl: '...',
-      cancelUrl: '...'
+      url: "https://example.com",
+      serviceName: "Tên dịch vụ",
+      isPaymentConfirm: false,
+      resourceType: "HTML",
+      returnUrl: "https://example.com/return",
+      cancelUrl: "https://example.com/cancel"
     } })
 if (isSuccess(res)) {
   console.log(res.data.url)
@@ -62,8 +62,8 @@ if (isSuccess(res)) {
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `fallbackUrlAndroid` | `string` | *optional* | URL android |
-| `fallbackUrlIos` | `string` | *optional* | URL Ios |
+| `fallbackUrlAndroid` | `string` | *optional* | URL android `market://details?id=com.example.app` |
+| `fallbackUrlIos` | `string` | *optional* | URL Ios `itms-apps://itunes.apple.com/app/id123456789` |
 
 
 **Response**
@@ -76,8 +76,8 @@ if (isSuccess(res)) {
 import { appOpenStore, isSuccess } from '@webview-sdk/core'
 
 const res = await appOpenStore({ data: {
-      fallbackUrlAndroid: '...',
-      fallbackUrlIos: '...'
+      fallbackUrlAndroid: "market://details?id=com.example.app",
+      fallbackUrlIos: "itms-apps://itunes.apple.com/app/id123456789"
     } })
 if (isSuccess(res)) {
   console.log('Thanh cong')

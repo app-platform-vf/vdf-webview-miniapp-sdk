@@ -103,7 +103,7 @@ export interface OpenMiniAppResponse {}
 export interface RequestMultipleUserDataPermissionRequest {
   data: {
     permissionCodes: string[]; // Danh sách mã quyền
-    useSameReason?: boolean; // useSameReason
+    useSameReason?: boolean; // Các quyền dùng chung 1 mã lý do
   }; // Du lieu
 }
 
@@ -571,8 +571,8 @@ export interface ClearStorageResponse {}
 export interface GetLocationRequest {}
 
 export interface GetLocationResponse {
-  latitude?: any;
-  longgitude?: any;
+  latitude?: any; // Vĩ độ
+  longgitude?: any; // Kinh độ
 }
 
 /** Thay đổi màu nền status bar. */

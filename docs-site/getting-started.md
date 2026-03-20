@@ -19,8 +19,8 @@ title: Getting Started
 ### 1.1 Cài đặt
 
 **Bước 1:** Tải file thư viện và code demo
-- [Tải webview-sdk-core-1.0.0.tgz](webview-sdk-core-1.0.0.tgz)
-- [Tải code demo](demo.zip)
+- [Tải webview-sdk-core-1.0.0.tgz](pathname:///files/webview-sdk-core-1.0.0.tgz)
+- [Tải code demo](pathname:///files/demo.zip)
 
 **Bước 2:** Copy file `webview-sdk-core-1.0.0.tgz` vào thư mục `core-lib/` trong project
 ```bash

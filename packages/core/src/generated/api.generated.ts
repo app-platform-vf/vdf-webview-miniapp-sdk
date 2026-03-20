@@ -151,12 +151,12 @@ function send<TRes>(event: string, payload: Record<string, any>): Promise<MiniAp
 /**
  * Mở một WebView mới với URL và cấu hình tùy chỉnh.
  * Event: APP_OPEN_WEBVIEW
- * @param payload.data.url (required) URL của webview cần mở
- * @param payload.data.serviceName (optional) Tiêu đề hiển thị trên app bar
- * @param payload.data.isPaymentConfirm (optional) false = đóng mini app để sang gateway thanh toán
- * @param payload.data.resourceType (optional) HTML = mở trong webview, khác = mở browser mặc định
- * @param payload.data.returnUrl (optional) URL trả về khi thành công/thất bại/timeout
- * @param payload.data.cancelUrl (optional) URL trả về khi người dùng cancel
+ * @param payload.data.url (required) URL của webview cần mở [default: "https://example.com"]
+ * @param payload.data.serviceName (optional) Tiêu đề hiển thị trên app bar [default: "Tên dịch vụ"]
+ * @param payload.data.isPaymentConfirm (optional) false = đóng mini app để sang gateway thanh toán [default: false]
+ * @param payload.data.resourceType (optional) HTML = mở trong webview, khác = mở browser mặc định [default: "HTML"]
+ * @param payload.data.returnUrl (optional) URL trả về khi thành công/thất bại/timeout [default: "https://example.com/return"]
+ * @param payload.data.cancelUrl (optional) URL trả về khi người dùng cancel [default: "https://example.com/cancel"]
  */
 export async function appOpenWebview(payload: AppOpenWebviewRequest): Promise<MiniAppResponse<AppOpenWebviewResponse>> {
   return send<AppOpenWebviewResponse>('APP_OPEN_WEBVIEW', payload);
@@ -165,8 +165,8 @@ export async function appOpenWebview(payload: AppOpenWebviewRequest): Promise<Mi
 /**
  * Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.
  * Event: APP_OPEN_STORE
- * @param payload.data.fallbackUrlAndroid (optional) URL android
- * @param payload.data.fallbackUrlIos (optional) URL Ios
+ * @param payload.data.fallbackUrlAndroid (optional) URL android [default: "market://details?id=com.example.app"]
+ * @param payload.data.fallbackUrlIos (optional) URL Ios [default: "itms-apps://itunes.apple.com/app/id123456789"]
  */
 export async function appOpenStore(payload: AppOpenStoreRequest): Promise<MiniAppResponse<AppOpenStoreResponse>> {
   return send<AppOpenStoreResponse>('APP_OPEN_STORE', payload);
@@ -208,8 +208,8 @@ export async function openMiniApp(payload: OpenMiniAppRequest): Promise<MiniAppR
  * Yêu cầu nhiều quyền user data cùng một lúc.
  * Event: REQUEST_MULTIPLE_USER_DATA_PERMISSION
  * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.permissionCodes (required) Danh sách mã quyền [default: "[\"USER_AGE_PERMISSION\"]"]
- * @param payload.data.useSameReason (optional) useSameReason [default: true]
+ * @param payload.data.permissionCodes (required) Danh sách mã quyền [default: "[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\"]"]
+ * @param payload.data.useSameReason (optional) Các quyền dùng chung 1 mã lý do [default: true]
  */
 export async function requestMultipleUserDataPermission(payload: RequestMultipleUserDataPermissionRequest): Promise<MiniAppResponse<RequestMultipleUserDataPermissionResponse>> {
   const _p: any = { ...payload };
@@ -221,7 +221,7 @@ export async function requestMultipleUserDataPermission(payload: RequestMultiple
  * Kiểm tra trạng thái nhiều quyền user data cùng lúc.
  * Event: CHECK_MULTIPLE_USER_DATA_PERMISSION
  * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.permissionCodes (required) Danh sách mã quyền [default: "[\"USER_AGE_PERMISSION\"]"]
+ * @param payload.data.permissionCodes (required) Danh sách mã quyền [default: "[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\"]"]
  */
 export async function checkMultipleUserDataPermission(payload: CheckMultipleUserDataPermissionRequest): Promise<MiniAppResponse<CheckMultipleUserDataPermissionResponse>> {
   const _p: any = { ...payload };
@@ -241,7 +241,7 @@ export async function requestPermissionWithCode(payload: RequestPermissionWithCo
 /**
  * Kiểm tra trạng thái quyền cụ thể.
  * Event: CHECK_PERMISSION_WITH_CODE
- * @param payload.data.permissionCode (required) Tham so 1
+ * @param payload.data.permissionCode (required) Tham so 1 [default: "USER_AGE_PERMISSION"]
  */
 export async function checkPermissionWithCode(payload: CheckPermissionWithCodeRequest): Promise<MiniAppResponse<CheckPermissionWithCodeResponse>> {
   return send<CheckPermissionWithCodeResponse>('CHECK_PERMISSION_WITH_CODE', payload);
@@ -251,7 +251,7 @@ export async function checkPermissionWithCode(payload: CheckPermissionWithCodeRe
  * Lấy nhiều trường dữ liệu người dùng từ host app.
  * Event: GET_MULTIPLE_USER_DATA
  * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.dataNames (required) Danh sách data cần lấy [default: "[\"age\"]"]
+ * @param payload.data.dataNames (required) Danh sách data cần lấy [default: "[\"age\", \"userName\", \"fullName\", \"phone\", \"email\", \"avatar\"]"]
  */
 export async function getMultipleUserData(payload: GetMultipleUserDataRequest): Promise<MiniAppResponse<GetMultipleUserDataResponse>> {
   const _p: any = { ...payload };
@@ -503,8 +503,8 @@ export async function pickFile(payload: PickFileRequest = {} as any): Promise<Mi
 /**
  * Lưu giá trị kiểu string.
  * Event: SAVE_STRING_VALUE
- * @param payload.data.key (required) Key lưu
- * @param payload.data.value (required) Giá trị lưu
+ * @param payload.data.key (required) Key lưu [default: "user_preference"]
+ * @param payload.data.value (required) Giá trị lưu [default: "dark_mode"]
  */
 export async function saveStringValue(payload: SaveStringValueRequest = {} as any): Promise<MiniAppResponse<SaveStringValueResponse>> {
   return send<SaveStringValueResponse>('SAVE_STRING_VALUE', payload);
@@ -513,8 +513,8 @@ export async function saveStringValue(payload: SaveStringValueRequest = {} as an
 /**
  * Lưu giá trị kiểu boolean.
  * Event: SAVE_BOOLEAN_VALUE
- * @param payload.data.key (required) Key lưu
- * @param payload.data.value (required) Giá trị lưu
+ * @param payload.data.key (required) Key lưu [default: "notifications_enabled"]
+ * @param payload.data.value (required) Giá trị lưu [default: true]
  */
 export async function saveBooleanValue(payload: SaveBooleanValueRequest = {} as any): Promise<MiniAppResponse<SaveBooleanValueResponse>> {
   return send<SaveBooleanValueResponse>('SAVE_BOOLEAN_VALUE', payload);
@@ -523,8 +523,8 @@ export async function saveBooleanValue(payload: SaveBooleanValueRequest = {} as 
 /**
  * Lưu giá trị kiểu int.
  * Event: SAVE_INTEGER_VALUE
- * @param payload.data.key (required) Key lưu
- * @param payload.data.value (required) Giá trị lưu
+ * @param payload.data.key (required) Key lưu [default: "login_count"]
+ * @param payload.data.value (required) Giá trị lưu [default: 5]
  */
 export async function saveIntegerValue(payload: SaveIntegerValueRequest = {} as any): Promise<MiniAppResponse<SaveIntegerValueResponse>> {
   return send<SaveIntegerValueResponse>('SAVE_INTEGER_VALUE', payload);
@@ -533,8 +533,8 @@ export async function saveIntegerValue(payload: SaveIntegerValueRequest = {} as 
 /**
  * Lưu giá trị kiểu long.
  * Event: SAVE_LONG_VALUE
- * @param payload.data.key (required) Key lưu
- * @param payload.data.value (required) Giá trị lưu
+ * @param payload.data.key (required) Key lưu [default: "last_sync_timestamp"]
+ * @param payload.data.value (required) Giá trị lưu [default: 1234567890]
  */
 export async function saveLongValue(payload: SaveLongValueRequest = {} as any): Promise<MiniAppResponse<SaveLongValueResponse>> {
   return send<SaveLongValueResponse>('SAVE_LONG_VALUE', payload);
@@ -543,8 +543,8 @@ export async function saveLongValue(payload: SaveLongValueRequest = {} as any): 
 /**
  * Lưu giá trị kiểu float.
  * Event: SAVE_FLOAT_VALUE
- * @param payload.data.key (required) Key lưu
- * @param payload.data.value (required) Giá trị lưu
+ * @param payload.data.key (required) Key lưu [default: "rating"]
+ * @param payload.data.value (required) Giá trị lưu [default: 4.5]
  */
 export async function saveFloatValue(payload: SaveFloatValueRequest = {} as any): Promise<MiniAppResponse<SaveFloatValueResponse>> {
   return send<SaveFloatValueResponse>('SAVE_FLOAT_VALUE', payload);
@@ -553,8 +553,8 @@ export async function saveFloatValue(payload: SaveFloatValueRequest = {} as any)
 /**
  * Lấy giá trị kiểu string.
  * Event: GET_STRING_VALUE
- * @param payload.data.key (required) Key lưu
- * @param payload.data.defaultValue (required) Giá trị mặc định
+ * @param payload.data.key (required) Key lưu [default: "user_preference"]
+ * @param payload.data.defaultValue (required) Giá trị mặc định [default: "light_mode"]
  */
 export async function getStringValue(payload: GetStringValueRequest = {} as any): Promise<MiniAppResponse<GetStringValueResponse>> {
   return send<GetStringValueResponse>('GET_STRING_VALUE', payload);
@@ -563,8 +563,8 @@ export async function getStringValue(payload: GetStringValueRequest = {} as any)
 /**
  * Lấy giá trị kiểu boolean.
  * Event: GET_BOOLEAN_VALUE
- * @param payload.data.key (required) Key lưu
- * @param payload.data.defaultValue (required) Giá trị mặc định
+ * @param payload.data.key (required) Key lưu [default: "notifications_enabled"]
+ * @param payload.data.defaultValue (required) Giá trị mặc định [default: false]
  */
 export async function getBooleanValue(payload: GetBooleanValueRequest = {} as any): Promise<MiniAppResponse<GetBooleanValueResponse>> {
   return send<GetBooleanValueResponse>('GET_BOOLEAN_VALUE', payload);
@@ -668,7 +668,7 @@ export async function updateNavigationBarAppearance(payload: UpdateNavigationBar
  * Mở dialog chia sẻ nội dung text.
  * Event: SHARE_TEXT_CONTENT
  * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.content (optional) Text nội dung
+ * @param payload.data.content (optional) Text nội dung [default: "Check out this amazing product!"]
  */
 export async function shareTextContent(payload: ShareTextContentRequest = {} as any): Promise<MiniAppResponse<ShareTextContentResponse>> {
   const _p: any = { ...payload };

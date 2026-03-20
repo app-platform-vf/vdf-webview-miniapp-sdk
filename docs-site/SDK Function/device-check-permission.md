@@ -13,7 +13,7 @@ title: Device Check Permission
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `permissionCode` | `string` | **required** | Tham so 1 |
+| `permissionCode` | `string` | **required** | Tham so 1 `USER_AGE_PERMISSION` |
 
 
 **Response**
@@ -26,7 +26,7 @@ title: Device Check Permission
 import { checkPermissionWithCode, isSuccess } from '@webview-sdk/core'
 
 const res = await checkPermissionWithCode({ data: {
-      permissionCode: '...'
+      permissionCode: "USER_AGE_PERMISSION"
     } })
 if (isSuccess(res)) {
   console.log('Thanh cong')

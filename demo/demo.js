@@ -87,29 +87,45 @@ function buildSampleData(requestDef) {
   if (!requestDef || Object.keys(requestDef).length === 0) return null
   const parts = {}
   Object.entries(requestDef).forEach(([key, def]) => {
-    const meta = def.meta_data || "any"
-    if (meta === "object" || meta === "stringify") {
+    const meta = def.meta_data || 'any'
+    if (meta === 'object' || meta === 'stringify') {
       if (def.fields && Object.keys(def.fields).length > 0) {
         const inner = {}
         Object.entries(def.fields).forEach(([k, v]) => {
-          if (v.type === "string") inner[k] = v.description ? v.description.slice(0, 40) : "example"
-          else if (v.type === "number") inner[k] = 1
-          else if (v.type === "boolean") inner[k] = v.default !== undefined ? v.default : true
-          else if (v.type === "array") inner[k] = v.items === "string" ? ["example1", "example2"] : []
-          else if (v.type === "object") inner[k] = {}
-          else inner[k] = "example"
+          // Priority: use default value from events.json if available
+          if (v.default !== undefined) {
+            const d = v.default
+            if (typeof d === 'boolean' || typeof d === 'number') {
+              inner[k] = d
+            } else if (typeof d === 'string' && (d.startsWith('[') || d.startsWith('{'))) {
+              // default is a JSON string (array/object) — parse to JS value
+              try { inner[k] = JSON.parse(d) } catch { inner[k] = d }
+            } else {
+              inner[k] = d
+            }
+          } else {
+            // Fallback placeholder by type
+            if (v.type === 'string') inner[k] = '...'
+            else if (v.type === 'number') inner[k] = 0
+            else if (v.type === 'boolean') inner[k] = true
+            else if (v.type === 'array') inner[k] = []
+            else if (v.type === 'object') inner[k] = {}
+            else inner[k] = '...'
+          }
         })
         parts[key] = inner
       } else {
         parts[key] = {}
       }
-    } else if (meta === "array") {
+    } else if (meta === 'array') {
       parts[key] = []
     } else {
-      if (meta === "string") parts[key] = "example"
-      else if (meta === "number") parts[key] = 1
-      else if (meta === "boolean") parts[key] = true
-      else parts[key] = "example"
+      // Top-level primitive — also prefer default
+      if (def.default !== undefined) parts[key] = def.default
+      else if (meta === 'string') parts[key] = '...'
+      else if (meta === 'number') parts[key] = 0
+      else if (meta === 'boolean') parts[key] = true
+      else parts[key] = '...'
     }
   })
   return parts
@@ -301,7 +317,7 @@ ${Object.entries(groups).map(([group, evts]) => {
             <button class="btn" (click)="runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: null })">invoke(input)</button>
         </div>
     </section>
-    <div style="padding: 50px"><div>
+    <div style="padding: 50px"></div>
 </div>
 
 <!-- Overlay to close popup -->
@@ -468,6 +484,7 @@ ${fnEntries.join(",\n")},
           <button className="btn" onClick={() => runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: null })}>invoke(input)</button>
         </div>
       </section>
+      <div style={{ padding: '50px' }}></div>
     </div>
   );
 }
@@ -625,6 +642,7 @@ function showPopup(evt: EventInfo) {
         <button class="btn" @click="runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: '' })">invoke(input)</button>
       </div>
     </section>
+    <div style="padding: 50px"></div>
   </div>
 </template>
 

@@ -13,7 +13,7 @@ title: Get data event
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `dataNames` | `array` | *optional* | Danh sách data cần lấy `["age"]` |
+| `dataNames` | `array` | *optional* | Danh sách data cần lấy `["age", "userName", "fullName", "phone", "email", "avatar"]` |
 
 
 **Response**
@@ -37,7 +37,7 @@ title: Get data event
 import { getMultipleUserData, isSuccess } from '@webview-sdk/core'
 
 const res = await getMultipleUserData({ data: {
-      dataNames: ["age"]
+      dataNames: ["age", "userName", "fullName", "phone", "email", "avatar"]
     } })
 if (isSuccess(res)) {
   console.log(res.age)
@@ -63,7 +63,7 @@ if (isSuccess(res)) {
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `eventStatus` | `object` | *optional* |  |
-| `errorCode` | `string` | *optional* |  |
+| `errorCode` | `string` | *optional* |  `SDK000` |
 
 
 **Ví dụ sử dụng**
@@ -136,8 +136,8 @@ if (isSuccess(res)) {
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `contactList` | `array` | *optional* |  |
-| `countContacts` | `number` | *optional* |  |
+| `contactList` | `array` | *optional* |  `[       {         "contactName": "John Doe",         "contactNumber": "0901234567",         "contactAvt": "base64_image_string"       }     ]` |
+| `countContacts` | `number` | *optional* |  `1` |
 
 
 **Ví dụ sử dụng**
@@ -178,7 +178,7 @@ if (isSuccess(res)) {
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `hostUrl` | `string` | *optional* |  |
+| `hostUrl` | `string` | *optional* |  `https://cdn.example.com/file.jpg` |
 
 
 **Ví dụ sử dụng**
@@ -208,7 +208,7 @@ if (isSuccess(res)) {
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `content` | `string` | *optional* | Text nội dung |
+| `content` | `string` | *optional* | Text nội dung `Check out this amazing product!` |
 
 
 **Response**
@@ -221,7 +221,7 @@ if (isSuccess(res)) {
 import { shareTextContent, isSuccess } from '@webview-sdk/core'
 
 const res = await shareTextContent({ data: {
-      content: '...'
+      content: "Check out this amazing product!"
     } })
 if (isSuccess(res)) {
   console.log('Thanh cong')

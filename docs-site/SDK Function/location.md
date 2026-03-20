@@ -17,8 +17,8 @@ title: Location
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `latitude` | `any` | *optional* |  |
-| `longgitude` | `any` | *optional* |  |
+| `latitude` | `any` | *optional* | Vĩ độ `21.0285` |
+| `longgitude` | `any` | *optional* | Kinh độ `105.8542` |
 
 
 **Ví dụ sử dụng**

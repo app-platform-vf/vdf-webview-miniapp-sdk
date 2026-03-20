@@ -13,8 +13,8 @@ title: Storage
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `key` | `string` | **required** | Key lưu |
-| `value` | `string` | **required** | Giá trị lưu |
+| `key` | `string` | **required** | Key lưu `user_preference` |
+| `value` | `string` | **required** | Giá trị lưu `dark_mode` |
 
 
 **Response**
@@ -27,8 +27,8 @@ title: Storage
 import { saveStringValue, isSuccess } from '@webview-sdk/core'
 
 const res = await saveStringValue({ data: {
-      key: '...',
-      value: '...'
+      key: "user_preference",
+      value: "dark_mode"
     } })
 if (isSuccess(res)) {
   console.log('Thanh cong')
@@ -47,8 +47,8 @@ if (isSuccess(res)) {
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `key` | `string` | **required** | Key lưu |
-| `value` | `boolean` | **required** | Giá trị lưu |
+| `key` | `string` | **required** | Key lưu `notifications_enabled` |
+| `value` | `boolean` | **required** | Giá trị lưu `true` |
 
 
 **Response**
@@ -61,7 +61,7 @@ if (isSuccess(res)) {
 import { saveBooleanValue, isSuccess } from '@webview-sdk/core'
 
 const res = await saveBooleanValue({ data: {
-      key: '...',
+      key: "notifications_enabled",
       value: true
     } })
 if (isSuccess(res)) {
@@ -81,8 +81,8 @@ if (isSuccess(res)) {
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `key` | `string` | **required** | Key lưu |
-| `value` | `number` | **required** | Giá trị lưu |
+| `key` | `string` | **required** | Key lưu `login_count` |
+| `value` | `number` | **required** | Giá trị lưu `5` |
 
 
 **Response**
@@ -95,8 +95,8 @@ if (isSuccess(res)) {
 import { saveIntegerValue, isSuccess } from '@webview-sdk/core'
 
 const res = await saveIntegerValue({ data: {
-      key: '...',
-      value: 0
+      key: "login_count",
+      value: 5
     } })
 if (isSuccess(res)) {
   console.log('Thanh cong')
@@ -115,8 +115,8 @@ if (isSuccess(res)) {
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `key` | `string` | **required** | Key lưu |
-| `value` | `number` | **required** | Giá trị lưu |
+| `key` | `string` | **required** | Key lưu `last_sync_timestamp` |
+| `value` | `number` | **required** | Giá trị lưu `1234567890` |
 
 
 **Response**
@@ -129,8 +129,8 @@ if (isSuccess(res)) {
 import { saveLongValue, isSuccess } from '@webview-sdk/core'
 
 const res = await saveLongValue({ data: {
-      key: '...',
-      value: 0
+      key: "last_sync_timestamp",
+      value: 1234567890
     } })
 if (isSuccess(res)) {
   console.log('Thanh cong')
@@ -149,8 +149,8 @@ if (isSuccess(res)) {
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `key` | `string` | **required** | Key lưu |
-| `value` | `any` | **required** | Giá trị lưu |
+| `key` | `string` | **required** | Key lưu `rating` |
+| `value` | `any` | **required** | Giá trị lưu `4.5` |
 
 
 **Response**
@@ -163,8 +163,8 @@ if (isSuccess(res)) {
 import { saveFloatValue, isSuccess } from '@webview-sdk/core'
 
 const res = await saveFloatValue({ data: {
-      key: '...',
-      value: '...'
+      key: "rating",
+      value: 4.5
     } })
 if (isSuccess(res)) {
   console.log('Thanh cong')
@@ -183,8 +183,8 @@ if (isSuccess(res)) {
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `key` | `string` | **required** | Key lưu |
-| `defaultValue` | `string` | **required** | Giá trị mặc định |
+| `key` | `string` | **required** | Key lưu `user_preference` |
+| `defaultValue` | `string` | **required** | Giá trị mặc định `light_mode` |
 
 
 **Response**
@@ -200,8 +200,8 @@ if (isSuccess(res)) {
 import { getStringValue, isSuccess } from '@webview-sdk/core'
 
 const res = await getStringValue({ data: {
-      key: '...',
-      defaultValue: '...'
+      key: "user_preference",
+      defaultValue: "light_mode"
     } })
 if (isSuccess(res)) {
   console.log(res.value)
@@ -220,7 +220,7 @@ if (isSuccess(res)) {
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `key` | `string` | **required** | Key lưu |
+| `key` | `string` | **required** | Key lưu `notifications_enabled` |
 | `defaultValue` | `boolean` | **required** | Giá trị mặc định |
 
 
@@ -237,8 +237,8 @@ if (isSuccess(res)) {
 import { getBooleanValue, isSuccess } from '@webview-sdk/core'
 
 const res = await getBooleanValue({ data: {
-      key: '...',
-      defaultValue: true
+      key: "notifications_enabled",
+      defaultValue: false
     } })
 if (isSuccess(res)) {
   console.log(res.value)

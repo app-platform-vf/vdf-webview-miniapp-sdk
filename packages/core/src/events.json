@@ -14,32 +14,38 @@
             "url": {
               "type": "string",
               "required": true,
-              "description": "URL của webview cần mở"
+              "description": "URL của webview cần mở",
+              "default": "https://example.com"
             },
             "serviceName": {
               "type": "string",
               "required": false,
-              "description": "Tiêu đề hiển thị trên app bar"
+              "description": "Tiêu đề hiển thị trên app bar",
+              "default": "Tên dịch vụ"
             },
             "isPaymentConfirm": {
               "type": "boolean",
               "required": false,
-              "description": "false = đóng mini app để sang gateway thanh toán"
+              "description": "false = đóng mini app để sang gateway thanh toán",
+              "default": false
             },
             "resourceType": {
               "type": "string",
               "required": false,
-              "description": "HTML = mở trong webview, khác = mở browser mặc định"
+              "description": "HTML = mở trong webview, khác = mở browser mặc định",
+              "default": "HTML"
             },
             "returnUrl": {
               "type": "string",
               "required": false,
-              "description": "URL trả về khi thành công/thất bại/timeout"
+              "description": "URL trả về khi thành công/thất bại/timeout",
+              "default": "https://example.com/return"
             },
             "cancelUrl": {
               "type": "string",
               "required": false,
-              "description": "URL trả về khi người dùng cancel"
+              "description": "URL trả về khi người dùng cancel",
+              "default": "https://example.com/cancel"
             }
           }
         }
@@ -53,12 +59,14 @@
             "url": {
               "type": "string",
               "required": false,
-              "description": "url"
+              "description": "url",
+              "default": "https://example.com/return?status=success"
             },
             "type": {
               "type": "string",
               "required": false,
-              "description": "RETURN - Người dùng hoàn tất và quay lại, kèm theo URL; CANCEL - Người dùng hủy, kèm theo URL; CLOSED - Người dùng tự đóng webview, không có URL"
+              "description": "RETURN - Người dùng hoàn tất và quay lại, kèm theo URL; CANCEL - Người dùng hủy, kèm theo URL; CLOSED - Người dùng tự đóng webview, không có URL",
+              "default": "RETURN"
             }
           }
         }
@@ -76,12 +84,14 @@
             "fallbackUrlAndroid": {
               "type": "string",
               "required": false,
-              "description": "URL android"
+              "description": "URL android",
+              "default": "market://details?id=com.example.app"
             },
             "fallbackUrlIos": {
               "type": "string",
               "required": false,
-              "description": "URL Ios"
+              "description": "URL Ios",
+              "default": "itms-apps://itunes.apple.com/app/id123456789"
             }
           }
         }
@@ -191,12 +201,12 @@
               "type": "array",
               "items": "string",
               "description": "Danh sách mã quyền",
-              "default": "[\"USER_AGE_PERMISSION\"]"
+              "default": "[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\"]"
             },
             "useSameReason": {
               "type": "boolean",
               "required": false,
-              "description": "useSameReason",
+              "description": "Các quyền dùng chung 1 mã lý do",
               "default": true
             }
           }
@@ -212,17 +222,20 @@
             "permissionCode": {
               "type": "string",
               "required": false,
-              "description": "Mã quyền"
+              "description": "Mã quyền",
+              "default": "USER_AGE_PERMISSION"
             },
             "result": {
               "type": "string",
               "required": false,
-              "description": "Granted - Quyền đã được cấp;  Denied -  Quyền bị từ chối; NotFound -  Permission code không tồn tại"
+              "description": "Granted - Quyền đã được cấp;  Denied -  Quyền bị từ chối; NotFound -  Permission code không tồn tại",
+              "default": "Denied"
             },
             "message": {
               "type": "string",
               "required": false,
-              "description": "Nội dung "
+              "description": "Nội dung ",
+              "default": "USER_AGE_PERMISSION is denied"
             }
           }
         }
@@ -241,7 +254,7 @@
               "type": "array",
               "items": "string",
               "description": "Danh sách mã quyền",
-              "default": "[\"USER_AGE_PERMISSION\"]"
+              "default": "[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\"]"
             }
           }
         }
@@ -256,17 +269,20 @@
             "permissionCode": {
               "type": "string",
               "required": false,
-              "description": "Mã quyền"
+              "description": "Mã quyền",
+              "default": "USER_AGE_PERMISSION"
             },
             "result": {
               "type": "string",
               "required": false,
-              "description": "Granted - Quyền đã được cấp;  Denied -  Quyền bị từ chối; NotFound -  Permission code không tồn tại"
+              "description": "Granted - Quyền đã được cấp;  Denied -  Quyền bị từ chối; NotFound -  Permission code không tồn tại",
+              "default": "Denied"
             },
             "message": {
               "type": "string",
               "required": false,
-              "description": "Nội dung "
+              "description": "Nội dung ",
+              "default": "USER_AGE_PERMISSION is denied"
             }
           }
         }
@@ -317,7 +333,8 @@
             "permissionCode": {
               "type": "string",
               "required": true,
-              "description": "Tham so 1"
+              "description": "Tham so 1",
+              "default": "USER_AGE_PERMISSION"
             }
           }
         }
@@ -337,7 +354,7 @@
               "type": "array",
               "items": "string",
               "description": "Danh sách data cần lấy",
-              "default": "[\"age\"]"
+              "default": "[\"age\", \"userName\", \"fullName\", \"phone\", \"email\", \"avatar\"]"
             }
           }
         }
@@ -399,7 +416,8 @@
           "fields": {
             "errorCode": {
               "type": "string",
-              "required": false
+              "required": false,
+              "default": "SDK000"
             }
           }
         }
@@ -954,11 +972,13 @@
           "fields": {
             "contactList": {
               "type": "array",
-              "items": "any"
+              "items": "any",
+              "default": "[       {         \"contactName\": \"John Doe\",         \"contactNumber\": \"0901234567\",         \"contactAvt\": \"base64_image_string\"       }     ]"
             },
             "countContacts": {
               "type": "number",
-              "required": false
+              "required": false,
+              "default": 1
             }
           }
         }
@@ -1000,7 +1020,8 @@
           "fields": {
             "hostUrl": {
               "type": "string",
-              "required": false
+              "required": false,
+              "default": "https://cdn.example.com/file.jpg"
             }
           }
         }
@@ -1017,12 +1038,14 @@
             "key": {
               "type": "string",
               "required": true,
-              "description": "Key lưu"
+              "description": "Key lưu",
+              "default": "user_preference"
             },
             "value": {
               "type": "string",
               "required": true,
-              "description": "Giá trị lưu"
+              "description": "Giá trị lưu",
+              "default": "dark_mode"
             }
           }
         }
@@ -1040,12 +1063,14 @@
             "key": {
               "type": "string",
               "required": true,
-              "description": "Key lưu"
+              "description": "Key lưu",
+              "default": "notifications_enabled"
             },
             "value": {
               "type": "boolean",
               "required": true,
-              "description": "Giá trị lưu"
+              "description": "Giá trị lưu",
+              "default": true
             }
           }
         }
@@ -1063,12 +1088,14 @@
             "key": {
               "type": "string",
               "required": true,
-              "description": "Key lưu"
+              "description": "Key lưu",
+              "default": "login_count"
             },
             "value": {
               "type": "number",
               "required": true,
-              "description": "Giá trị lưu"
+              "description": "Giá trị lưu",
+              "default": 5
             }
           }
         }
@@ -1086,12 +1113,14 @@
             "key": {
               "type": "string",
               "required": true,
-              "description": "Key lưu"
+              "description": "Key lưu",
+              "default": "last_sync_timestamp"
             },
             "value": {
               "type": "number",
               "required": true,
-              "description": "Giá trị lưu"
+              "description": "Giá trị lưu",
+              "default": 1234567890
             }
           }
         }
@@ -1109,12 +1138,14 @@
             "key": {
               "type": "string",
               "required": true,
-              "description": "Key lưu"
+              "description": "Key lưu",
+              "default": "rating"
             },
             "value": {
               "type": "any",
               "required": true,
-              "description": "Giá trị lưu"
+              "description": "Giá trị lưu",
+              "default": 4.5
             }
           }
         }
@@ -1132,12 +1163,14 @@
             "key": {
               "type": "string",
               "required": true,
-              "description": "Key lưu"
+              "description": "Key lưu",
+              "default": "user_preference"
             },
             "defaultValue": {
               "type": "string",
               "required": true,
-              "description": "Giá trị mặc định"
+              "description": "Giá trị mặc định",
+              "default": "light_mode"
             }
           }
         }
@@ -1160,12 +1193,14 @@
             "key": {
               "type": "string",
               "required": true,
-              "description": "Key lưu"
+              "description": "Key lưu",
+              "default": "notifications_enabled"
             },
             "defaultValue": {
               "type": "boolean",
               "required": true,
-              "description": "Giá trị mặc định"
+              "description": "Giá trị mặc định",
+              "default": false
             }
           }
         }
@@ -1274,11 +1309,15 @@
       "response": {
         "latitude": {
           "meta_data": "any",
-          "required": false
+          "required": false,
+          "description": "Vĩ độ",
+          "default": "21.0285"
         },
         "longgitude": {
           "meta_data": "any",
-          "required": false
+          "required": false,
+          "description": "Kinh độ",
+          "default": "105.8542"
         }
       }
     },
@@ -1369,7 +1408,8 @@
             "content": {
               "type": "string",
               "required": false,
-              "description": "Text nội dung"
+              "description": "Text nội dung",
+              "default": "Check out this amazing product!"
             }
           }
         }
