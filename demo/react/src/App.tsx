@@ -57,6 +57,8 @@ import {
   updateStatusBarAppearance,
   updateNavigationBarAppearance,
   shareTextContent,
+  miniAppToken,
+  updateMiniAppTheme,
 } from '@webview-sdk/core';
 import './App.css';
 
@@ -76,7 +78,7 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'appOpenStore', event: 'APP_OPEN_STORE', desc: "Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.", hasParams: true, defaultData: "{\"data\":{\"fallbackUrlAndroid\":\"market://details?id=com.example.app\",\"fallbackUrlIos\":\"itms-apps://itunes.apple.com/app/id123456789\"}}" },
       { name: 'exit', event: 'EXIT', desc: "Đóng Mini App và điều hướng về màn hình khác.", hasParams: true, defaultData: "{\"data\":{\"navigationAction\":\"RETURN_HOME_APP\"}}" },
       { name: 'openExternalLink', event: 'OPEN_EXTERNAL_LINK', desc: "Mở URL bằng browser mặc định của hệ thống.", hasParams: true, defaultData: "{\"data\":{\"uri\":\"https://google.com\"}}" },
-      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: "Mở một Mini App khác từ Mini App hiện tại.", hasParams: true, defaultData: "{\"data\":{\"route\":{\"screenName\":\"home\"},\"miniappKey\":\"01K5FY191HP42SMMJXHWG545ZZ\",\"additional\":{\"param1\":\"value1\",\"param2\":\"value2\"},\"launchConfig\":{\"mode\":\"present\"},\"navStyle\":{\"color\":\"#FF0000\",\"hidden\":\"false\"},\"tracking\":{\"campaign\":\"promotion\",\"utmSource\":\"miniapp\"}}}" }
+      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: "Mở một Mini App khác từ Mini App hiện tại.", hasParams: true, defaultData: "{\"data\":{\"route\":{\"screenName\":\"home\"},\"miniappKey\":\"01K5FY191HP42SMMJXHWG545ZZ\",\"additional\":{\"param1\":\"value1\",\"param2\":\"value2\"},\"launchConfig\":{\"mode\":\"present\"},\"themeConfig\":{\"title\":\"My App\",\"headerColor\":\"#EE0033\",\"headerTitle\":\"Videos\",\"textColor\":\"white\",\"leftButton\":\"back\",\"actionButtonThemeType\":\"normal\",\"hideAndroidBottomNavigationBar\":true,\"hideIOSSafeAreaBottom\":true},\"tracking\":{\"campaign\":\"promotion\",\"utmSource\":\"miniapp\"}}}" }
   ] },
   { title: "UserData Permission", events: [
       { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: "Yêu cầu nhiều quyền user data cùng một lúc.", hasParams: true, defaultData: "{\"data\":{\"permissionCodes\":[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\"],\"useSameReason\":true}}" },
@@ -114,12 +116,13 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: "kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).", hasParams: false, defaultData: null }
   ] },
   { title: "Get data event", events: [
-      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: "Lấy nhiều trường dữ liệu người dùng từ host app.", hasParams: true, defaultData: "{\"data\":{\"dataNames\":[\"age\",\"userName\",\"fullName\",\"phone\",\"email\",\"avatar\"]}}" },
+      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: "Lấy nhiều trường dữ liệu người dùng từ host app.", hasParams: true, defaultData: "{\"data\":{\"dataNames\":[\"age\",\"userName\",\"fullName\",\"phoneNumber\",\"avatar\"]}}" },
       { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: "Xóa tất cả quyền đã cache ở local.", hasParams: true, defaultData: "{\"data\":{}}" },
       { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: " lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).", hasParams: false, defaultData: null },
       { name: 'getContacts', event: 'GET_CONTACTS', desc: "Lấy danh sách contacts từ danh bạ hệ thống. ", hasParams: true, defaultData: "{\"data\":{\"filter\":{\"contactName\":\"John\"},\"pager\":{\"pageNumber\":1,\"limitRow\":100}}}" },
       { name: 'pickFile', event: 'PICK_FILE', desc: "Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:", hasParams: true, defaultData: "{\"data\":{\"mimeType\":[\"image/*\",\"video/*\"],\"isCapture\":true,\"source\":\"PhotoLibrary\"}}" },
-      { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: "Mở dialog chia sẻ nội dung text.", hasParams: true, defaultData: "{\"data\":{\"content\":\"Check out this amazing product!\"}}" }
+      { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: "Mở dialog chia sẻ nội dung text.", hasParams: true, defaultData: "{\"data\":{\"content\":\"Check out this amazing product!\"}}" },
+      { name: 'miniAppToken', event: 'MINI_APP_TOKEN', desc: "Get mini app token", hasParams: false, defaultData: null }
   ] },
   { title: "Storage", events: [
       { name: 'saveStringValue', event: 'SAVE_STRING_VALUE', desc: "Lưu giá trị kiểu string.", hasParams: true, defaultData: "{\"data\":{\"key\":\"user_preference\",\"value\":\"dark_mode\"}}" },
@@ -141,7 +144,8 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'setBackgroundStatusBarColor', event: 'SET_BACKGROUND_STATUS_BAR_COLOR', desc: "Thay đổi màu nền status bar.", hasParams: true, defaultData: "{\"data\":{\"color\":\"#FF5722\"}}" },
       { name: 'setNavigationBarColor', event: 'SET_NAVIGATION_BAR_COLOR', desc: "Thay đổi màu nền navigation bar.", hasParams: true, defaultData: "{\"data\":{\"color\":\"#2196F3\"}}" },
       { name: 'updateStatusBarAppearance', event: 'UPDATE_STATUS_BAR_APPEARANCE', desc: "Chuyển đổi status bar giữa dark mode và light mode.", hasParams: true, defaultData: "{\"data\":{\"appearance\":\"DARK\"}}" },
-      { name: 'updateNavigationBarAppearance', event: 'UPDATE_NAVIGATION_BAR_APPEARANCE', desc: "Chuyển đổi navigation bar giữa dark mode và light mode.", hasParams: true, defaultData: "{\"data\":{\"appearance\":\"LIGHT \"}}" }
+      { name: 'updateNavigationBarAppearance', event: 'UPDATE_NAVIGATION_BAR_APPEARANCE', desc: "Chuyển đổi navigation bar giữa dark mode và light mode.", hasParams: true, defaultData: "{\"data\":{\"appearance\":\"LIGHT\"}}" },
+      { name: 'updateMiniAppTheme', event: 'UPDATE_MINI_APP_THEME', desc: "Update mini app theme", hasParams: true, defaultData: "{\"data\":{\"headerColor\":\"#FFFFFF\",\"headerTitle\":\"Mini App\",\"textColor\":\"#EE0033\",\"leftButton\":\"back\",\"actionButtonThemeType\":\"light\",\"hideAndroidBottomNavigationBar\":false,\"hideIOSSafeAreaBottom\":false,\"toolbarMode\":\"normal\"}}" }
   ] }
 ];
 
@@ -169,12 +173,12 @@ export default function App() {
     'appOpenStore': () => appOpenStore(getInput() || {"data":{"fallbackUrlAndroid":"market://details?id=com.example.app","fallbackUrlIos":"itms-apps://itunes.apple.com/app/id123456789"}}),
     'exit': () => exit(getInput() || {"data":{"navigationAction":"RETURN_HOME_APP"}}),
     'openExternalLink': () => openExternalLink(getInput() || {"data":{"uri":"https://google.com"}}),
-    'openMiniApp': () => openMiniApp(getInput() || {"data":{"route":{"screenName":"home"},"miniappKey":"01K5FY191HP42SMMJXHWG545ZZ","additional":{"param1":"value1","param2":"value2"},"launchConfig":{"mode":"present"},"navStyle":{"color":"#FF0000","hidden":"false"},"tracking":{"campaign":"promotion","utmSource":"miniapp"}}}),
+    'openMiniApp': () => openMiniApp(getInput() || {"data":{"route":{"screenName":"home"},"miniappKey":"01K5FY191HP42SMMJXHWG545ZZ","additional":{"param1":"value1","param2":"value2"},"launchConfig":{"mode":"present"},"themeConfig":{"title":"My App","headerColor":"#EE0033","headerTitle":"Videos","textColor":"white","leftButton":"back","actionButtonThemeType":"normal","hideAndroidBottomNavigationBar":true,"hideIOSSafeAreaBottom":true},"tracking":{"campaign":"promotion","utmSource":"miniapp"}}}),
     'requestMultipleUserDataPermission': () => requestMultipleUserDataPermission(getInput() || {"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION"],"useSameReason":true}}),
     'checkMultipleUserDataPermission': () => checkMultipleUserDataPermission(getInput() || {"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION"]}}),
     'requestPermissionWithCode': () => requestPermissionWithCode(getInput() || {"data":{"permissionCode":"USER_AGE_PERMISSION"}}),
     'checkPermissionWithCode': () => checkPermissionWithCode(getInput() || {"data":{"permissionCode":"USER_AGE_PERMISSION"}}),
-    'getMultipleUserData': () => getMultipleUserData(getInput() || {"data":{"dataNames":["age","userName","fullName","phone","email","avatar"]}}),
+    'getMultipleUserData': () => getMultipleUserData(getInput() || {"data":{"dataNames":["age","userName","fullName","phoneNumber","avatar"]}}),
     'clearPermissionCache': () => clearPermissionCache(getInput() || {"data":{}}),
     'requestCameraPermission': () => requestCameraPermission(),
     'requestLocationPermission': () => requestLocationPermission(),
@@ -219,8 +223,10 @@ export default function App() {
     'setBackgroundStatusBarColor': () => setBackgroundStatusBarColor(getInput() || {"data":{"color":"#FF5722"}}),
     'setNavigationBarColor': () => setNavigationBarColor(getInput() || {"data":{"color":"#2196F3"}}),
     'updateStatusBarAppearance': () => updateStatusBarAppearance(getInput() || {"data":{"appearance":"DARK"}}),
-    'updateNavigationBarAppearance': () => updateNavigationBarAppearance(getInput() || {"data":{"appearance":"LIGHT "}}),
+    'updateNavigationBarAppearance': () => updateNavigationBarAppearance(getInput() || {"data":{"appearance":"LIGHT"}}),
     'shareTextContent': () => shareTextContent(getInput() || {"data":{"content":"Check out this amazing product!"}}),
+    'miniAppToken': () => miniAppToken(),
+    'updateMiniAppTheme': () => updateMiniAppTheme(getInput() || {"data":{"headerColor":"#FFFFFF","headerTitle":"Mini App","textColor":"#EE0033","leftButton":"back","actionButtonThemeType":"light","hideAndroidBottomNavigationBar":false,"hideIOSSafeAreaBottom":false,"toolbarMode":"normal"}}),
     'invoke': () => app.invoke(getInput()?.event || 'GET_LOCATION', getInput()),
   };
 

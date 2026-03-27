@@ -115,7 +115,11 @@ import type {
   UpdateNavigationBarAppearanceRequest,
   UpdateNavigationBarAppearanceResponse,
   ShareTextContentRequest,
-  ShareTextContentResponse
+  ShareTextContentResponse,
+  MiniAppTokenRequest,
+  MiniAppTokenResponse,
+  UpdateMiniAppThemeRequest,
+  UpdateMiniAppThemeResponse
 } from './types.generated';
 
 /** Map event name -> [RequestType, ResponseType] */
@@ -176,6 +180,8 @@ export interface MiniAppEventMap {
   'UPDATE_STATUS_BAR_APPEARANCE': [UpdateStatusBarAppearanceRequest, UpdateStatusBarAppearanceResponse];
   'UPDATE_NAVIGATION_BAR_APPEARANCE': [UpdateNavigationBarAppearanceRequest, UpdateNavigationBarAppearanceResponse];
   'SHARE_TEXT_CONTENT': [ShareTextContentRequest, ShareTextContentResponse];
+  'MINI_APP_TOKEN': [MiniAppTokenRequest, MiniAppTokenResponse];
+  'UPDATE_MINI_APP_THEME': [UpdateMiniAppThemeRequest, UpdateMiniAppThemeResponse];
 }
 
 /** Danh sach event name constants */
@@ -292,4 +298,8 @@ export const MINIAPP_EVENTS = {
   updateNavigationBarAppearance: 'UPDATE_NAVIGATION_BAR_APPEARANCE' as const,
   /** Mở dialog chia sẻ nội dung text. */
   shareTextContent: 'SHARE_TEXT_CONTENT' as const,
+  /** Get mini app token */
+  miniAppToken: 'MINI_APP_TOKEN' as const,
+  /** Update mini app theme */
+  updateMiniAppTheme: 'UPDATE_MINI_APP_THEME' as const,
 };

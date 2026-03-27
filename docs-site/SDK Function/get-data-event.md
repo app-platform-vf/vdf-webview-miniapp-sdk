@@ -232,3 +232,35 @@ if (isSuccess(res)) {
 
 
 
+### 7. miniAppToken()
+
+**Event Code:** `MINI_APP_TOKEN` - Get mini app token
+
+**Request**
+
+*No request parameters*
+
+**Response data**
+
+
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `miniAppToken` | `string` | **required** | miniAppToken |
+
+
+**Ví dụ sử dụng**
+
+```typescript
+import { miniAppToken, isSuccess } from '@webview-sdk/core'
+
+const res = await miniAppToken()
+if (isSuccess(res)) {
+  console.log(res.data.miniAppToken)
+}
+```
+
+---
+
+
+

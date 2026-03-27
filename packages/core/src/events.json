@@ -171,11 +171,11 @@
               "description": "Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)\t;  ",
               "default": "{       \"mode\": \"present\"     }"
             },
-            "navStyle": {
+            "themeConfig": {
               "type": "object",
               "required": false,
               "description": "Style cho navigation bar",
-              "default": "{       \"color\": \"#FF0000\",       \"hidden\": \"false\"     }"
+              "default": "{       \"title\": \"My App\",       \"headerColor\": \"#EE0033\",       \"headerTitle\": \"Videos\",       \"textColor\": \"white\",       \"leftButton\": \"back\",       \"actionButtonThemeType\": \"normal\",       \"hideAndroidBottomNavigationBar\": true,       \"hideIOSSafeAreaBottom\": true     }"
             },
             "tracking": {
               "type": "object",
@@ -354,7 +354,7 @@
               "type": "array",
               "items": "string",
               "description": "Danh sách data cần lấy",
-              "default": "[\"age\", \"userName\", \"fullName\", \"phone\", \"email\", \"avatar\"]"
+              "default": "[\"age\", \"userName\", \"fullName\", \"phoneNumber\", \"avatar\"]"
             }
           }
         }
@@ -1390,7 +1390,7 @@
               "type": "string",
               "required": false,
               "description": "LIGHT hoặc DARK - Appearance mode cho status bar",
-              "default": "LIGHT "
+              "default": "LIGHT"
             }
           }
         }
@@ -1410,6 +1410,87 @@
               "required": false,
               "description": "Text nội dung",
               "default": "Check out this amazing product!"
+            }
+          }
+        }
+      },
+      "response": {}
+    },
+    {
+      "event": "MINI_APP_TOKEN",
+      "description": "Get mini app token",
+      "request": {},
+      "response": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Ket qua",
+          "fields": {
+            "miniAppToken": {
+              "type": "string",
+              "required": true,
+              "description": "miniAppToken"
+            }
+          }
+        }
+      }
+    },
+    {
+      "event": "UPDATE_MINI_APP_THEME",
+      "description": "Update mini app theme",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Du lieu",
+          "fields": {
+            "headerColor": {
+              "type": "string",
+              "required": false,
+              "description": "Miniapp header background color",
+              "default": "#FFFFFF"
+            },
+            "headerTitle": {
+              "type": "string",
+              "required": false,
+              "description": "Miniapp header title",
+              "default": "Mini App"
+            },
+            "textColor": {
+              "type": "string",
+              "required": false,
+              "description": "Miniapp header text and button color ",
+              "default": "#EE0033"
+            },
+            "leftButton": {
+              "type": "string",
+              "required": false,
+              "description": "back - back button, none - không có gì",
+              "default": "back"
+            },
+            "actionButtonThemeType": {
+              "type": "string",
+              "required": false,
+              "description": "Mode hiển thị action: light - sáng , dark - tối ",
+              "default": "light"
+            },
+            "hideAndroidBottomNavigationBar": {
+              "type": "boolean",
+              "required": false,
+              "description": "Ẩn hiện android bottom bar",
+              "default": false
+            },
+            "hideIOSSafeAreaBottom": {
+              "type": "boolean",
+              "required": false,
+              "description": "Ẩn hiện ios bottom safe area",
+              "default": false
+            },
+            "toolbarMode": {
+              "type": "string",
+              "required": false,
+              "description": "Mode hiển thị header: normal  - bình thường , hidden - ẩn, transparent - trong suốt",
+              "default": "normal"
             }
           }
         }

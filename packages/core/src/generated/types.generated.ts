@@ -92,7 +92,7 @@ export interface OpenMiniAppRequest {
     miniappKey?: string; // Key của Mini App cần mở 
     additional?: Record<string, any>; // Dữ liệu bổ sung truyền cho Mini App 
     launchConfig?: Record<string, any>; // Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)	;  
-    navStyle?: Record<string, any>; // Style cho navigation bar
+    themeConfig?: Record<string, any>; // Style cho navigation bar
     tracking?: Record<string, any>; // Thông tin tracking
   }; // Du lieu
 }
@@ -620,6 +620,31 @@ export interface ShareTextContentRequest {
 
 export interface ShareTextContentResponse {}
 
+/** Get mini app token */
+export interface MiniAppTokenRequest {}
+
+export interface MiniAppTokenResponse {
+  data: {
+    miniAppToken: string; // miniAppToken
+  }; // Ket qua
+}
+
+/** Update mini app theme */
+export interface UpdateMiniAppThemeRequest {
+  data: {
+    headerColor?: string; // Miniapp header background color
+    headerTitle?: string; // Miniapp header title
+    textColor?: string; // Miniapp header text and button color 
+    leftButton?: string; // back - back button, none - không có gì
+    actionButtonThemeType?: string; // Mode hiển thị action: light - sáng , dark - tối 
+    hideAndroidBottomNavigationBar?: boolean; // Ẩn hiện android bottom bar
+    hideIOSSafeAreaBottom?: boolean; // Ẩn hiện ios bottom safe area
+    toolbarMode?: string; // Mode hiển thị header: normal  - bình thường , hidden - ẩn, transparent - trong suốt
+  }; // Du lieu
+}
+
+export interface UpdateMiniAppThemeResponse {}
+
 // --- Event name constants ---
 
 export type MiniAppEventName =
@@ -678,7 +703,9 @@ export type MiniAppEventName =
   | 'SET_NAVIGATION_BAR_COLOR'
   | 'UPDATE_STATUS_BAR_APPEARANCE'
   | 'UPDATE_NAVIGATION_BAR_APPEARANCE'
-  | 'SHARE_TEXT_CONTENT';
+  | 'SHARE_TEXT_CONTENT'
+  | 'MINI_APP_TOKEN'
+  | 'UPDATE_MINI_APP_THEME';
 
 /** Danh sach tat ca events voi metadata */
 export const EVENT_LIST = [
@@ -738,4 +765,6 @@ export const EVENT_LIST = [
   { event: 'UPDATE_STATUS_BAR_APPEARANCE', method: 'updateStatusBarAppearance', description: 'Chuyển đổi status bar giữa dark mode và light mode.', requestType: 'UpdateStatusBarAppearanceRequest', responseType: 'UpdateStatusBarAppearanceResponse' },
   { event: 'UPDATE_NAVIGATION_BAR_APPEARANCE', method: 'updateNavigationBarAppearance', description: 'Chuyển đổi navigation bar giữa dark mode và light mode.', requestType: 'UpdateNavigationBarAppearanceRequest', responseType: 'UpdateNavigationBarAppearanceResponse' },
   { event: 'SHARE_TEXT_CONTENT', method: 'shareTextContent', description: 'Mở dialog chia sẻ nội dung text.', requestType: 'ShareTextContentRequest', responseType: 'ShareTextContentResponse' },
+  { event: 'MINI_APP_TOKEN', method: 'miniAppToken', description: 'Get mini app token', requestType: 'MiniAppTokenRequest', responseType: 'MiniAppTokenResponse' },
+  { event: 'UPDATE_MINI_APP_THEME', method: 'updateMiniAppTheme', description: 'Update mini app theme', requestType: 'UpdateMiniAppThemeRequest', responseType: 'UpdateMiniAppThemeResponse' },
 ] as const;

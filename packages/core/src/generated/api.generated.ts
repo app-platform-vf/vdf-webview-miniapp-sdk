@@ -118,7 +118,11 @@ import type {
   UpdateNavigationBarAppearanceRequest,
   UpdateNavigationBarAppearanceResponse,
   ShareTextContentRequest,
-  ShareTextContentResponse
+  ShareTextContentResponse,
+  MiniAppTokenRequest,
+  MiniAppTokenResponse,
+  UpdateMiniAppThemeRequest,
+  UpdateMiniAppThemeResponse
 } from './types.generated';
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */
@@ -197,7 +201,7 @@ export async function openExternalLink(payload: OpenExternalLinkRequest): Promis
  * @param payload.data.miniappKey (optional) Key của Mini App cần mở  [default: "01K5FY191HP42SMMJXHWG545ZZ"]
  * @param payload.data.additional (optional) Dữ liệu bổ sung truyền cho Mini App  [default: "{       \"param1\": \"value1\",       \"param2\": \"value2\"     }"]
  * @param payload.data.launchConfig (optional) Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)	;   [default: "{       \"mode\": \"present\"     }"]
- * @param payload.data.navStyle (optional) Style cho navigation bar [default: "{       \"color\": \"#FF0000\",       \"hidden\": \"false\"     }"]
+ * @param payload.data.themeConfig (optional) Style cho navigation bar [default: "{       \"title\": \"My App\",       \"headerColor\": \"#EE0033\",       \"headerTitle\": \"Videos\",       \"textColor\": \"white\",       \"leftButton\": \"back\",       \"actionButtonThemeType\": \"normal\",       \"hideAndroidBottomNavigationBar\": true,       \"hideIOSSafeAreaBottom\": true     }"]
  * @param payload.data.tracking (optional) Thông tin tracking [default: "{       \"campaign\": \"promotion\",       \"utmSource\": \"miniapp\"     }"]
  */
 export async function openMiniApp(payload: OpenMiniAppRequest): Promise<MiniAppResponse<OpenMiniAppResponse>> {
@@ -251,7 +255,7 @@ export async function checkPermissionWithCode(payload: CheckPermissionWithCodeRe
  * Lấy nhiều trường dữ liệu người dùng từ host app.
  * Event: GET_MULTIPLE_USER_DATA
  * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.dataNames (required) Danh sách data cần lấy [default: "[\"age\", \"userName\", \"fullName\", \"phone\", \"email\", \"avatar\"]"]
+ * @param payload.data.dataNames (required) Danh sách data cần lấy [default: "[\"age\", \"userName\", \"fullName\", \"phoneNumber\", \"avatar\"]"]
  */
 export async function getMultipleUserData(payload: GetMultipleUserDataRequest): Promise<MiniAppResponse<GetMultipleUserDataResponse>> {
   const _p: any = { ...payload };
@@ -656,7 +660,7 @@ export async function updateStatusBarAppearance(payload: UpdateStatusBarAppearan
  * Chuyển đổi navigation bar giữa dark mode và light mode.
  * Event: UPDATE_NAVIGATION_BAR_APPEARANCE
  * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.appearance (optional) LIGHT hoặc DARK - Appearance mode cho status bar [default: "LIGHT "]
+ * @param payload.data.appearance (optional) LIGHT hoặc DARK - Appearance mode cho status bar [default: "LIGHT"]
  */
 export async function updateNavigationBarAppearance(payload: UpdateNavigationBarAppearanceRequest = {} as any): Promise<MiniAppResponse<UpdateNavigationBarAppearanceResponse>> {
   const _p: any = { ...payload };
@@ -674,6 +678,30 @@ export async function shareTextContent(payload: ShareTextContentRequest = {} as 
   const _p: any = { ...payload };
   if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
   return send<ShareTextContentResponse>('SHARE_TEXT_CONTENT', _p);
+}
+
+/**
+ * Get mini app token
+ * Event: MINI_APP_TOKEN
+ */
+export async function miniAppToken(): Promise<MiniAppResponse<MiniAppTokenResponse>> {
+  return send<MiniAppTokenResponse>('MINI_APP_TOKEN', {});
+}
+
+/**
+ * Update mini app theme
+ * Event: UPDATE_MINI_APP_THEME
+ * @param payload.data.headerColor (optional) Miniapp header background color [default: "#FFFFFF"]
+ * @param payload.data.headerTitle (optional) Miniapp header title [default: "Mini App"]
+ * @param payload.data.textColor (optional) Miniapp header text and button color  [default: "#EE0033"]
+ * @param payload.data.leftButton (optional) back - back button, none - không có gì [default: "back"]
+ * @param payload.data.actionButtonThemeType (optional) Mode hiển thị action: light - sáng , dark - tối  [default: "light"]
+ * @param payload.data.hideAndroidBottomNavigationBar (optional) Ẩn hiện android bottom bar [default: false]
+ * @param payload.data.hideIOSSafeAreaBottom (optional) Ẩn hiện ios bottom safe area [default: false]
+ * @param payload.data.toolbarMode (optional) Mode hiển thị header: normal  - bình thường , hidden - ẩn, transparent - trong suốt [default: "normal"]
+ */
+export async function updateMiniAppTheme(payload: UpdateMiniAppThemeRequest): Promise<MiniAppResponse<UpdateMiniAppThemeResponse>> {
+  return send<UpdateMiniAppThemeResponse>('UPDATE_MINI_APP_THEME', payload);
 }
 
 // ============================================================
@@ -820,6 +848,10 @@ export const MiniAppAPI = {
   updateNavigationBarAppearance,
   /** Mở dialog chia sẻ nội dung text. */
   shareTextContent,
+  /** Get mini app token */
+  miniAppToken,
+  /** Update mini app theme */
+  updateMiniAppTheme,
   /** Kiem tra response thanh cong */
   isSuccess,
   /** Khoi tao API module */

@@ -2,7 +2,7 @@ const fs = require("fs")
 const path = require("path")
 
 const EVENTS_JSON = "./packages/core/src/events.json"
-const OUTPUT_DIR = "./docs-site"
+const OUTPUT_DIR = "D:\\SDK\\developer-portal\\docs\\web-sdk"
 
 function toCamelCase(str) {
   return str.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase())
@@ -15,7 +15,7 @@ function categorizeEvent(event) {
   if (event.startsWith("CHECK") && event.includes("PERMISSION")) return "Device Check Permission"
   if (((event.startsWith("SAVE_") || event.startsWith("GET_")) && event.endsWith("VALUE")) || event.includes("STORAGE")) return "Storage"
   if (event.includes("LOCATION")) return "Location"
-  if (event.endsWith("COLOR") || event.endsWith("APPEARANCE")) return "UI"
+  if (event.endsWith("COLOR") || event.endsWith("APPEARANCE") || event.includes("THEME")) return "UI"
   return "Get data event"
 }
 

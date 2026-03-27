@@ -75,7 +75,7 @@ function groupEvents(events) {
     else if (evt.event.startsWith("CHECK") && evt.event.includes("PERMISSION")) prefix = "Device Check Permission"
     else if (((evt.event.startsWith("SAVE_") || evt.event.startsWith("GET_")) && evt.event.endsWith("VALUE")) || evt.event.includes("STORAGE")) prefix = "Storage"
     else if (evt.event.includes("LOCATION")) prefix = "Location"
-    else if (evt.event.endsWith("COLOR") || evt.event.endsWith("APPEARANCE")) prefix = "UI"
+    else if (evt.event.includes("COLOR") || evt.event.includes("APPEARANCE") || evt.event.includes("THEME")) prefix = "UI"
     else prefix = "Get data event"
     if (!groups[prefix]) groups[prefix] = []
     groups[prefix].push(evt)
