@@ -130,28 +130,6 @@ export interface CheckMultipleUserDataPermissionResponse {
   }[]; // Du lieu
 }
 
-/** Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level). */
-export interface RequestPermissionWithCodeRequest {
-  data: {
-    permissionCode: string; // mã quyền
-  }; // Du lieu
-}
-
-export interface RequestPermissionWithCodeResponse {
-  permissionCode?: string;
-  result?: string;
-  message?: string;
-}
-
-/** Kiểm tra trạng thái quyền cụ thể. */
-export interface CheckPermissionWithCodeRequest {
-  data: {
-    permissionCode: string; // Tham so 1
-  }; // Du lieu
-}
-
-export interface CheckPermissionWithCodeResponse {}
-
 /** Lấy nhiều trường dữ liệu người dùng từ host app. */
 export interface GetMultipleUserDataRequest {
   data: {
@@ -163,12 +141,11 @@ export interface GetMultipleUserDataResponse {
   age?: string;
   userName?: string;
   fullName?: string;
-  email?: string;
-  phone?: string;
+  phoneNumber?: string;
   avatar?: string;
   gender?: string;
-  address?: string;
-  userId?: string;
+  birthday?: string;
+  idNo?: string;
 }
 
 /** Xóa tất cả quyền đã cache ở local. */
@@ -575,42 +552,6 @@ export interface GetLocationResponse {
   longgitude?: any; // Kinh độ
 }
 
-/** Thay đổi màu nền status bar. */
-export interface SetBackgroundStatusBarColorRequest {
-  data?: {
-    color?: string; // Mã màu
-  };
-}
-
-export interface SetBackgroundStatusBarColorResponse {}
-
-/** Thay đổi màu nền navigation bar. */
-export interface SetNavigationBarColorRequest {
-  data?: {
-    color?: string; // Mã màu
-  };
-}
-
-export interface SetNavigationBarColorResponse {}
-
-/** Chuyển đổi status bar giữa dark mode và light mode. */
-export interface UpdateStatusBarAppearanceRequest {
-  data?: {
-    appearance?: string; // LIGHT hoặc DARK - Appearance mode cho status bar
-  };
-}
-
-export interface UpdateStatusBarAppearanceResponse {}
-
-/** Chuyển đổi navigation bar giữa dark mode và light mode. */
-export interface UpdateNavigationBarAppearanceRequest {
-  data?: {
-    appearance?: string; // LIGHT hoặc DARK - Appearance mode cho status bar
-  };
-}
-
-export interface UpdateNavigationBarAppearanceResponse {}
-
 /** Mở dialog chia sẻ nội dung text. */
 export interface ShareTextContentRequest {
   data?: {
@@ -655,8 +596,6 @@ export type MiniAppEventName =
   | 'OPEN_MINI_APP'
   | 'REQUEST_MULTIPLE_USER_DATA_PERMISSION'
   | 'CHECK_MULTIPLE_USER_DATA_PERMISSION'
-  | 'REQUEST_PERMISSION_WITH_CODE'
-  | 'CHECK_PERMISSION_WITH_CODE'
   | 'GET_MULTIPLE_USER_DATA'
   | 'CLEAR_PERMISSION_CACHE'
   | 'REQUEST_CAMERA_PERMISSION'
@@ -699,10 +638,6 @@ export type MiniAppEventName =
   | 'GET_FLOAT_VALUE'
   | 'CLEAR_STORAGE'
   | 'GET_LOCATION'
-  | 'SET_BACKGROUND_STATUS_BAR_COLOR'
-  | 'SET_NAVIGATION_BAR_COLOR'
-  | 'UPDATE_STATUS_BAR_APPEARANCE'
-  | 'UPDATE_NAVIGATION_BAR_APPEARANCE'
   | 'SHARE_TEXT_CONTENT'
   | 'MINI_APP_TOKEN'
   | 'UPDATE_MINI_APP_THEME';
@@ -716,8 +651,6 @@ export const EVENT_LIST = [
   { event: 'OPEN_MINI_APP', method: 'openMiniApp', description: 'Mở một Mini App khác từ Mini App hiện tại.', requestType: 'OpenMiniAppRequest', responseType: 'OpenMiniAppResponse' },
   { event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', method: 'requestMultipleUserDataPermission', description: 'Yêu cầu nhiều quyền user data cùng một lúc.', requestType: 'RequestMultipleUserDataPermissionRequest', responseType: 'RequestMultipleUserDataPermissionResponse' },
   { event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', method: 'checkMultipleUserDataPermission', description: 'Kiểm tra trạng thái nhiều quyền user data cùng lúc.', requestType: 'CheckMultipleUserDataPermissionRequest', responseType: 'CheckMultipleUserDataPermissionResponse' },
-  { event: 'REQUEST_PERMISSION_WITH_CODE', method: 'requestPermissionWithCode', description: 'Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).', requestType: 'RequestPermissionWithCodeRequest', responseType: 'RequestPermissionWithCodeResponse' },
-  { event: 'CHECK_PERMISSION_WITH_CODE', method: 'checkPermissionWithCode', description: 'Kiểm tra trạng thái quyền cụ thể.', requestType: 'CheckPermissionWithCodeRequest', responseType: 'CheckPermissionWithCodeResponse' },
   { event: 'GET_MULTIPLE_USER_DATA', method: 'getMultipleUserData', description: 'Lấy nhiều trường dữ liệu người dùng từ host app.', requestType: 'GetMultipleUserDataRequest', responseType: 'GetMultipleUserDataResponse' },
   { event: 'CLEAR_PERMISSION_CACHE', method: 'clearPermissionCache', description: 'Xóa tất cả quyền đã cache ở local.', requestType: 'ClearPermissionCacheRequest', responseType: 'ClearPermissionCacheResponse' },
   { event: 'REQUEST_CAMERA_PERMISSION', method: 'requestCameraPermission', description: 'Yêu cầu mở camera', requestType: 'RequestCameraPermissionRequest', responseType: 'RequestCameraPermissionResponse' },
@@ -760,10 +693,6 @@ export const EVENT_LIST = [
   { event: 'GET_FLOAT_VALUE', method: 'getFloatValue', description: 'Lấy giá trị kiểu float.', requestType: 'GetFloatValueRequest', responseType: 'GetFloatValueResponse' },
   { event: 'CLEAR_STORAGE', method: 'clearStorage', description: 'Lấy giá trị kiểu float.', requestType: 'ClearStorageRequest', responseType: 'ClearStorageResponse' },
   { event: 'GET_LOCATION', method: 'getLocation', description: 'Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.', requestType: 'GetLocationRequest', responseType: 'GetLocationResponse' },
-  { event: 'SET_BACKGROUND_STATUS_BAR_COLOR', method: 'setBackgroundStatusBarColor', description: 'Thay đổi màu nền status bar.', requestType: 'SetBackgroundStatusBarColorRequest', responseType: 'SetBackgroundStatusBarColorResponse' },
-  { event: 'SET_NAVIGATION_BAR_COLOR', method: 'setNavigationBarColor', description: 'Thay đổi màu nền navigation bar.', requestType: 'SetNavigationBarColorRequest', responseType: 'SetNavigationBarColorResponse' },
-  { event: 'UPDATE_STATUS_BAR_APPEARANCE', method: 'updateStatusBarAppearance', description: 'Chuyển đổi status bar giữa dark mode và light mode.', requestType: 'UpdateStatusBarAppearanceRequest', responseType: 'UpdateStatusBarAppearanceResponse' },
-  { event: 'UPDATE_NAVIGATION_BAR_APPEARANCE', method: 'updateNavigationBarAppearance', description: 'Chuyển đổi navigation bar giữa dark mode và light mode.', requestType: 'UpdateNavigationBarAppearanceRequest', responseType: 'UpdateNavigationBarAppearanceResponse' },
   { event: 'SHARE_TEXT_CONTENT', method: 'shareTextContent', description: 'Mở dialog chia sẻ nội dung text.', requestType: 'ShareTextContentRequest', responseType: 'ShareTextContentResponse' },
   { event: 'MINI_APP_TOKEN', method: 'miniAppToken', description: 'Get mini app token', requestType: 'MiniAppTokenRequest', responseType: 'MiniAppTokenResponse' },
   { event: 'UPDATE_MINI_APP_THEME', method: 'updateMiniAppTheme', description: 'Update mini app theme', requestType: 'UpdateMiniAppThemeRequest', responseType: 'UpdateMiniAppThemeResponse' },

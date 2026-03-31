@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import {
   getSharedMiniApp,
   MiniApp,
@@ -9,8 +9,6 @@ import {
   openMiniApp,
   requestMultipleUserDataPermission,
   checkMultipleUserDataPermission,
-  requestPermissionWithCode,
-  checkPermissionWithCode,
   getMultipleUserData,
   clearPermissionCache,
   requestCameraPermission,
@@ -53,10 +51,6 @@ import {
   getFloatValue,
   clearStorage,
   getLocation,
-  setBackgroundStatusBarColor,
-  setNavigationBarColor,
-  updateStatusBarAppearance,
-  updateNavigationBarAppearance,
   shareTextContent,
   miniAppToken,
   updateMiniAppTheme,
@@ -70,17 +64,52 @@ interface EventInfo {
   defaultData: string | null;
 }
 
+
+function selectBetweenChar(el: HTMLTextAreaElement, char: string): void {
+  const pos = el.selectionStart ?? 0;
+  const text = el.value;
+  const start = text.lastIndexOf(char, pos - 1);
+  const end = text.indexOf(char, pos);
+  if (start === -1 || end === -1) return;
+  el.focus();
+  el.setSelectionRange(start + 1, end);
+}
+function setupSmartTap(el: HTMLTextAreaElement): void {
+  let tapCount = 0;
+  let tapTimer: ReturnType<typeof setTimeout> | null = null;
+  el.addEventListener('touchend', () => {
+    tapCount++;
+    if (tapTimer) clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => {
+      if (tapCount >= 3) selectBetweenChar(el, '"');
+      tapCount = 0;
+    }, 300);
+  });
+}
+function setupLongPress(el: HTMLElement, onLongPress: () => void, duration = 600): void {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  const start = () => {
+    el.classList.add('long-pressing');
+    timer = setTimeout(() => { timer = null; onLongPress(); el.classList.remove('long-pressing'); }, duration);
+  };
+  const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } el.classList.remove('long-pressing'); };
+  el.addEventListener('touchstart', start, { passive: true });
+  el.addEventListener('touchend', cancel);
+  el.addEventListener('touchmove', cancel);
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
 
-  logs: string[] = [];
-  inputValue = '';
+  inputs: Record<string, string> = {};
+  eventLogs: Record<string, string[]> = {};
   popup: EventInfo | null = null;
   private app: MiniApp;
+  private smartTapReady = new WeakSet<HTMLTextAreaElement>();
 
   // Event registry
   private fns: Record<string, () => Promise<any>> = {};
@@ -91,32 +120,49 @@ export class AppComponent {
     this.registerFns();
   }
 
-  get formatLog() {
-    return this.logs.length ? this.logs.join('\n') : 'No logs yet.'
+  ngAfterViewInit(): void {
+    document.querySelectorAll<HTMLElement>('.btn[data-evt]').forEach(btn => {
+      const evtName = btn.dataset['evt']!;
+      const evt = this.groups.flatMap(g => g.events).find(e => e.name === evtName);
+      if (evt) setupLongPress(btn, () => this.quickRun(evt));
+    });
   }
 
-  private getInput(): any {
-    if (!this.inputValue.trim()) return null;
-    try { return JSON.parse(this.inputValue); } catch { return null; }
+  onInputFocus(e: FocusEvent): void {
+    const el = e.target as HTMLTextAreaElement;
+    if (!this.smartTapReady.has(el)) { this.smartTapReady.add(el); setupSmartTap(el); }
   }
 
-  private getDefault(evt: EventInfo): any {
-    if (!evt.defaultData) return null;
-    try { return JSON.parse(evt.defaultData); } catch { return null; }
+  getInputStr(name: string): string { return this.inputs[name] || ''; }
+  setInputStr(name: string, val: string): void { this.inputs[name] = val; }
+  getLogsStr(name: string): string {
+    const l = this.eventLogs[name] || [];
+    return l.length ? l.join('\n') : 'No logs yet.';
+  }
+
+  private getInputFor_(name: string): any {
+    const v = (this.inputs[name] || '').trim();
+    if (!v) return null;
+    try { return JSON.parse(v); } catch { return null; }
+  }
+
+  quickRun(evt: EventInfo): void {
+    const saved = localStorage.getItem(this.lsKey(evt.name));
+    if (saved) { try { this.inputs[evt.name] = JSON.stringify(JSON.parse(saved), null, 2); } catch { this.inputs[evt.name] = saved; } }
+    else if (evt.defaultData) this.inputs[evt.name] = JSON.stringify(JSON.parse(evt.defaultData), null, 2);
+    this.runEvent(evt);
   }
 
   private registerFns(): void {
-    this.fns['appOpenWebview'] = () => appOpenWebview(this.getInput() || {"data":{"url":"https://example.com","serviceName":"Tên dịch vụ","isPaymentConfirm":false,"resourceType":"HTML","returnUrl":"https://example.com/return","cancelUrl":"https://example.com/cancel"}});
-    this.fns['appOpenStore'] = () => appOpenStore(this.getInput() || {"data":{"fallbackUrlAndroid":"market://details?id=com.example.app","fallbackUrlIos":"itms-apps://itunes.apple.com/app/id123456789"}});
-    this.fns['exit'] = () => exit(this.getInput() || {"data":{"navigationAction":"RETURN_HOME_APP"}});
-    this.fns['openExternalLink'] = () => openExternalLink(this.getInput() || {"data":{"uri":"https://google.com"}});
-    this.fns['openMiniApp'] = () => openMiniApp(this.getInput() || {"data":{"route":{"screenName":"home"},"miniappKey":"01K5FY191HP42SMMJXHWG545ZZ","additional":{"param1":"value1","param2":"value2"},"launchConfig":{"mode":"present"},"themeConfig":{"title":"My App","headerColor":"#EE0033","headerTitle":"Videos","textColor":"white","leftButton":"back","actionButtonThemeType":"normal","hideAndroidBottomNavigationBar":true,"hideIOSSafeAreaBottom":true},"tracking":{"campaign":"promotion","utmSource":"miniapp"}}});
-    this.fns['requestMultipleUserDataPermission'] = () => requestMultipleUserDataPermission(this.getInput() || {"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION"],"useSameReason":true}});
-    this.fns['checkMultipleUserDataPermission'] = () => checkMultipleUserDataPermission(this.getInput() || {"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION"]}});
-    this.fns['requestPermissionWithCode'] = () => requestPermissionWithCode(this.getInput() || {"data":{"permissionCode":"USER_AGE_PERMISSION"}});
-    this.fns['checkPermissionWithCode'] = () => checkPermissionWithCode(this.getInput() || {"data":{"permissionCode":"USER_AGE_PERMISSION"}});
-    this.fns['getMultipleUserData'] = () => getMultipleUserData(this.getInput() || {"data":{"dataNames":["age","userName","fullName","phoneNumber","avatar"]}});
-    this.fns['clearPermissionCache'] = () => clearPermissionCache(this.getInput() || {"data":{}});
+    this.fns['appOpenWebview'] = () => appOpenWebview(this.getInputFor_('appOpenWebview') || {"data":{"url":"https://example.com","serviceName":"Tên dịch vụ","isPaymentConfirm":false,"resourceType":"HTML","returnUrl":"https://example.com/return","cancelUrl":"https://example.com/cancel"}});
+    this.fns['appOpenStore'] = () => appOpenStore(this.getInputFor_('appOpenStore') || {"data":{"fallbackUrlAndroid":"market://details?id=com.example.app","fallbackUrlIos":"itms-apps://itunes.apple.com/app/id123456789"}});
+    this.fns['exit'] = () => exit(this.getInputFor_('exit') || {"data":{"navigationAction":"RETURN_HOME_APP"}});
+    this.fns['openExternalLink'] = () => openExternalLink(this.getInputFor_('openExternalLink') || {"data":{"uri":"https://google.com"}});
+    this.fns['openMiniApp'] = () => openMiniApp(this.getInputFor_('openMiniApp') || {"data":{"route":{"screenName":"home"},"miniappKey":"01K5FY191HP42SMMJXHWG545ZZ","additional":{"param1":"value1","param2":"value2"},"launchConfig":{"mode":"present"},"themeConfig":{"title":"My App","headerColor":"#EE0033","headerTitle":"Videos","textColor":"white","leftButton":"back","actionButtonThemeType":"normal","hideAndroidBottomNavigationBar":true,"hideIOSSafeAreaBottom":true},"tracking":{"campaign":"promotion","utmSource":"miniapp"}}});
+    this.fns['requestMultipleUserDataPermission'] = () => requestMultipleUserDataPermission(this.getInputFor_('requestMultipleUserDataPermission') || {"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION","USER_BIRTH_DATE_PERMISSION","USER_GENDER_PERMISSION","USER_NATIONAL_ID_PERMISSION"],"useSameReason":true}});
+    this.fns['checkMultipleUserDataPermission'] = () => checkMultipleUserDataPermission(this.getInputFor_('checkMultipleUserDataPermission') || {"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION","USER_BIRTH_DATE_PERMISSION","USER_GENDER_PERMISSION","USER_NATIONAL_ID_PERMISSION"]}});
+    this.fns['getMultipleUserData'] = () => getMultipleUserData(this.getInputFor_('getMultipleUserData') || {"data":{"dataNames":["age","userName","fullName","phoneNumber","avatar","gender","birthday","idNo"]}});
+    this.fns['clearPermissionCache'] = () => clearPermissionCache(this.getInputFor_('clearPermissionCache') || {"data":{}});
     this.fns['requestCameraPermission'] = () => requestCameraPermission();
     this.fns['requestLocationPermission'] = () => requestLocationPermission();
     this.fns['requestPhotosPermission'] = () => requestPhotosPermission();
@@ -141,30 +187,26 @@ export class AppComponent {
     this.fns['checkPaymentPermission'] = () => checkPaymentPermission();
     this.fns['checkLoginPermission'] = () => checkLoginPermission();
     this.fns['checkLocalAuthenticationPermission'] = () => checkLocalAuthenticationPermission();
-    this.fns['executeLocalAuthentication'] = () => executeLocalAuthentication(this.getInput() || {"data":{"authOptionsParam":{"sensitiveTransaction":true,"authClassification":["WEAK","STRONG","DEVICE"],"sticky":false,"isShowErrorDialog":true}}});
+    this.fns['executeLocalAuthentication'] = () => executeLocalAuthentication(this.getInputFor_('executeLocalAuthentication') || {"data":{"authOptionsParam":{"sensitiveTransaction":true,"authClassification":["WEAK","STRONG","DEVICE"],"sticky":false,"isShowErrorDialog":true}}});
     this.fns['getLocalAuthenticationStatus'] = () => getLocalAuthenticationStatus();
-    this.fns['getContacts'] = () => getContacts(this.getInput() || {"data":{"filter":{"contactName":"John"},"pager":{"pageNumber":1,"limitRow":100}}});
-    this.fns['pickFile'] = () => pickFile(this.getInput() || {"data":{"mimeType":["image/*","video/*"],"isCapture":true,"source":"PhotoLibrary"}});
-    this.fns['saveStringValue'] = () => saveStringValue(this.getInput() || {"data":{"key":"user_preference","value":"dark_mode"}});
-    this.fns['saveBooleanValue'] = () => saveBooleanValue(this.getInput() || {"data":{"key":"notifications_enabled","value":true}});
-    this.fns['saveIntegerValue'] = () => saveIntegerValue(this.getInput() || {"data":{"key":"login_count","value":5}});
-    this.fns['saveLongValue'] = () => saveLongValue(this.getInput() || {"data":{"key":"last_sync_timestamp","value":1234567890}});
-    this.fns['saveFloatValue'] = () => saveFloatValue(this.getInput() || {"data":{"key":"rating","value":4.5}});
-    this.fns['getStringValue'] = () => getStringValue(this.getInput() || {"data":{"key":"user_preference","defaultValue":"light_mode"}});
-    this.fns['getBooleanValue'] = () => getBooleanValue(this.getInput() || {"data":{"key":"notifications_enabled","defaultValue":false}});
-    this.fns['getIntegerValue'] = () => getIntegerValue(this.getInput() || {"data":{"key":"...","defaultValue":0}});
-    this.fns['getLongValue'] = () => getLongValue(this.getInput() || {"data":{"key":"...","defaultValue":0}});
-    this.fns['getFloatValue'] = () => getFloatValue(this.getInput() || {"data":{"key":"...","defaultValue":"..."}});
+    this.fns['getContacts'] = () => getContacts(this.getInputFor_('getContacts') || {"data":{"filter":{"contactName":"John"},"pager":{"pageNumber":1,"limitRow":100}}});
+    this.fns['pickFile'] = () => pickFile(this.getInputFor_('pickFile') || {"data":{"mimeType":["image/*","video/*"],"isCapture":true,"source":"PhotoLibrary"}});
+    this.fns['saveStringValue'] = () => saveStringValue(this.getInputFor_('saveStringValue') || {"data":{"key":"user_preference","value":"dark_mode"}});
+    this.fns['saveBooleanValue'] = () => saveBooleanValue(this.getInputFor_('saveBooleanValue') || {"data":{"key":"notifications_enabled","value":true}});
+    this.fns['saveIntegerValue'] = () => saveIntegerValue(this.getInputFor_('saveIntegerValue') || {"data":{"key":"login_count","value":5}});
+    this.fns['saveLongValue'] = () => saveLongValue(this.getInputFor_('saveLongValue') || {"data":{"key":"last_sync_timestamp","value":1234567890}});
+    this.fns['saveFloatValue'] = () => saveFloatValue(this.getInputFor_('saveFloatValue') || {"data":{"key":"rating","value":4.5}});
+    this.fns['getStringValue'] = () => getStringValue(this.getInputFor_('getStringValue') || {"data":{"key":"user_preference","defaultValue":"light_mode"}});
+    this.fns['getBooleanValue'] = () => getBooleanValue(this.getInputFor_('getBooleanValue') || {"data":{"key":"notifications_enabled","defaultValue":false}});
+    this.fns['getIntegerValue'] = () => getIntegerValue(this.getInputFor_('getIntegerValue') || {"data":{"key":"...","defaultValue":0}});
+    this.fns['getLongValue'] = () => getLongValue(this.getInputFor_('getLongValue') || {"data":{"key":"...","defaultValue":0}});
+    this.fns['getFloatValue'] = () => getFloatValue(this.getInputFor_('getFloatValue') || {"data":{"key":"...","defaultValue":"..."}});
     this.fns['clearStorage'] = () => clearStorage();
     this.fns['getLocation'] = () => getLocation();
-    this.fns['setBackgroundStatusBarColor'] = () => setBackgroundStatusBarColor(this.getInput() || {"data":{"color":"#FF5722"}});
-    this.fns['setNavigationBarColor'] = () => setNavigationBarColor(this.getInput() || {"data":{"color":"#2196F3"}});
-    this.fns['updateStatusBarAppearance'] = () => updateStatusBarAppearance(this.getInput() || {"data":{"appearance":"DARK"}});
-    this.fns['updateNavigationBarAppearance'] = () => updateNavigationBarAppearance(this.getInput() || {"data":{"appearance":"LIGHT"}});
-    this.fns['shareTextContent'] = () => shareTextContent(this.getInput() || {"data":{"content":"Check out this amazing product!"}});
+    this.fns['shareTextContent'] = () => shareTextContent(this.getInputFor_('shareTextContent') || {"data":{"content":"Check out this amazing product!"}});
     this.fns['miniAppToken'] = () => miniAppToken();
-    this.fns['updateMiniAppTheme'] = () => updateMiniAppTheme(this.getInput() || {"data":{"headerColor":"#FFFFFF","headerTitle":"Mini App","textColor":"#EE0033","leftButton":"back","actionButtonThemeType":"light","hideAndroidBottomNavigationBar":false,"hideIOSSafeAreaBottom":false,"toolbarMode":"normal"}});
-    this.fns['invoke'] = () => this.app.invoke(this.getInput()?.event || 'GET_LOCATION', this.getInput());
+    this.fns['updateMiniAppTheme'] = () => updateMiniAppTheme(this.getInputFor_('updateMiniAppTheme') || {"data":{"headerColor":"#FFFFFF","headerTitle":"Mini App","textColor":"#EE0033","leftButton":"back","actionButtonThemeType":"light","hideAndroidBottomNavigationBar":false,"hideIOSSafeAreaBottom":false,"toolbarMode":"normal"}});
+    this.fns['invoke'] = () => this.app.invoke(this.getInputFor_('invoke')?.event || 'GET_LOCATION', this.getInputFor_('invoke'));
   }
 
   // Event groups
@@ -177,11 +219,19 @@ export class AppComponent {
       { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: 'Mở một Mini App khác từ Mini App hiện tại.', hasParams: true, defaultData: '{"data":{"route":{"screenName":"home"},"miniappKey":"01K5FY191HP42SMMJXHWG545ZZ","additional":{"param1":"value1","param2":"value2"},"launchConfig":{"mode":"present"},"themeConfig":{"title":"My App","headerColor":"#EE0033","headerTitle":"Videos","textColor":"white","leftButton":"back","actionButtonThemeType":"normal","hideAndroidBottomNavigationBar":true,"hideIOSSafeAreaBottom":true},"tracking":{"campaign":"promotion","utmSource":"miniapp"}}}' }
     ] },
     { title: 'UserData Permission', events: [
-      { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: 'Yêu cầu nhiều quyền user data cùng một lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION"],"useSameReason":true}}' },
-      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: 'Kiểm tra trạng thái nhiều quyền user data cùng lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION"]}}' }
+      { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: 'Yêu cầu nhiều quyền user data cùng một lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION","USER_BIRTH_DATE_PERMISSION","USER_GENDER_PERMISSION","USER_NATIONAL_ID_PERMISSION"],"useSameReason":true}}' },
+      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: 'Kiểm tra trạng thái nhiều quyền user data cùng lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION","USER_BIRTH_DATE_PERMISSION","USER_GENDER_PERMISSION","USER_NATIONAL_ID_PERMISSION"]}}' }
+    ] },
+    { title: 'Get data event', events: [
+      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: 'Lấy nhiều trường dữ liệu người dùng từ host app.', hasParams: true, defaultData: '{"data":{"dataNames":["age","userName","fullName","phoneNumber","avatar","gender","birthday","idNo"]}}' },
+      { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: 'Xóa tất cả quyền đã cache ở local.', hasParams: true, defaultData: '{"data":{}}' },
+      { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: null },
+      { name: 'getContacts', event: 'GET_CONTACTS', desc: 'Lấy danh sách contacts từ danh bạ hệ thống. ', hasParams: true, defaultData: '{"data":{"filter":{"contactName":"John"},"pager":{"pageNumber":1,"limitRow":100}}}' },
+      { name: 'pickFile', event: 'PICK_FILE', desc: 'Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:', hasParams: true, defaultData: '{"data":{"mimeType":["image/*","video/*"],"isCapture":true,"source":"PhotoLibrary"}}' },
+      { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: 'Mở dialog chia sẻ nội dung text.', hasParams: true, defaultData: '{"data":{"content":"Check out this amazing product!"}}' },
+      { name: 'miniAppToken', event: 'MINI_APP_TOKEN', desc: 'Get mini app token', hasParams: false, defaultData: null }
     ] },
     { title: 'Device Request Permission', events: [
-      { name: 'requestPermissionWithCode', event: 'REQUEST_PERMISSION_WITH_CODE', desc: 'Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).', hasParams: true, defaultData: '{"data":{"permissionCode":"USER_AGE_PERMISSION"}}' },
       { name: 'requestCameraPermission', event: 'REQUEST_CAMERA_PERMISSION', desc: 'Yêu cầu mở camera', hasParams: false, defaultData: null },
       { name: 'requestLocationPermission', event: 'REQUEST_LOCATION_PERMISSION', desc: 'Yêu cầu vị trí', hasParams: false, defaultData: null },
       { name: 'requestPhotosPermission', event: 'REQUEST_PHOTOS_PERMISSION', desc: 'Yêu cầu truy cập ảnh trên thiết bị', hasParams: false, defaultData: null },
@@ -197,7 +247,6 @@ export class AppComponent {
       { name: 'executeLocalAuthentication', event: 'EXECUTE_LOCAL_AUTHENTICATION', desc: 'Thực hiện xác thực sinh trắc học (vân tay, Face ID).', hasParams: true, defaultData: '{"data":{"authOptionsParam":{"sensitiveTransaction":true,"authClassification":["WEAK","STRONG","DEVICE"],"sticky":false,"isShowErrorDialog":true}}}' }
     ] },
     { title: 'Device Check Permission', events: [
-      { name: 'checkPermissionWithCode', event: 'CHECK_PERMISSION_WITH_CODE', desc: 'Kiểm tra trạng thái quyền cụ thể.', hasParams: true, defaultData: '{"data":{"permissionCode":"USER_AGE_PERMISSION"}}' },
       { name: 'checkCameraPermission', event: 'CHECK_CAMERA_PERMISSION', desc: 'Kiểm tra quyền camera', hasParams: false, defaultData: null },
       { name: 'checkLocationPermission', event: 'CHECK_LOCATION_PERMISSION', desc: 'Kiểm tra quyền vị trí', hasParams: false, defaultData: null },
       { name: 'checkPhotosPermission', event: 'CHECK_PHOTOS_PERMISSION', desc: 'Kiểm tra quyền truy cập ảnh', hasParams: false, defaultData: null },
@@ -210,15 +259,6 @@ export class AppComponent {
       { name: 'checkPaymentPermission', event: 'CHECK_PAYMENT_PERMISSION', desc: '', hasParams: false, defaultData: null },
       { name: 'checkLoginPermission', event: 'CHECK_LOGIN_PERMISSION', desc: '', hasParams: false, defaultData: null },
       { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: null }
-    ] },
-    { title: 'Get data event', events: [
-      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: 'Lấy nhiều trường dữ liệu người dùng từ host app.', hasParams: true, defaultData: '{"data":{"dataNames":["age","userName","fullName","phoneNumber","avatar"]}}' },
-      { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: 'Xóa tất cả quyền đã cache ở local.', hasParams: true, defaultData: '{"data":{}}' },
-      { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: null },
-      { name: 'getContacts', event: 'GET_CONTACTS', desc: 'Lấy danh sách contacts từ danh bạ hệ thống. ', hasParams: true, defaultData: '{"data":{"filter":{"contactName":"John"},"pager":{"pageNumber":1,"limitRow":100}}}' },
-      { name: 'pickFile', event: 'PICK_FILE', desc: 'Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:', hasParams: true, defaultData: '{"data":{"mimeType":["image/*","video/*"],"isCapture":true,"source":"PhotoLibrary"}}' },
-      { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: 'Mở dialog chia sẻ nội dung text.', hasParams: true, defaultData: '{"data":{"content":"Check out this amazing product!"}}' },
-      { name: 'miniAppToken', event: 'MINI_APP_TOKEN', desc: 'Get mini app token', hasParams: false, defaultData: null }
     ] },
     { title: 'Storage', events: [
       { name: 'saveStringValue', event: 'SAVE_STRING_VALUE', desc: 'Lưu giá trị kiểu string.', hasParams: true, defaultData: '{"data":{"key":"user_preference","value":"dark_mode"}}' },
@@ -237,37 +277,47 @@ export class AppComponent {
       { name: 'getLocation', event: 'GET_LOCATION', desc: 'Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.', hasParams: false, defaultData: null }
     ] },
     { title: 'UI', events: [
-      { name: 'setBackgroundStatusBarColor', event: 'SET_BACKGROUND_STATUS_BAR_COLOR', desc: 'Thay đổi màu nền status bar.', hasParams: true, defaultData: '{"data":{"color":"#FF5722"}}' },
-      { name: 'setNavigationBarColor', event: 'SET_NAVIGATION_BAR_COLOR', desc: 'Thay đổi màu nền navigation bar.', hasParams: true, defaultData: '{"data":{"color":"#2196F3"}}' },
-      { name: 'updateStatusBarAppearance', event: 'UPDATE_STATUS_BAR_APPEARANCE', desc: 'Chuyển đổi status bar giữa dark mode và light mode.', hasParams: true, defaultData: '{"data":{"appearance":"DARK"}}' },
-      { name: 'updateNavigationBarAppearance', event: 'UPDATE_NAVIGATION_BAR_APPEARANCE', desc: 'Chuyển đổi navigation bar giữa dark mode và light mode.', hasParams: true, defaultData: '{"data":{"appearance":"LIGHT"}}' },
       { name: 'updateMiniAppTheme', event: 'UPDATE_MINI_APP_THEME', desc: 'Update mini app theme', hasParams: true, defaultData: '{"data":{"headerColor":"#FFFFFF","headerTitle":"Mini App","textColor":"#EE0033","leftButton":"back","actionButtonThemeType":"light","hideAndroidBottomNavigationBar":false,"hideIOSSafeAreaBottom":false,"toolbarMode":"normal"}}' }
     ] }
   ];
 
-  log(msg: string, data?: any): void {
+  private logFor(name: string, msg: string, data?: any): void {
     const entry = data ? `${msg}: ${JSON.stringify(data, null, 2)}` : msg;
-    this.logs.unshift(`[${new Date().toLocaleTimeString()}] ${entry}`);
+    if (!this.eventLogs[name]) this.eventLogs[name] = [];
+    this.eventLogs[name] = [`[${new Date().toLocaleTimeString()}] ${entry}`, ...this.eventLogs[name]];
   }
 
   async runEvent(evt: EventInfo): Promise<void> {
-    this.popup = null;
     const fn = this.fns[evt.name];
     if (!fn) return;
     try {
-      this.log(`> ${evt.name}...`);
+      this.logFor(evt.name, `> ${evt.name}...`);
       const res = await fn();
-      this.log(`OK ${evt.name}`, res);
+      this.logFor(evt.name, `OK ${evt.name}`, res);
     } catch (err) {
-      this.log(`ERR ${evt.name}`, err);
+      this.logFor(evt.name, `ERR ${evt.name}`, err);
     }
   }
 
+  private lsKey(name: string): string { return `webview_sdk_input_${name}`; }
+
   fillInput(evt: EventInfo): void {
-    if (evt.defaultData) {
-      this.inputValue = JSON.stringify(JSON.parse(evt.defaultData), null, 2);
-    }
-    this.popup = null;
+    const saved = localStorage.getItem(this.lsKey(evt.name));
+    if (saved) { try { this.inputs[evt.name] = JSON.stringify(JSON.parse(saved), null, 2); } catch { this.inputs[evt.name] = saved; } }
+    else if (evt.defaultData) { this.inputs[evt.name] = JSON.stringify(JSON.parse(evt.defaultData), null, 2); }
+  }
+
+  saveInput(evt: EventInfo): void {
+    const v = (this.inputs[evt.name] || '').trim();
+    if (v) localStorage.setItem(this.lsKey(evt.name), v);
+  }
+
+  deleteInput(evt: EventInfo): void {
+    localStorage.removeItem(this.lsKey(evt.name));
+  }
+
+  clearLog(name: string): void {
+    this.eventLogs[name] = [];
   }
 
   showPopup(evt: EventInfo): void {

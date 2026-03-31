@@ -1,5 +1,7 @@
 const fs = require("fs")
 const path = require("path")
+const os = require("os")
+const { execSync } = require("child_process")
 
 const EVENTS_JSON = "./packages/core/src/events.json"
 const OUTPUT_DIR = "D:\\SDK\\developer-portal\\docs\\web-sdk"
@@ -449,3 +451,42 @@ function buildDocs() {
 }
 
 buildDocs()
+
+function copyDirSync(src, dest, excludeDirs = []) {
+  if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true })
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    if (entry.isDirectory() && excludeDirs.includes(entry.name)) continue
+    const srcPath = path.join(src, entry.name)
+    const destPath = path.join(dest, entry.name)
+    if (entry.isDirectory()) {
+      copyDirSync(srcPath, destPath, excludeDirs)
+    } else {
+      fs.copyFileSync(srcPath, destPath)
+    }
+  }
+}
+
+function copyAssets() {
+  const STATIC_FILES_DIR = "D:\\SDK\\developer-portal\\static\\files"
+  if (!fs.existsSync(STATIC_FILES_DIR)) fs.mkdirSync(STATIC_FILES_DIR, { recursive: true })
+
+  // Copy tgz
+  const tgzSrc = path.join(__dirname, "dist/webview-sdk-core-1.0.0.tgz")
+  const tgzDest = path.join(STATIC_FILES_DIR, "webview-sdk-core-1.0.0.tgz")
+  fs.copyFileSync(tgzSrc, tgzDest)
+  console.log(`  -> Copied dist/webview-sdk-core-1.0.0.tgz -> ${tgzDest}`)
+
+  // Tạo demo.zip (bỏ dist, node_modules)
+  const tempParent = path.join(os.tmpdir(), "webview-sdk-export-" + Date.now())
+  const tempDemo = path.join(tempParent, "demo")
+  if (fs.existsSync(tempParent)) fs.rmSync(tempParent, { recursive: true })
+  copyDirSync(path.join(__dirname, "demo"), tempDemo, ["dist", "node_modules"])
+
+  const zipDest = path.join(STATIC_FILES_DIR, "demo.zip")
+  if (fs.existsSync(zipDest)) fs.unlinkSync(zipDest)
+  execSync(`powershell -Command "Compress-Archive -Path '${tempDemo}' -DestinationPath '${zipDest}'"`)
+  fs.rmSync(tempParent, { recursive: true })
+  console.log(`  -> Created demo.zip -> ${zipDest}`)
+}
+
+copyAssets()

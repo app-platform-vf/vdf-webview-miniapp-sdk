@@ -21,10 +21,6 @@ import type {
   RequestMultipleUserDataPermissionResponse,
   CheckMultipleUserDataPermissionRequest,
   CheckMultipleUserDataPermissionResponse,
-  RequestPermissionWithCodeRequest,
-  RequestPermissionWithCodeResponse,
-  CheckPermissionWithCodeRequest,
-  CheckPermissionWithCodeResponse,
   GetMultipleUserDataRequest,
   GetMultipleUserDataResponse,
   ClearPermissionCacheRequest,
@@ -109,14 +105,6 @@ import type {
   ClearStorageResponse,
   GetLocationRequest,
   GetLocationResponse,
-  SetBackgroundStatusBarColorRequest,
-  SetBackgroundStatusBarColorResponse,
-  SetNavigationBarColorRequest,
-  SetNavigationBarColorResponse,
-  UpdateStatusBarAppearanceRequest,
-  UpdateStatusBarAppearanceResponse,
-  UpdateNavigationBarAppearanceRequest,
-  UpdateNavigationBarAppearanceResponse,
   ShareTextContentRequest,
   ShareTextContentResponse,
   MiniAppTokenRequest,
@@ -212,7 +200,7 @@ export async function openMiniApp(payload: OpenMiniAppRequest): Promise<MiniAppR
  * Yêu cầu nhiều quyền user data cùng một lúc.
  * Event: REQUEST_MULTIPLE_USER_DATA_PERMISSION
  * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.permissionCodes (required) Danh sách mã quyền [default: "[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\"]"]
+ * @param payload.data.permissionCodes (required) Danh sách mã quyền [default: "[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\",\"USER_BIRTH_DATE_PERMISSION\",\"USER_GENDER_PERMISSION\",\"USER_NATIONAL_ID_PERMISSION\"]"]
  * @param payload.data.useSameReason (optional) Các quyền dùng chung 1 mã lý do [default: true]
  */
 export async function requestMultipleUserDataPermission(payload: RequestMultipleUserDataPermissionRequest): Promise<MiniAppResponse<RequestMultipleUserDataPermissionResponse>> {
@@ -225,7 +213,7 @@ export async function requestMultipleUserDataPermission(payload: RequestMultiple
  * Kiểm tra trạng thái nhiều quyền user data cùng lúc.
  * Event: CHECK_MULTIPLE_USER_DATA_PERMISSION
  * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.permissionCodes (required) Danh sách mã quyền [default: "[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\"]"]
+ * @param payload.data.permissionCodes (required) Danh sách mã quyền [default: "[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\",\"USER_BIRTH_DATE_PERMISSION\",\"USER_GENDER_PERMISSION\",\"USER_NATIONAL_ID_PERMISSION\"]"]
  */
 export async function checkMultipleUserDataPermission(payload: CheckMultipleUserDataPermissionRequest): Promise<MiniAppResponse<CheckMultipleUserDataPermissionResponse>> {
   const _p: any = { ...payload };
@@ -234,28 +222,10 @@ export async function checkMultipleUserDataPermission(payload: CheckMultipleUser
 }
 
 /**
- * Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).
- * Event: REQUEST_PERMISSION_WITH_CODE
- * @param payload.data.permissionCode (required) mã quyền [default: "USER_AGE_PERMISSION"]
- */
-export async function requestPermissionWithCode(payload: RequestPermissionWithCodeRequest): Promise<MiniAppResponse<RequestPermissionWithCodeResponse>> {
-  return send<RequestPermissionWithCodeResponse>('REQUEST_PERMISSION_WITH_CODE', payload);
-}
-
-/**
- * Kiểm tra trạng thái quyền cụ thể.
- * Event: CHECK_PERMISSION_WITH_CODE
- * @param payload.data.permissionCode (required) Tham so 1 [default: "USER_AGE_PERMISSION"]
- */
-export async function checkPermissionWithCode(payload: CheckPermissionWithCodeRequest): Promise<MiniAppResponse<CheckPermissionWithCodeResponse>> {
-  return send<CheckPermissionWithCodeResponse>('CHECK_PERMISSION_WITH_CODE', payload);
-}
-
-/**
  * Lấy nhiều trường dữ liệu người dùng từ host app.
  * Event: GET_MULTIPLE_USER_DATA
  * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.dataNames (required) Danh sách data cần lấy [default: "[\"age\", \"userName\", \"fullName\", \"phoneNumber\", \"avatar\"]"]
+ * @param payload.data.dataNames (required) Danh sách data cần lấy [default: "[\"age\", \"userName\", \"fullName\", \"phoneNumber\", \"avatar\", \"gender\", \"birthday\", \"idNo\"]"]
  */
 export async function getMultipleUserData(payload: GetMultipleUserDataRequest): Promise<MiniAppResponse<GetMultipleUserDataResponse>> {
   const _p: any = { ...payload };
@@ -621,54 +591,6 @@ export async function getLocation(): Promise<MiniAppResponse<GetLocationResponse
 }
 
 /**
- * Thay đổi màu nền status bar.
- * Event: SET_BACKGROUND_STATUS_BAR_COLOR
- * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.color (optional) Mã màu [default: "#FF5722"]
- */
-export async function setBackgroundStatusBarColor(payload: SetBackgroundStatusBarColorRequest = {} as any): Promise<MiniAppResponse<SetBackgroundStatusBarColorResponse>> {
-  const _p: any = { ...payload };
-  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
-  return send<SetBackgroundStatusBarColorResponse>('SET_BACKGROUND_STATUS_BAR_COLOR', _p);
-}
-
-/**
- * Thay đổi màu nền navigation bar.
- * Event: SET_NAVIGATION_BAR_COLOR
- * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.color (optional) Mã màu [default: "#2196F3"]
- */
-export async function setNavigationBarColor(payload: SetNavigationBarColorRequest = {} as any): Promise<MiniAppResponse<SetNavigationBarColorResponse>> {
-  const _p: any = { ...payload };
-  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
-  return send<SetNavigationBarColorResponse>('SET_NAVIGATION_BAR_COLOR', _p);
-}
-
-/**
- * Chuyển đổi status bar giữa dark mode và light mode.
- * Event: UPDATE_STATUS_BAR_APPEARANCE
- * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.appearance (optional) LIGHT hoặc DARK - Appearance mode cho status bar [default: "DARK"]
- */
-export async function updateStatusBarAppearance(payload: UpdateStatusBarAppearanceRequest = {} as any): Promise<MiniAppResponse<UpdateStatusBarAppearanceResponse>> {
-  const _p: any = { ...payload };
-  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
-  return send<UpdateStatusBarAppearanceResponse>('UPDATE_STATUS_BAR_APPEARANCE', _p);
-}
-
-/**
- * Chuyển đổi navigation bar giữa dark mode và light mode.
- * Event: UPDATE_NAVIGATION_BAR_APPEARANCE
- * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.appearance (optional) LIGHT hoặc DARK - Appearance mode cho status bar [default: "LIGHT"]
- */
-export async function updateNavigationBarAppearance(payload: UpdateNavigationBarAppearanceRequest = {} as any): Promise<MiniAppResponse<UpdateNavigationBarAppearanceResponse>> {
-  const _p: any = { ...payload };
-  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
-  return send<UpdateNavigationBarAppearanceResponse>('UPDATE_NAVIGATION_BAR_APPEARANCE', _p);
-}
-
-/**
  * Mở dialog chia sẻ nội dung text.
  * Event: SHARE_TEXT_CONTENT
  * @note data duoc JSON.stringify() truoc khi gui
@@ -750,10 +672,6 @@ export const MiniAppAPI = {
   requestMultipleUserDataPermission,
   /** Kiểm tra trạng thái nhiều quyền user data cùng lúc. */
   checkMultipleUserDataPermission,
-  /** Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level). */
-  requestPermissionWithCode,
-  /** Kiểm tra trạng thái quyền cụ thể. */
-  checkPermissionWithCode,
   /** Lấy nhiều trường dữ liệu người dùng từ host app. */
   getMultipleUserData,
   /** Xóa tất cả quyền đã cache ở local. */
@@ -838,14 +756,6 @@ export const MiniAppAPI = {
   clearStorage,
   /** Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này. */
   getLocation,
-  /** Thay đổi màu nền status bar. */
-  setBackgroundStatusBarColor,
-  /** Thay đổi màu nền navigation bar. */
-  setNavigationBarColor,
-  /** Chuyển đổi status bar giữa dark mode và light mode. */
-  updateStatusBarAppearance,
-  /** Chuyển đổi navigation bar giữa dark mode và light mode. */
-  updateNavigationBarAppearance,
   /** Mở dialog chia sẻ nội dung text. */
   shareTextContent,
   /** Get mini app token */
