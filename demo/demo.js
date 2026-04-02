@@ -193,8 +193,8 @@ function genAngularComponent(events) {
 
   const ts = `import { Component, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import {
-  getSharedMiniApp,
   MiniApp,
+  getSharedMiniApp,
   ${imports.join(",\n  ")},
 } from '@webview-sdk/core';
 
@@ -414,11 +414,11 @@ function genReactApp(events) {
   })
 
   return `import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import './App.css';
 import {
   getSharedMiniApp,
   ${imports.join(",\n  ")},
 } from '@webview-sdk/core';
-import './App.css';
 
 const app = getSharedMiniApp({ debug: true });
 
@@ -765,6 +765,259 @@ ${CSS_SHARED}
 }
 
 // ==================================================================
+// Vanilla HTML Generator (uses dist/bundle.js directly)
+// ==================================================================
+
+function genVanillaHTML(events) {
+  const groups = groupEvents(events)
+  const registry = buildEventRegistry(events)
+
+  // Build event data JSON for inline script
+  const groupsData = Object.entries(groups).map(([group, evts]) => {
+    const items = evts.map(evt => {
+      const r = registry.find(x => x.event === evt.event)
+      const defaultData = r.sample ? JSON.stringify(r.sample) : 'null'
+      return `      { name: ${JSON.stringify(r.camel)}, event: ${JSON.stringify(r.event)}, desc: ${JSON.stringify(r.description)}, hasParams: ${r.hasParams}, defaultData: ${r.hasParams ? JSON.stringify(defaultData) : 'null'} }`
+    })
+    return `  { title: ${JSON.stringify(group)}, events: [\n${items.join(",\n")}\n  ] }`
+  })
+
+  // Build fns map entries
+  const fnEntries = registry.map(r => {
+    if (r.hasParams) {
+      const defaultJson = JSON.stringify(r.sample)
+      return `    '${r.camel}': function() { return WebviewSdk.${r.camel}(getInputFor('${r.camel}') || ${defaultJson}); }`
+    }
+    return `    '${r.camel}': function() { return WebviewSdk.${r.camel}(); }`
+  })
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MiniApp SDK - Demo</title>
+  <style>
+${CSS_SHARED}
+  </style>
+</head>
+<body>
+  <div class="container" id="app"></div>
+
+  <script src="bundle.js"></script>
+  <script>
+  (function() {
+    'use strict';
+
+    var app = WebviewSdk.getSharedMiniApp({ debug: true });
+    app.ready();
+
+    var inputs = {};
+    var eventLogs = {};
+    var currentPopup = null;
+
+    var groups = [
+${groupsData.join(",\n")}
+    ];
+
+    function lsKey(name) { return 'webview_sdk_input_' + name; }
+
+    function getInputFor(name) {
+      var v = (inputs[name] || '').trim();
+      if (!v) return null;
+      try { return JSON.parse(v); } catch(e) { return null; }
+    }
+
+    var fns = {
+${fnEntries.join(",\n")},
+      'invoke': function() { return app.invoke((getInputFor('invoke') || {}).event || 'GET_LOCATION', getInputFor('invoke')); }
+    };
+
+    function logFor(name, msg, data) {
+      var entry = data ? msg + ': ' + JSON.stringify(data, null, 2) : msg;
+      if (!eventLogs[name]) eventLogs[name] = [];
+      eventLogs[name].unshift('[' + new Date().toLocaleTimeString() + '] ' + entry);
+    }
+
+    function getLogsStr(name) {
+      var l = eventLogs[name] || [];
+      return l.length ? l.join('\\n') : 'No logs yet.';
+    }
+
+    function runEvent(evt) {
+      var fn = fns[evt.name];
+      if (!fn) return;
+      logFor(evt.name, '> ' + evt.name + '...');
+      renderPopup();
+      fn().then(function(res) {
+        logFor(evt.name, 'OK ' + evt.name, res);
+        renderPopup();
+      }).catch(function(err) {
+        logFor(evt.name, 'ERR ' + evt.name, err);
+        renderPopup();
+      });
+    }
+
+    function fillInput(evt) {
+      var saved = localStorage.getItem(lsKey(evt.name));
+      if (saved) { try { inputs[evt.name] = JSON.stringify(JSON.parse(saved), null, 2); } catch(e) { inputs[evt.name] = saved; } }
+      else if (evt.defaultData) { inputs[evt.name] = JSON.stringify(JSON.parse(evt.defaultData), null, 2); }
+      renderPopup();
+    }
+
+    function saveInput(evt) {
+      var v = (inputs[evt.name] || '').trim();
+      if (v) localStorage.setItem(lsKey(evt.name), v);
+    }
+
+    function deleteInput(evt) {
+      localStorage.removeItem(lsKey(evt.name));
+    }
+
+    function clearLog(name) {
+      eventLogs[name] = [];
+      renderPopup();
+    }
+
+    function quickRun(evt) {
+      var saved = localStorage.getItem(lsKey(evt.name));
+      if (saved) { try { inputs[evt.name] = JSON.stringify(JSON.parse(saved), null, 2); } catch(e) { inputs[evt.name] = saved; } }
+      else if (evt.defaultData) { inputs[evt.name] = JSON.stringify(JSON.parse(evt.defaultData), null, 2); }
+      runEvent(evt);
+    }
+
+    // Long press
+    function setupLongPress(el, onLongPress, duration) {
+      duration = duration || 600;
+      var timer = null;
+      function start() {
+        el.classList.add('long-pressing');
+        timer = setTimeout(function() { timer = null; onLongPress(); el.classList.remove('long-pressing'); }, duration);
+      }
+      function cancel() { if (timer) { clearTimeout(timer); timer = null; } el.classList.remove('long-pressing'); }
+      el.addEventListener('touchstart', start, { passive: true });
+      el.addEventListener('touchend', cancel);
+      el.addEventListener('touchmove', cancel);
+    }
+
+    // Triple-tap select between quotes
+    function setupSmartTap(el) {
+      var tapCount = 0, tapTimer = null;
+      el.addEventListener('touchend', function() {
+        tapCount++;
+        if (tapTimer) clearTimeout(tapTimer);
+        tapTimer = setTimeout(function() {
+          if (tapCount >= 3) {
+            var pos = el.selectionStart || 0;
+            var text = el.value;
+            var start = text.lastIndexOf('"', pos - 1);
+            var end = text.indexOf('"', pos);
+            if (start !== -1 && end !== -1) { el.focus(); el.setSelectionRange(start + 1, end); }
+          }
+          tapCount = 0;
+        }, 300);
+      });
+    }
+
+    // ---- Rendering ----
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function renderApp() {
+      var html = '<h1>MiniApp SDK - Demo</h1>';
+
+      groups.forEach(function(g) {
+        html += '<section><h3 class="section-title">' + escapeHtml(g.title) + '</h3><div class="btn-group">';
+        g.events.forEach(function(evt) {
+          html += '<div class="evt-wrap"><button class="btn" data-evt="' + escapeHtml(evt.name) + '" title="' + escapeHtml(evt.desc) + '">' + escapeHtml(evt.name) + '</button></div>';
+        });
+        html += '</div></section>';
+      });
+
+      html += '<section><h3 class="section-title">Generic invoke()</h3><div class="btn-group">';
+      html += '<button class="btn" data-evt="invoke">invoke(input)</button>';
+      html += '</div></section>';
+      html += '<div style="padding:50px"></div>';
+
+      document.getElementById('app').innerHTML = html;
+
+      // Bind buttons
+      var allEvts = groups.reduce(function(a, g) { return a.concat(g.events); }, []);
+      allEvts.push({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: null });
+
+      document.querySelectorAll('.btn[data-evt]').forEach(function(btn) {
+        var evtName = btn.getAttribute('data-evt');
+        var evt = allEvts.find(function(e) { return e.name === evtName; });
+        if (!evt) return;
+        btn.addEventListener('click', function() {
+          currentPopup = currentPopup && currentPopup.name === evt.name ? null : evt;
+          renderPopup();
+        });
+        setupLongPress(btn, function() { quickRun(evt); });
+      });
+    }
+
+    function renderPopup() {
+      // Remove old
+      var oldOverlay = document.querySelector('.popup-overlay');
+      var oldPopup = document.querySelector('.popup-custom');
+      if (oldOverlay) oldOverlay.remove();
+      if (oldPopup) oldPopup.remove();
+
+      if (!currentPopup) return;
+      var evt = currentPopup;
+
+      // Overlay
+      var overlay = document.createElement('div');
+      overlay.className = 'popup-overlay';
+      overlay.addEventListener('click', function() { currentPopup = null; renderPopup(); });
+      document.body.appendChild(overlay);
+
+      // Popup
+      var popup = document.createElement('div');
+      popup.className = 'popup-custom';
+      var h = '<div class="popup-title">' + escapeHtml(evt.event) + '</div>';
+      if (evt.desc) h += '<div class="popup-desc">' + escapeHtml(evt.desc) + '</div>';
+      h += '<div class="popup-actions">';
+      h += '<button class="btn btn-run" id="popup-run">Run</button>';
+      if (evt.hasParams) {
+        h += '<button class="btn btn-fill" id="popup-fill">Fill Input</button>';
+        h += '<button class="btn btn-save" id="popup-save">Save</button>';
+        h += '<button class="btn btn-delete" id="popup-delete">Delete</button>';
+      }
+      h += '<button class="btn" id="popup-clear" style="margin-left:auto">Clear Log</button>';
+      h += '</div>';
+      if (evt.hasParams) {
+        h += '<textarea class="input-area" id="popup-input" rows="15" placeholder="' + escapeHtml('{"key":"value"}') + '">' + escapeHtml(inputs[evt.name] || '') + '</textarea>';
+      }
+      h += '<pre class="popup-log" id="popup-log">' + escapeHtml(getLogsStr(evt.name)) + '</pre>';
+      popup.innerHTML = h;
+      document.body.appendChild(popup);
+
+      // Bind popup buttons
+      document.getElementById('popup-run').addEventListener('click', function() { runEvent(evt); });
+      if (evt.hasParams) {
+        var ta = document.getElementById('popup-input');
+        ta.addEventListener('input', function() { inputs[evt.name] = ta.value; });
+        setupSmartTap(ta);
+        document.getElementById('popup-fill').addEventListener('click', function() { fillInput(evt); });
+        document.getElementById('popup-save').addEventListener('click', function() { saveInput(evt); });
+        document.getElementById('popup-delete').addEventListener('click', function() { deleteInput(evt); });
+      }
+      document.getElementById('popup-clear').addEventListener('click', function() { clearLog(evt.name); });
+    }
+
+    renderApp();
+  })();
+  </script>
+</body>
+</html>
+`
+}
+
+// ==================================================================
 // Main
 // ==================================================================
 
@@ -793,4 +1046,14 @@ const vue = genVueApp(config.events)
 fs.writeFileSync(path.join(__dirname, "vue/src/App.vue"), vue)
 console.log("Generated: vue/src/App.vue")
 
-console.log("\nDone! All 3 demos generated from events.json")
+// Vanilla HTML (standalone — uses dist/bundle.js directly)
+const vanilla = genVanillaHTML(config.events)
+const vanillaDir = path.join(__dirname, "vanilla")
+if (!fs.existsSync(vanillaDir)) fs.mkdirSync(vanillaDir, { recursive: true })
+fs.writeFileSync(path.join(vanillaDir, "index.html"), vanilla)
+// Copy bundle.js alongside index.html
+fs.copyFileSync(path.join(__dirname, "../dist/bundle.js"), path.join(vanillaDir, "bundle.js"))
+console.log("Generated: vanilla/index.html")
+console.log("Copied:    vanilla/bundle.js")
+
+console.log("\nDone! All demos generated from events.json (Angular, React, Vue, Vanilla HTML)")

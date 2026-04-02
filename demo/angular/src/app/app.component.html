@@ -36,7 +36,7 @@
         </div>
         <textarea *ngIf="popup.hasParams"
             class="input-area"
-            rows="5"
+            rows="15"
             [value]="getInputStr(popup.name)"
             (input)="setInputStr(popup.name, $any($event.target).value)"
             (focus)="onInputFocus($event)"

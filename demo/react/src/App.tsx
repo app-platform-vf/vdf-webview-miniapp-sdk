@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import './App.css';
 import {
   getSharedMiniApp,
   appOpenWebview,
@@ -54,7 +55,6 @@ import {
   miniAppToken,
   updateMiniAppTheme,
 } from '@webview-sdk/core';
-import './App.css';
 
 const app = getSharedMiniApp({ debug: true });
 
@@ -345,7 +345,7 @@ export default function App() {
           {popup.hasParams && (
             <textarea
               ref={textareaRef}
-              rows={5}
+              rows={15}
               value={inputs[popup.name] || ''}
               onChange={e => setInputs(p => ({ ...p, [popup.name]: e.target.value }))}
               placeholder='{"key":"value"}'

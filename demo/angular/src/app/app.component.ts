@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import {
-  getSharedMiniApp,
   MiniApp,
+  getSharedMiniApp,
   appOpenWebview,
   appOpenStore,
   exit,
