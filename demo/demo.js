@@ -805,6 +805,10 @@ ${CSS_SHARED}
   <div class="container" id="app"></div>
 
   <script src="bundle.js"></script>
+  <script src="vconsole.min.js"></script>
+  <script>
+    var vConsole = new VConsole();
+  </script>
   <script>
   (function() {
     'use strict';

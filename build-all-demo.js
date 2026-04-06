@@ -50,6 +50,9 @@ function buildVanilla(base) {
 
   // Copy bundle.js
   fs.copyFileSync(path.join(srcDir, "bundle.js"), path.join(distDir, "bundle.js"))
+  
+  // Copy vconsole.min.js
+  fs.copyFileSync(path.join(srcDir, "vconsole.min.js"), path.join(distDir, "vconsole.min.js"))
 
   // Copy index.html và inject <base href>
   let html = fs.readFileSync(path.join(srcDir, "index.html"), "utf8")

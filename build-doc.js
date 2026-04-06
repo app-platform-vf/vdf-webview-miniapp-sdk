@@ -4,7 +4,7 @@ const os = require("os")
 const { execSync } = require("child_process")
 
 const EVENTS_JSON = "./packages/core/src/events.json"
-const OUTPUT_DIR = "D:\\SDK\\developer-portal\\docs\\web-sdk"
+const OUTPUT_DIR = "D:\\SDK\\developer-portal\\docs\\API"
 
 function toCamelCase(str) {
   return str.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase())
@@ -505,8 +505,8 @@ function buildDocs() {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true })
   }
 
-  if (!fs.existsSync(OUTPUT_DIR + '/SDK Function')) {
-    fs.mkdirSync(OUTPUT_DIR + '/SDK Function', { recursive: true })
+  if (!fs.existsSync(OUTPUT_DIR + '/Danh sách API')) {
+    fs.mkdirSync(OUTPUT_DIR + '/Danh sách API', { recursive: true })
   }
 
   const eventsData = JSON.parse(fs.readFileSync(EVENTS_JSON, "utf8"))
@@ -514,7 +514,7 @@ function buildDocs() {
   const docs = generateMarkdown(events)
 
   docs.forEach(doc => {
-    fs.writeFileSync(path.join(OUTPUT_DIR + (categoryOrder.includes(doc.title) ? '/SDK Function' : ''), doc.filename), doc.content)
+    fs.writeFileSync(path.join(OUTPUT_DIR + (categoryOrder.includes(doc.title) ? '/Danh sách API' : ''), doc.filename), doc.content)
     console.log(`  -> ${doc.filename} (generated)`)
   })
 
