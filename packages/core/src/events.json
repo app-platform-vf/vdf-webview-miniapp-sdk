@@ -171,11 +171,11 @@
               "description": "Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)\t;  ",
               "default": "{       \"mode\": \"present\"     }"
             },
-            "navStyle": {
+            "themeConfig": {
               "type": "object",
               "required": false,
               "description": "Style cho navigation bar",
-              "default": "{       \"color\": \"#FF0000\",       \"hidden\": \"false\"     }"
+              "default": "{       \"title\": \"My App\",       \"headerColor\": \"#EE0033\",       \"headerTitle\": \"Videos\",       \"textColor\": \"white\",       \"leftButton\": \"back\",       \"actionButtonThemeType\": \"normal\",       \"hideAndroidBottomNavigationBar\": true,       \"hideIOSSafeAreaBottom\": true     }"
             },
             "tracking": {
               "type": "object",
@@ -201,7 +201,7 @@
               "type": "array",
               "items": "string",
               "description": "Danh sách mã quyền",
-              "default": "[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\"]"
+              "default": "[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\",\"USER_BIRTH_DATE_PERMISSION\",\"USER_GENDER_PERMISSION\",\"USER_NATIONAL_ID_PERMISSION\"]"
             },
             "useSameReason": {
               "type": "boolean",
@@ -254,7 +254,7 @@
               "type": "array",
               "items": "string",
               "description": "Danh sách mã quyền",
-              "default": "[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\"]"
+              "default": "[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\",\"USER_BIRTH_DATE_PERMISSION\",\"USER_GENDER_PERMISSION\",\"USER_NATIONAL_ID_PERMISSION\"]"
             }
           }
         }
@@ -289,59 +289,6 @@
       }
     },
     {
-      "event": "REQUEST_PERMISSION_WITH_CODE",
-      "description": "Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).",
-      "request": {
-        "data": {
-          "meta_data": "object",
-          "required": true,
-          "description": "Du lieu",
-          "fields": {
-            "permissionCode": {
-              "type": "string",
-              "required": true,
-              "description": "mã quyền",
-              "default": "USER_AGE_PERMISSION"
-            }
-          }
-        }
-      },
-      "response": {
-        "permissionCode": {
-          "meta_data": "string",
-          "required": false
-        },
-        "result": {
-          "meta_data": "string",
-          "required": false
-        },
-        "message": {
-          "meta_data": "string",
-          "required": false
-        }
-      }
-    },
-    {
-      "event": "CHECK_PERMISSION_WITH_CODE",
-      "description": "Kiểm tra trạng thái quyền cụ thể.",
-      "request": {
-        "data": {
-          "meta_data": "object",
-          "required": true,
-          "description": "Du lieu",
-          "fields": {
-            "permissionCode": {
-              "type": "string",
-              "required": true,
-              "description": "Tham so 1",
-              "default": "USER_AGE_PERMISSION"
-            }
-          }
-        }
-      },
-      "response": {}
-    },
-    {
       "event": "GET_MULTIPLE_USER_DATA",
       "description": "Lấy nhiều trường dữ liệu người dùng từ host app.",
       "request": {
@@ -354,7 +301,7 @@
               "type": "array",
               "items": "string",
               "description": "Danh sách data cần lấy",
-              "default": "[\"age\", \"userName\", \"fullName\", \"phone\", \"email\", \"avatar\"]"
+              "default": "[\"age\", \"userName\", \"fullName\", \"phoneNumber\", \"avatar\", \"gender\", \"birthday\", \"idNo\"]"
             }
           }
         }
@@ -372,11 +319,7 @@
           "meta_data": "string",
           "required": false
         },
-        "email": {
-          "meta_data": "string",
-          "required": false
-        },
-        "phone": {
+        "phoneNumber": {
           "meta_data": "string",
           "required": false
         },
@@ -388,11 +331,11 @@
           "meta_data": "string",
           "required": false
         },
-        "address": {
+        "birthday": {
           "meta_data": "string",
           "required": false
         },
-        "userId": {
+        "idNo": {
           "meta_data": "string",
           "required": false
         }
@@ -1322,82 +1265,6 @@
       }
     },
     {
-      "event": "SET_BACKGROUND_STATUS_BAR_COLOR",
-      "description": "Thay đổi màu nền status bar.",
-      "request": {
-        "data": {
-          "meta_data": "stringify",
-          "required": false,
-          "fields": {
-            "color": {
-              "type": "string",
-              "required": false,
-              "description": "Mã màu",
-              "default": "#FF5722"
-            }
-          }
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "SET_NAVIGATION_BAR_COLOR",
-      "description": "Thay đổi màu nền navigation bar.",
-      "request": {
-        "data": {
-          "meta_data": "stringify",
-          "required": false,
-          "fields": {
-            "color": {
-              "type": "string",
-              "required": false,
-              "description": "Mã màu",
-              "default": "#2196F3"
-            }
-          }
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "UPDATE_STATUS_BAR_APPEARANCE",
-      "description": "Chuyển đổi status bar giữa dark mode và light mode.",
-      "request": {
-        "data": {
-          "meta_data": "stringify",
-          "required": false,
-          "fields": {
-            "appearance": {
-              "type": "string",
-              "required": false,
-              "description": "LIGHT hoặc DARK - Appearance mode cho status bar",
-              "default": "DARK"
-            }
-          }
-        }
-      },
-      "response": {}
-    },
-    {
-      "event": "UPDATE_NAVIGATION_BAR_APPEARANCE",
-      "description": "Chuyển đổi navigation bar giữa dark mode và light mode.",
-      "request": {
-        "data": {
-          "meta_data": "stringify",
-          "required": false,
-          "fields": {
-            "appearance": {
-              "type": "string",
-              "required": false,
-              "description": "LIGHT hoặc DARK - Appearance mode cho status bar",
-              "default": "LIGHT "
-            }
-          }
-        }
-      },
-      "response": {}
-    },
-    {
       "event": "SHARE_TEXT_CONTENT",
       "description": "Mở dialog chia sẻ nội dung text.",
       "request": {
@@ -1410,6 +1277,87 @@
               "required": false,
               "description": "Text nội dung",
               "default": "Check out this amazing product!"
+            }
+          }
+        }
+      },
+      "response": {}
+    },
+    {
+      "event": "MINI_APP_TOKEN",
+      "description": "Get mini app token",
+      "request": {},
+      "response": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Ket qua",
+          "fields": {
+            "miniAppToken": {
+              "type": "string",
+              "required": true,
+              "description": "miniAppToken"
+            }
+          }
+        }
+      }
+    },
+    {
+      "event": "UPDATE_MINI_APP_THEME",
+      "description": "Update mini app theme",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Du lieu",
+          "fields": {
+            "headerColor": {
+              "type": "string",
+              "required": false,
+              "description": "Miniapp header background color",
+              "default": "#FFFFFF"
+            },
+            "headerTitle": {
+              "type": "string",
+              "required": false,
+              "description": "Miniapp header title",
+              "default": "Mini App"
+            },
+            "textColor": {
+              "type": "string",
+              "required": false,
+              "description": "Miniapp header text and button color ",
+              "default": "#EE0033"
+            },
+            "leftButton": {
+              "type": "string",
+              "required": false,
+              "description": "back - back button, none - không có gì",
+              "default": "back"
+            },
+            "actionButtonThemeType": {
+              "type": "string",
+              "required": false,
+              "description": "Mode hiển thị action: light - sáng , dark - tối ",
+              "default": "light"
+            },
+            "hideAndroidBottomNavigationBar": {
+              "type": "boolean",
+              "required": false,
+              "description": "Ẩn hiện android bottom bar",
+              "default": false
+            },
+            "hideIOSSafeAreaBottom": {
+              "type": "boolean",
+              "required": false,
+              "description": "Ẩn hiện ios bottom safe area",
+              "default": false
+            },
+            "toolbarMode": {
+              "type": "string",
+              "required": false,
+              "description": "Mode hiển thị header: normal  - bình thường , hidden - ẩn, transparent - trong suốt",
+              "default": "normal"
             }
           }
         }

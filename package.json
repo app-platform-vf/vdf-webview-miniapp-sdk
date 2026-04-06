@@ -8,9 +8,16 @@
         "create-event": "node packages/core/src/event.js",
         "doc": "node build-doc.js",
         "build": "npm run build --workspace packages/core",
-        "pack": "npm run create-event && npm run build && node scripts/copy-core-lib.js"
+        "pack": "npm run create-event && npm run build && npm run build:js && node scripts/copy-core-lib.js",
+        "demo": "node build-all-demo.js",
+        "build:ts": "tsc -p packages/core/tsconfig.json",
+        "build:bundle": "rollup -c",
+        "build:js": "npm run build:ts && npm run build:bundle"
     },
     "devDependencies": {
+        "@rollup/plugin-commonjs": "^29.0.2",
+        "@rollup/plugin-node-resolve": "^16.0.3",
+        "rollup": "^4.60.1",
         "typescript": "^5.9.3"
     }
 }

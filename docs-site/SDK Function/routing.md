@@ -164,7 +164,7 @@ if (isSuccess(res)) {
 | `miniappKey` | `string` | *optional* | Key của Mini App cần mở  `01K5FY191HP42SMMJXHWG545ZZ` |
 | `additional` | `object` | *optional* | Dữ liệu bổ sung truyền cho Mini App  `{       "param1": "value1",       "param2": "value2"     }` |
 | `launchConfig` | `object` | *optional* | Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)	;   `{       "mode": "present"     }` |
-| `navStyle` | `object` | *optional* | Style cho navigation bar `{       "color": "#FF0000",       "hidden": "false"     }` |
+| `themeConfig` | `object` | *optional* | Style cho navigation bar `{       "title": "My App",       "headerColor": "#EE0033",       "headerTitle": "Videos",       "textColor": "white",       "leftButton": "back",       "actionButtonThemeType": "normal",       "hideAndroidBottomNavigationBar": true,       "hideIOSSafeAreaBottom": true     }` |
 | `tracking` | `object` | *optional* | Thông tin tracking `{       "campaign": "promotion",       "utmSource": "miniapp"     }` |
 
 
@@ -182,7 +182,7 @@ const res = await openMiniApp({ data: {
       miniappKey: "01K5FY191HP42SMMJXHWG545ZZ",
       additional: { "param1": "value1", "param2": "value2" },
       launchConfig: { "mode": "present" },
-      navStyle: { "color": "#FF0000", "hidden": "false" },
+      themeConfig: { "title": "My App", "headerColor": "#EE0033", "headerTitle": "Videos", "textColor": "white", "leftButton": "back", "actionButtonThemeType": "normal", "hideAndroidBottomNavigationBar": true, "hideIOSSafeAreaBottom": true },
       tracking: { "campaign": "promotion", "utmSource": "miniapp" }
     } })
 if (isSuccess(res)) {

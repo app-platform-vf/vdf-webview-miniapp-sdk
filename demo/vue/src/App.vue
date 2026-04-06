@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import {
   getSharedMiniApp,
   appOpenWebview,
@@ -9,8 +9,6 @@ import {
   openMiniApp,
   requestMultipleUserDataPermission,
   checkMultipleUserDataPermission,
-  requestPermissionWithCode,
-  checkPermissionWithCode,
   getMultipleUserData,
   clearPermissionCache,
   requestCameraPermission,
@@ -53,42 +51,72 @@ import {
   getFloatValue,
   clearStorage,
   getLocation,
-  setBackgroundStatusBarColor,
-  setNavigationBarColor,
-  updateStatusBarAppearance,
-  updateNavigationBarAppearance,
   shareTextContent,
+  miniAppToken,
+  updateMiniAppTheme,
 } from '@webview-sdk/core';
 
 const app = getSharedMiniApp({ debug: true });
-const logs = ref<string[]>([]);
-const input = ref('');
+const inputs = ref<Record<string, string>>({});
+const eventLogs = ref<Record<string, string[]>>({});
 const popup = ref<any>(null);
+const smartTapReady = new WeakSet<HTMLTextAreaElement>();
 
-const formatLog = computed(() => {
-  return logs.value.length ? logs.value.join('\n') : 'No logs yet.';
-});
+
+function selectBetweenChar(el: HTMLTextAreaElement, char: string): void {
+  const pos = el.selectionStart ?? 0;
+  const text = el.value;
+  const start = text.lastIndexOf(char, pos - 1);
+  const end = text.indexOf(char, pos);
+  if (start === -1 || end === -1) return;
+  el.focus();
+  el.setSelectionRange(start + 1, end);
+}
+function setupSmartTap(el: HTMLTextAreaElement): void {
+  let tapCount = 0;
+  let tapTimer: ReturnType<typeof setTimeout> | null = null;
+  el.addEventListener('touchend', () => {
+    tapCount++;
+    if (tapTimer) clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => {
+      if (tapCount >= 3) selectBetweenChar(el, '"');
+      tapCount = 0;
+    }, 300);
+  });
+}
+function setupLongPress(el: HTMLElement, onLongPress: () => void, duration = 600): void {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  const start = () => {
+    el.classList.add('long-pressing');
+    timer = setTimeout(() => { timer = null; onLongPress(); el.classList.remove('long-pressing'); }, duration);
+  };
+  const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } el.classList.remove('long-pressing'); };
+  el.addEventListener('touchstart', start, { passive: true });
+  el.addEventListener('touchend', cancel);
+  el.addEventListener('touchmove', cancel);
+}
+
 
 onMounted(() => { app.ready(); });
 
-function getInput(): any {
-  const v = input.value.trim();
+const lsKey = (name: string) => `webview_sdk_input_${name}`;
+
+function getInputFor(name: string): any {
+  const v = (inputs.value[name] || '').trim();
   if (!v) return null;
   try { return JSON.parse(v); } catch { return null; }
 }
 
 const fns: Record<string, () => Promise<any>> = {
-  'appOpenWebview': () => appOpenWebview(getInput() || {'data':{'url':'https://example.com','serviceName':'Tên dịch vụ','isPaymentConfirm':false,'resourceType':'HTML','returnUrl':'https://example.com/return','cancelUrl':'https://example.com/cancel'}}),
-  'appOpenStore': () => appOpenStore(getInput() || {'data':{'fallbackUrlAndroid':'market://details?id=com.example.app','fallbackUrlIos':'itms-apps://itunes.apple.com/app/id123456789'}}),
-  'exit': () => exit(getInput() || {'data':{'navigationAction':'RETURN_HOME_APP'}}),
-  'openExternalLink': () => openExternalLink(getInput() || {'data':{'uri':'https://google.com'}}),
-  'openMiniApp': () => openMiniApp(getInput() || {'data':{'route':{'screenName':'home'},'miniappKey':'01K5FY191HP42SMMJXHWG545ZZ','additional':{'param1':'value1','param2':'value2'},'launchConfig':{'mode':'present'},'navStyle':{'color':'#FF0000','hidden':'false'},'tracking':{'campaign':'promotion','utmSource':'miniapp'}}}),
-  'requestMultipleUserDataPermission': () => requestMultipleUserDataPermission(getInput() || {'data':{'permissionCodes':['USER_AGE_PERMISSION','USER_NAME_PERMISSION','USER_FULL_NAME_PERMISSION','USER_PHONE_NUMBER_PERMISSION','USER_AVATAR_PERMISSION'],'useSameReason':true}}),
-  'checkMultipleUserDataPermission': () => checkMultipleUserDataPermission(getInput() || {'data':{'permissionCodes':['USER_AGE_PERMISSION','USER_NAME_PERMISSION','USER_FULL_NAME_PERMISSION','USER_PHONE_NUMBER_PERMISSION','USER_AVATAR_PERMISSION']}}),
-  'requestPermissionWithCode': () => requestPermissionWithCode(getInput() || {'data':{'permissionCode':'USER_AGE_PERMISSION'}}),
-  'checkPermissionWithCode': () => checkPermissionWithCode(getInput() || {'data':{'permissionCode':'USER_AGE_PERMISSION'}}),
-  'getMultipleUserData': () => getMultipleUserData(getInput() || {'data':{'dataNames':['age','userName','fullName','phone','email','avatar']}}),
-  'clearPermissionCache': () => clearPermissionCache(getInput() || {'data':{}}),
+  'appOpenWebview': () => appOpenWebview(getInputFor('appOpenWebview') || {'data':{'url':'https://example.com','serviceName':'Tên dịch vụ','isPaymentConfirm':false,'resourceType':'HTML','returnUrl':'https://example.com/return','cancelUrl':'https://example.com/cancel'}}),
+  'appOpenStore': () => appOpenStore(getInputFor('appOpenStore') || {'data':{'fallbackUrlAndroid':'market://details?id=com.example.app','fallbackUrlIos':'itms-apps://itunes.apple.com/app/id123456789'}}),
+  'exit': () => exit(getInputFor('exit') || {'data':{'navigationAction':'RETURN_HOME_APP'}}),
+  'openExternalLink': () => openExternalLink(getInputFor('openExternalLink') || {'data':{'uri':'https://google.com'}}),
+  'openMiniApp': () => openMiniApp(getInputFor('openMiniApp') || {'data':{'route':{'screenName':'home'},'miniappKey':'01K5FY191HP42SMMJXHWG545ZZ','additional':{'param1':'value1','param2':'value2'},'launchConfig':{'mode':'present'},'themeConfig':{'title':'My App','headerColor':'#EE0033','headerTitle':'Videos','textColor':'white','leftButton':'back','actionButtonThemeType':'normal','hideAndroidBottomNavigationBar':true,'hideIOSSafeAreaBottom':true},'tracking':{'campaign':'promotion','utmSource':'miniapp'}}}),
+  'requestMultipleUserDataPermission': () => requestMultipleUserDataPermission(getInputFor('requestMultipleUserDataPermission') || {'data':{'permissionCodes':['USER_AGE_PERMISSION','USER_NAME_PERMISSION','USER_FULL_NAME_PERMISSION','USER_PHONE_NUMBER_PERMISSION','USER_AVATAR_PERMISSION','USER_BIRTH_DATE_PERMISSION','USER_GENDER_PERMISSION','USER_NATIONAL_ID_PERMISSION'],'useSameReason':true}}),
+  'checkMultipleUserDataPermission': () => checkMultipleUserDataPermission(getInputFor('checkMultipleUserDataPermission') || {'data':{'permissionCodes':['USER_AGE_PERMISSION','USER_NAME_PERMISSION','USER_FULL_NAME_PERMISSION','USER_PHONE_NUMBER_PERMISSION','USER_AVATAR_PERMISSION','USER_BIRTH_DATE_PERMISSION','USER_GENDER_PERMISSION','USER_NATIONAL_ID_PERMISSION']}}),
+  'getMultipleUserData': () => getMultipleUserData(getInputFor('getMultipleUserData') || {'data':{'dataNames':['age','userName','fullName','phoneNumber','avatar','gender','birthday','idNo']}}),
+  'clearPermissionCache': () => clearPermissionCache(getInputFor('clearPermissionCache') || {'data':{}}),
   'requestCameraPermission': () => requestCameraPermission(),
   'requestLocationPermission': () => requestLocationPermission(),
   'requestPhotosPermission': () => requestPhotosPermission(),
@@ -113,28 +141,26 @@ const fns: Record<string, () => Promise<any>> = {
   'checkPaymentPermission': () => checkPaymentPermission(),
   'checkLoginPermission': () => checkLoginPermission(),
   'checkLocalAuthenticationPermission': () => checkLocalAuthenticationPermission(),
-  'executeLocalAuthentication': () => executeLocalAuthentication(getInput() || {'data':{'authOptionsParam':{'sensitiveTransaction':true,'authClassification':['WEAK','STRONG','DEVICE'],'sticky':false,'isShowErrorDialog':true}}}),
+  'executeLocalAuthentication': () => executeLocalAuthentication(getInputFor('executeLocalAuthentication') || {'data':{'authOptionsParam':{'sensitiveTransaction':true,'authClassification':['WEAK','STRONG','DEVICE'],'sticky':false,'isShowErrorDialog':true}}}),
   'getLocalAuthenticationStatus': () => getLocalAuthenticationStatus(),
-  'getContacts': () => getContacts(getInput() || {'data':{'filter':{'contactName':'John'},'pager':{'pageNumber':1,'limitRow':100}}}),
-  'pickFile': () => pickFile(getInput() || {'data':{'mimeType':['image/*','video/*'],'isCapture':true,'source':'PhotoLibrary'}}),
-  'saveStringValue': () => saveStringValue(getInput() || {'data':{'key':'user_preference','value':'dark_mode'}}),
-  'saveBooleanValue': () => saveBooleanValue(getInput() || {'data':{'key':'notifications_enabled','value':true}}),
-  'saveIntegerValue': () => saveIntegerValue(getInput() || {'data':{'key':'login_count','value':5}}),
-  'saveLongValue': () => saveLongValue(getInput() || {'data':{'key':'last_sync_timestamp','value':1234567890}}),
-  'saveFloatValue': () => saveFloatValue(getInput() || {'data':{'key':'rating','value':4.5}}),
-  'getStringValue': () => getStringValue(getInput() || {'data':{'key':'user_preference','defaultValue':'light_mode'}}),
-  'getBooleanValue': () => getBooleanValue(getInput() || {'data':{'key':'notifications_enabled','defaultValue':false}}),
-  'getIntegerValue': () => getIntegerValue(getInput() || {'data':{'key':'...','defaultValue':0}}),
-  'getLongValue': () => getLongValue(getInput() || {'data':{'key':'...','defaultValue':0}}),
-  'getFloatValue': () => getFloatValue(getInput() || {'data':{'key':'...','defaultValue':'...'}}),
+  'getContacts': () => getContacts(getInputFor('getContacts') || {'data':{'filter':{'contactName':'John'},'pager':{'pageNumber':1,'limitRow':100}}}),
+  'pickFile': () => pickFile(getInputFor('pickFile') || {'data':{'mimeType':['image/*','video/*'],'isCapture':true,'source':'PhotoLibrary'}}),
+  'saveStringValue': () => saveStringValue(getInputFor('saveStringValue') || {'data':{'key':'user_preference','value':'dark_mode'}}),
+  'saveBooleanValue': () => saveBooleanValue(getInputFor('saveBooleanValue') || {'data':{'key':'notifications_enabled','value':true}}),
+  'saveIntegerValue': () => saveIntegerValue(getInputFor('saveIntegerValue') || {'data':{'key':'login_count','value':5}}),
+  'saveLongValue': () => saveLongValue(getInputFor('saveLongValue') || {'data':{'key':'last_sync_timestamp','value':1234567890}}),
+  'saveFloatValue': () => saveFloatValue(getInputFor('saveFloatValue') || {'data':{'key':'rating','value':4.5}}),
+  'getStringValue': () => getStringValue(getInputFor('getStringValue') || {'data':{'key':'user_preference','defaultValue':'light_mode'}}),
+  'getBooleanValue': () => getBooleanValue(getInputFor('getBooleanValue') || {'data':{'key':'notifications_enabled','defaultValue':false}}),
+  'getIntegerValue': () => getIntegerValue(getInputFor('getIntegerValue') || {'data':{'key':'...','defaultValue':0}}),
+  'getLongValue': () => getLongValue(getInputFor('getLongValue') || {'data':{'key':'...','defaultValue':0}}),
+  'getFloatValue': () => getFloatValue(getInputFor('getFloatValue') || {'data':{'key':'...','defaultValue':'...'}}),
   'clearStorage': () => clearStorage(),
   'getLocation': () => getLocation(),
-  'setBackgroundStatusBarColor': () => setBackgroundStatusBarColor(getInput() || {'data':{'color':'#FF5722'}}),
-  'setNavigationBarColor': () => setNavigationBarColor(getInput() || {'data':{'color':'#2196F3'}}),
-  'updateStatusBarAppearance': () => updateStatusBarAppearance(getInput() || {'data':{'appearance':'DARK'}}),
-  'updateNavigationBarAppearance': () => updateNavigationBarAppearance(getInput() || {'data':{'appearance':'LIGHT '}}),
-  'shareTextContent': () => shareTextContent(getInput() || {'data':{'content':'Check out this amazing product!'}}),
-  'invoke': () => app.invoke(getInput()?.event || 'GET_LOCATION', getInput()),
+  'shareTextContent': () => shareTextContent(getInputFor('shareTextContent') || {'data':{'content':'Check out this amazing product!'}}),
+  'miniAppToken': () => miniAppToken(),
+  'updateMiniAppTheme': () => updateMiniAppTheme(getInputFor('updateMiniAppTheme') || {'data':{'headerColor':'#FFFFFF','headerTitle':'Mini App','textColor':'#EE0033','leftButton':'back','actionButtonThemeType':'light','hideAndroidBottomNavigationBar':false,'hideIOSSafeAreaBottom':false,'toolbarMode':'normal'}}),
+  'invoke': () => app.invoke(getInputFor('invoke')?.event || 'GET_LOCATION', getInputFor('invoke')),
 };
 
 interface EventInfo {
@@ -151,14 +177,22 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'appOpenStore', event: 'APP_OPEN_STORE', desc: 'Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.', hasParams: true, defaultData: '{"data":{"fallbackUrlAndroid":"market://details?id=com.example.app","fallbackUrlIos":"itms-apps://itunes.apple.com/app/id123456789"}}' },
       { name: 'exit', event: 'EXIT', desc: 'Đóng Mini App và điều hướng về màn hình khác.', hasParams: true, defaultData: '{"data":{"navigationAction":"RETURN_HOME_APP"}}' },
       { name: 'openExternalLink', event: 'OPEN_EXTERNAL_LINK', desc: 'Mở URL bằng browser mặc định của hệ thống.', hasParams: true, defaultData: '{"data":{"uri":"https://google.com"}}' },
-      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: 'Mở một Mini App khác từ Mini App hiện tại.', hasParams: true, defaultData: '{"data":{"route":{"screenName":"home"},"miniappKey":"01K5FY191HP42SMMJXHWG545ZZ","additional":{"param1":"value1","param2":"value2"},"launchConfig":{"mode":"present"},"navStyle":{"color":"#FF0000","hidden":"false"},"tracking":{"campaign":"promotion","utmSource":"miniapp"}}}' }
+      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: 'Mở một Mini App khác từ Mini App hiện tại.', hasParams: true, defaultData: '{"data":{"route":{"screenName":"home"},"miniappKey":"01K5FY191HP42SMMJXHWG545ZZ","additional":{"param1":"value1","param2":"value2"},"launchConfig":{"mode":"present"},"themeConfig":{"title":"My App","headerColor":"#EE0033","headerTitle":"Videos","textColor":"white","leftButton":"back","actionButtonThemeType":"normal","hideAndroidBottomNavigationBar":true,"hideIOSSafeAreaBottom":true},"tracking":{"campaign":"promotion","utmSource":"miniapp"}}}' }
   ] },
   { title: 'UserData Permission', events: [
-      { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: 'Yêu cầu nhiều quyền user data cùng một lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION"],"useSameReason":true}}' },
-      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: 'Kiểm tra trạng thái nhiều quyền user data cùng lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION"]}}' }
+      { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: 'Yêu cầu nhiều quyền user data cùng một lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION","USER_BIRTH_DATE_PERMISSION","USER_GENDER_PERMISSION","USER_NATIONAL_ID_PERMISSION"],"useSameReason":true}}' },
+      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: 'Kiểm tra trạng thái nhiều quyền user data cùng lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION","USER_BIRTH_DATE_PERMISSION","USER_GENDER_PERMISSION","USER_NATIONAL_ID_PERMISSION"]}}' }
+  ] },
+  { title: 'Get data event', events: [
+      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: 'Lấy nhiều trường dữ liệu người dùng từ host app.', hasParams: true, defaultData: '{"data":{"dataNames":["age","userName","fullName","phoneNumber","avatar","gender","birthday","idNo"]}}' },
+      { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: 'Xóa tất cả quyền đã cache ở local.', hasParams: true, defaultData: '{"data":{}}' },
+      { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: '' },
+      { name: 'getContacts', event: 'GET_CONTACTS', desc: 'Lấy danh sách contacts từ danh bạ hệ thống. ', hasParams: true, defaultData: '{"data":{"filter":{"contactName":"John"},"pager":{"pageNumber":1,"limitRow":100}}}' },
+      { name: 'pickFile', event: 'PICK_FILE', desc: 'Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:', hasParams: true, defaultData: '{"data":{"mimeType":["image/*","video/*"],"isCapture":true,"source":"PhotoLibrary"}}' },
+      { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: 'Mở dialog chia sẻ nội dung text.', hasParams: true, defaultData: '{"data":{"content":"Check out this amazing product!"}}' },
+      { name: 'miniAppToken', event: 'MINI_APP_TOKEN', desc: 'Get mini app token', hasParams: false, defaultData: '' }
   ] },
   { title: 'Device Request Permission', events: [
-      { name: 'requestPermissionWithCode', event: 'REQUEST_PERMISSION_WITH_CODE', desc: 'Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level).', hasParams: true, defaultData: '{"data":{"permissionCode":"USER_AGE_PERMISSION"}}' },
       { name: 'requestCameraPermission', event: 'REQUEST_CAMERA_PERMISSION', desc: 'Yêu cầu mở camera', hasParams: false, defaultData: '' },
       { name: 'requestLocationPermission', event: 'REQUEST_LOCATION_PERMISSION', desc: 'Yêu cầu vị trí', hasParams: false, defaultData: '' },
       { name: 'requestPhotosPermission', event: 'REQUEST_PHOTOS_PERMISSION', desc: 'Yêu cầu truy cập ảnh trên thiết bị', hasParams: false, defaultData: '' },
@@ -174,7 +208,6 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'executeLocalAuthentication', event: 'EXECUTE_LOCAL_AUTHENTICATION', desc: 'Thực hiện xác thực sinh trắc học (vân tay, Face ID).', hasParams: true, defaultData: '{"data":{"authOptionsParam":{"sensitiveTransaction":true,"authClassification":["WEAK","STRONG","DEVICE"],"sticky":false,"isShowErrorDialog":true}}}' }
   ] },
   { title: 'Device Check Permission', events: [
-      { name: 'checkPermissionWithCode', event: 'CHECK_PERMISSION_WITH_CODE', desc: 'Kiểm tra trạng thái quyền cụ thể.', hasParams: true, defaultData: '{"data":{"permissionCode":"USER_AGE_PERMISSION"}}' },
       { name: 'checkCameraPermission', event: 'CHECK_CAMERA_PERMISSION', desc: 'Kiểm tra quyền camera', hasParams: false, defaultData: '' },
       { name: 'checkLocationPermission', event: 'CHECK_LOCATION_PERMISSION', desc: 'Kiểm tra quyền vị trí', hasParams: false, defaultData: '' },
       { name: 'checkPhotosPermission', event: 'CHECK_PHOTOS_PERMISSION', desc: 'Kiểm tra quyền truy cập ảnh', hasParams: false, defaultData: '' },
@@ -187,14 +220,6 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'checkPaymentPermission', event: 'CHECK_PAYMENT_PERMISSION', desc: '', hasParams: false, defaultData: '' },
       { name: 'checkLoginPermission', event: 'CHECK_LOGIN_PERMISSION', desc: '', hasParams: false, defaultData: '' },
       { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: '' }
-  ] },
-  { title: 'Get data event', events: [
-      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: 'Lấy nhiều trường dữ liệu người dùng từ host app.', hasParams: true, defaultData: '{"data":{"dataNames":["age","userName","fullName","phone","email","avatar"]}}' },
-      { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: 'Xóa tất cả quyền đã cache ở local.', hasParams: true, defaultData: '{"data":{}}' },
-      { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: '' },
-      { name: 'getContacts', event: 'GET_CONTACTS', desc: 'Lấy danh sách contacts từ danh bạ hệ thống. ', hasParams: true, defaultData: '{"data":{"filter":{"contactName":"John"},"pager":{"pageNumber":1,"limitRow":100}}}' },
-      { name: 'pickFile', event: 'PICK_FILE', desc: 'Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:', hasParams: true, defaultData: '{"data":{"mimeType":["image/*","video/*"],"isCapture":true,"source":"PhotoLibrary"}}' },
-      { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: 'Mở dialog chia sẻ nội dung text.', hasParams: true, defaultData: '{"data":{"content":"Check out this amazing product!"}}' }
   ] },
   { title: 'Storage', events: [
       { name: 'saveStringValue', event: 'SAVE_STRING_VALUE', desc: 'Lưu giá trị kiểu string.', hasParams: true, defaultData: '{"data":{"key":"user_preference","value":"dark_mode"}}' },
@@ -213,40 +238,70 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'getLocation', event: 'GET_LOCATION', desc: 'Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.', hasParams: false, defaultData: '' }
   ] },
   { title: 'UI', events: [
-      { name: 'setBackgroundStatusBarColor', event: 'SET_BACKGROUND_STATUS_BAR_COLOR', desc: 'Thay đổi màu nền status bar.', hasParams: true, defaultData: '{"data":{"color":"#FF5722"}}' },
-      { name: 'setNavigationBarColor', event: 'SET_NAVIGATION_BAR_COLOR', desc: 'Thay đổi màu nền navigation bar.', hasParams: true, defaultData: '{"data":{"color":"#2196F3"}}' },
-      { name: 'updateStatusBarAppearance', event: 'UPDATE_STATUS_BAR_APPEARANCE', desc: 'Chuyển đổi status bar giữa dark mode và light mode.', hasParams: true, defaultData: '{"data":{"appearance":"DARK"}}' },
-      { name: 'updateNavigationBarAppearance', event: 'UPDATE_NAVIGATION_BAR_APPEARANCE', desc: 'Chuyển đổi navigation bar giữa dark mode và light mode.', hasParams: true, defaultData: '{"data":{"appearance":"LIGHT "}}' }
+      { name: 'updateMiniAppTheme', event: 'UPDATE_MINI_APP_THEME', desc: 'Update mini app theme', hasParams: true, defaultData: '{"data":{"headerColor":"#FFFFFF","headerTitle":"Mini App","textColor":"#EE0033","leftButton":"back","actionButtonThemeType":"light","hideAndroidBottomNavigationBar":false,"hideIOSSafeAreaBottom":false,"toolbarMode":"normal"}}' }
   ] }
 ];
 
-function log(msg: string, data?: any) {
+function logFor(name: string, msg: string, data?: any) {
   const entry = data ? `${msg}: ${JSON.stringify(data, null, 2)}` : msg;
-  logs.value.unshift(`[${new Date().toLocaleTimeString()}] ${entry}`);
+  if (!eventLogs.value[name]) eventLogs.value[name] = [];
+  eventLogs.value[name] = [`[${new Date().toLocaleTimeString()}] ${entry}`, ...eventLogs.value[name]];
+}
+
+function getLogsStr(name: string): string {
+  const l = eventLogs.value[name] || [];
+  return l.length ? l.join('\n') : 'No logs yet.';
 }
 
 async function runEvent(evt: EventInfo) {
-  popup.value = null;
   const fn = fns[evt.name];
   if (!fn) return;
   try {
-    log(`> ${evt.name}...`);
+    logFor(evt.name, `> ${evt.name}...`);
     const res = await fn();
-    log(`OK ${evt.name}`, res);
+    logFor(evt.name, `OK ${evt.name}`, res);
   } catch (err: any) {
-    log(`ERR ${evt.name}`, err);
+    logFor(evt.name, `ERR ${evt.name}`, err);
   }
 }
 
 function fillInput(evt: EventInfo) {
-  if (evt.defaultData) {
-    try { input.value = JSON.stringify(JSON.parse(evt.defaultData), null, 2); } catch {}
-  }
-  popup.value = null;
+  const saved = localStorage.getItem(lsKey(evt.name));
+  if (saved) { try { inputs.value[evt.name] = JSON.stringify(JSON.parse(saved), null, 2); } catch { inputs.value[evt.name] = saved; } }
+  else if (evt.defaultData) { try { inputs.value[evt.name] = JSON.stringify(JSON.parse(evt.defaultData), null, 2); } catch {} }
+}
+
+function saveInput(evt: EventInfo) {
+  const v = (inputs.value[evt.name] || '').trim();
+  if (v) localStorage.setItem(lsKey(evt.name), v);
+}
+
+function deleteInput(evt: EventInfo) {
+  localStorage.removeItem(lsKey(evt.name));
+}
+
+function clearLog(name: string) {
+  eventLogs.value[name] = [];
+}
+
+function quickRun(evt: EventInfo) {
+  const saved = localStorage.getItem(lsKey(evt.name));
+  if (saved) { try { inputs.value[evt.name] = JSON.stringify(JSON.parse(saved), null, 2); } catch { inputs.value[evt.name] = saved; } }
+  else if (evt.defaultData) { try { inputs.value[evt.name] = JSON.stringify(JSON.parse(evt.defaultData), null, 2); } catch {} }
+  runEvent(evt);
 }
 
 function showPopup(evt: EventInfo) {
   popup.value = popup.value?.name === evt.name ? null : evt;
+}
+
+function setupBtnRef(el: HTMLElement | null, evt: EventInfo) {
+  if (el) setupLongPress(el, () => quickRun(evt));
+}
+
+function onInputFocus(e: FocusEvent) {
+  const el = e.target as HTMLTextAreaElement;
+  if (!smartTapReady.has(el)) { smartTapReady.add(el); setupSmartTap(el); }
 }
 </script>
 
@@ -254,42 +309,12 @@ function showPopup(evt: EventInfo) {
   <div class="container">
     <h1>MiniApp SDK - Vue Demo</h1>
 
-    <div class="sticky-top">
-      <!-- Input -->
-      <section>
-        <h3 class="section-title">Input Data (JSON)</h3>
-        <textarea
-          rows="5"
-          v-model="input"
-          placeholder='{"data":{"url":"https://example.com"}}'
-          class="input-area"
-        ></textarea>
-      </section>
-
-      <!-- Logs -->
-      <div style="margin-top: 16px">
-        <div style="display: flex; justify-content: space-between; align-items: center">
-          <h3 style="margin: 0">Logs</h3>
-          <button class="btn" @click="logs = []">Clear</button>
-        </div>
-        <pre class="log-area"><code style="width: 800px; display: block;">{{ formatLog }}</code></pre>
-      </div>
-    </div>
-
     <!-- Event groups -->
     <section v-for="group in groups" :key="group.title">
       <h3 class="section-title">{{ group.title }}</h3>
       <div class="btn-group">
         <div v-for="evt in group.events" :key="evt.name" class="evt-wrap">
-          <button class="btn" @click="showPopup(evt)" :title="evt.desc">{{ evt.name }}</button>
-          <div v-if="popup?.name === evt.name" class="popup-custom">
-            <div class="popup-title">{{ evt.event }}</div>
-            <div v-if="evt.desc" class="popup-desc">{{ evt.desc }}</div>
-            <div class="popup-actions">
-              <button class="btn btn-run" @click="runEvent(evt)">Run</button>
-              <button v-if="evt.hasParams" class="btn btn-fill" @click="fillInput(evt)">Fill Input</button>
-            </div>
-          </div>
+          <button :ref="el => setupBtnRef(el as HTMLElement, evt)" class="btn" @click="showPopup(evt)" :title="evt.desc">{{ evt.name }}</button>
         </div>
       </div>
     </section>
@@ -298,10 +323,35 @@ function showPopup(evt: EventInfo) {
     <section>
       <h3 class="section-title">Generic invoke()</h3>
       <div class="btn-group">
-        <button class="btn" @click="runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: '' })">invoke(input)</button>
+        <button class="btn" @click="showPopup({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: '' })">invoke(input)</button>
       </div>
     </section>
     <div style="padding: 50px"></div>
+
+    <!-- Overlay -->
+    <div v-if="popup" class="popup-overlay" @click="popup = null"></div>
+
+    <!-- Popup (bottom sheet) -->
+    <div v-if="popup" class="popup-custom">
+      <div class="popup-title">{{ popup.event }}</div>
+      <div v-if="popup.desc" class="popup-desc">{{ popup.desc }}</div>
+      <div class="popup-actions">
+        <button class="btn btn-run" @click="runEvent(popup)">Run</button>
+        <button v-if="popup.hasParams" class="btn btn-fill" @click="fillInput(popup)">Fill Input</button>
+        <button v-if="popup.hasParams" class="btn btn-save" @click="saveInput(popup)">Save</button>
+        <button v-if="popup.hasParams" class="btn btn-delete" @click="deleteInput(popup)">Delete</button>
+        <button class="btn" style="margin-left:auto" @click="clearLog(popup.name)">Clear Log</button>
+      </div>
+      <textarea v-if="popup.hasParams"
+        class="input-area"
+        rows="15"
+        :value="inputs[popup.name] || ''"
+        @input="inputs[popup.name] = ($event.target as HTMLTextAreaElement).value"
+        @focus="onInputFocus"
+        placeholder='{"key":"value"}'
+      ></textarea>
+      <pre class="popup-log">{{ getLogsStr(popup.name) }}</pre>
+    </div>
   </div>
 </template>
 
@@ -317,31 +367,20 @@ h1 { font-size: 20px; }
 .btn-run:hover { background: #45a049; }
 .btn-fill { background: #2196F3; color: #fff; border-color: #2196F3; }
 .btn-fill:hover { background: #1e88e5; }
-.input-area { width: calc(100vw - 40px); min-height: 60px; font-family: monospace; font-size: 12px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; resize: vertical; }
-.evt-wrap { position: relative; display: inline-block; }
-.popup-custom { position: absolute; top: 100%; left: 0; z-index: 100; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; min-width: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-.popup-title { font-weight: bold; font-size: 12px; margin-bottom: 4px; }
-.popup-desc { font-size: 11px; color: #666; margin-bottom: 8px; }
-.popup-actions { display: flex; gap: 6px; }
-.overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; }
-.log-area {
-    margin-top: 10px;
-    padding: 12px;
-    background-color: #1e1e1e;
-    color: #d4d4d4;
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 13px;
-    line-height: 1.5;
-    border-radius: 6px;
-    border: 1px solid #333;
-    max-height: 400px;
-    overflow-y: auto;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-.log-area::-webkit-scrollbar { width: 8px; height: 8px; }
-.log-area::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
-.log-area::-webkit-scrollbar-thumb:hover { background: #555; }
+.btn-save { background: #9C27B0; color: #fff; border-color: #9C27B0; }
+.btn-save:hover { background: #7B1FA2; }
+.btn-delete { background: #f44336; color: #fff; border-color: #f44336; }
+.btn-delete:hover { background: #d32f2f; }
+.input-area { width: 100%; box-sizing: border-box; min-height: 80px; font-family: monospace; font-size: 12px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; resize: vertical; touch-action: manipulation; }
+.btn.long-pressing { background: #ff9800 !important; color: #fff !important; border-color: #ff9800 !important; transform: scale(0.95); transition: transform 0.15s; }
+.evt-wrap { display: inline-block; }
+.popup-overlay { position: fixed; inset: 0; z-index: 99; background: rgba(0,0,0,0.4); }
+.popup-custom { position: fixed; left: 0; right: 0; bottom: 0; z-index: 100; background: #fff; border-radius: 16px 16px 0 0; padding: 16px; max-height: 85vh; overflow-y: auto; box-shadow: 0 -4px 24px rgba(0,0,0,0.2); }
+.popup-title { font-weight: bold; font-size: 13px; margin-bottom: 4px; }
+.popup-desc { font-size: 11px; color: #888; margin-bottom: 8px; }
+.popup-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.popup-log { margin-top: 8px; padding: 8px 10px; background-color: #1e1e1e; color: #d4d4d4; font-family: 'Consolas','Monaco','Courier New',monospace; font-size: 11px; line-height: 1.5; border-radius: 6px; max-height: 200px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; }
+.popup-log::-webkit-scrollbar { width: 6px; }
+.popup-log::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
 
 </style>

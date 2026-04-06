@@ -18,10 +18,6 @@ import type {
   RequestMultipleUserDataPermissionResponse,
   CheckMultipleUserDataPermissionRequest,
   CheckMultipleUserDataPermissionResponse,
-  RequestPermissionWithCodeRequest,
-  RequestPermissionWithCodeResponse,
-  CheckPermissionWithCodeRequest,
-  CheckPermissionWithCodeResponse,
   GetMultipleUserDataRequest,
   GetMultipleUserDataResponse,
   ClearPermissionCacheRequest,
@@ -106,16 +102,12 @@ import type {
   ClearStorageResponse,
   GetLocationRequest,
   GetLocationResponse,
-  SetBackgroundStatusBarColorRequest,
-  SetBackgroundStatusBarColorResponse,
-  SetNavigationBarColorRequest,
-  SetNavigationBarColorResponse,
-  UpdateStatusBarAppearanceRequest,
-  UpdateStatusBarAppearanceResponse,
-  UpdateNavigationBarAppearanceRequest,
-  UpdateNavigationBarAppearanceResponse,
   ShareTextContentRequest,
-  ShareTextContentResponse
+  ShareTextContentResponse,
+  MiniAppTokenRequest,
+  MiniAppTokenResponse,
+  UpdateMiniAppThemeRequest,
+  UpdateMiniAppThemeResponse
 } from './types.generated';
 
 /** Map event name -> [RequestType, ResponseType] */
@@ -127,8 +119,6 @@ export interface MiniAppEventMap {
   'OPEN_MINI_APP': [OpenMiniAppRequest, OpenMiniAppResponse];
   'REQUEST_MULTIPLE_USER_DATA_PERMISSION': [RequestMultipleUserDataPermissionRequest, RequestMultipleUserDataPermissionResponse];
   'CHECK_MULTIPLE_USER_DATA_PERMISSION': [CheckMultipleUserDataPermissionRequest, CheckMultipleUserDataPermissionResponse];
-  'REQUEST_PERMISSION_WITH_CODE': [RequestPermissionWithCodeRequest, RequestPermissionWithCodeResponse];
-  'CHECK_PERMISSION_WITH_CODE': [CheckPermissionWithCodeRequest, CheckPermissionWithCodeResponse];
   'GET_MULTIPLE_USER_DATA': [GetMultipleUserDataRequest, GetMultipleUserDataResponse];
   'CLEAR_PERMISSION_CACHE': [ClearPermissionCacheRequest, ClearPermissionCacheResponse];
   'REQUEST_CAMERA_PERMISSION': [RequestCameraPermissionRequest, RequestCameraPermissionResponse];
@@ -171,11 +161,9 @@ export interface MiniAppEventMap {
   'GET_FLOAT_VALUE': [GetFloatValueRequest, GetFloatValueResponse];
   'CLEAR_STORAGE': [ClearStorageRequest, ClearStorageResponse];
   'GET_LOCATION': [GetLocationRequest, GetLocationResponse];
-  'SET_BACKGROUND_STATUS_BAR_COLOR': [SetBackgroundStatusBarColorRequest, SetBackgroundStatusBarColorResponse];
-  'SET_NAVIGATION_BAR_COLOR': [SetNavigationBarColorRequest, SetNavigationBarColorResponse];
-  'UPDATE_STATUS_BAR_APPEARANCE': [UpdateStatusBarAppearanceRequest, UpdateStatusBarAppearanceResponse];
-  'UPDATE_NAVIGATION_BAR_APPEARANCE': [UpdateNavigationBarAppearanceRequest, UpdateNavigationBarAppearanceResponse];
   'SHARE_TEXT_CONTENT': [ShareTextContentRequest, ShareTextContentResponse];
+  'MINI_APP_TOKEN': [MiniAppTokenRequest, MiniAppTokenResponse];
+  'UPDATE_MINI_APP_THEME': [UpdateMiniAppThemeRequest, UpdateMiniAppThemeResponse];
 }
 
 /** Danh sach event name constants */
@@ -194,10 +182,6 @@ export const MINIAPP_EVENTS = {
   requestMultipleUserDataPermission: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION' as const,
   /** Kiểm tra trạng thái nhiều quyền user data cùng lúc. */
   checkMultipleUserDataPermission: 'CHECK_MULTIPLE_USER_DATA_PERMISSION' as const,
-  /** Yêu cầu quyền cụ thể theo permission code (cả SDK-level và device-level). */
-  requestPermissionWithCode: 'REQUEST_PERMISSION_WITH_CODE' as const,
-  /** Kiểm tra trạng thái quyền cụ thể. */
-  checkPermissionWithCode: 'CHECK_PERMISSION_WITH_CODE' as const,
   /** Lấy nhiều trường dữ liệu người dùng từ host app. */
   getMultipleUserData: 'GET_MULTIPLE_USER_DATA' as const,
   /** Xóa tất cả quyền đã cache ở local. */
@@ -282,14 +266,10 @@ export const MINIAPP_EVENTS = {
   clearStorage: 'CLEAR_STORAGE' as const,
   /** Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này. */
   getLocation: 'GET_LOCATION' as const,
-  /** Thay đổi màu nền status bar. */
-  setBackgroundStatusBarColor: 'SET_BACKGROUND_STATUS_BAR_COLOR' as const,
-  /** Thay đổi màu nền navigation bar. */
-  setNavigationBarColor: 'SET_NAVIGATION_BAR_COLOR' as const,
-  /** Chuyển đổi status bar giữa dark mode và light mode. */
-  updateStatusBarAppearance: 'UPDATE_STATUS_BAR_APPEARANCE' as const,
-  /** Chuyển đổi navigation bar giữa dark mode và light mode. */
-  updateNavigationBarAppearance: 'UPDATE_NAVIGATION_BAR_APPEARANCE' as const,
   /** Mở dialog chia sẻ nội dung text. */
   shareTextContent: 'SHARE_TEXT_CONTENT' as const,
+  /** Get mini app token */
+  miniAppToken: 'MINI_APP_TOKEN' as const,
+  /** Update mini app theme */
+  updateMiniAppTheme: 'UPDATE_MINI_APP_THEME' as const,
 };
