@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --base=/miniapp/01km03s38mdqyz1xd1fj03yz90-pre-release",
+    "build": "vite build --base=/miniapp/01km03s38mdqyz1xd1fj03yz90",
     "preview": "vite preview"
   },
   "dependencies": {

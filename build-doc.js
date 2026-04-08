@@ -1,8 +1,10 @@
 const fs = require("fs")
 const path = require("path")
+const os = require("os")
+const { execSync } = require("child_process")
 
 const EVENTS_JSON = "./packages/core/src/events.json"
-const OUTPUT_DIR = "./docs-site"
+const OUTPUT_DIR = path.join(__dirname, "../developer-portal/docs/API")
 
 function toCamelCase(str) {
   return str.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase())
@@ -15,7 +17,7 @@ function categorizeEvent(event) {
   if (event.startsWith("CHECK") && event.includes("PERMISSION")) return "Device Check Permission"
   if (((event.startsWith("SAVE_") || event.startsWith("GET_")) && event.endsWith("VALUE")) || event.includes("STORAGE")) return "Storage"
   if (event.includes("LOCATION")) return "Location"
-  if (event.endsWith("COLOR") || event.endsWith("APPEARANCE")) return "UI"
+  if (event.endsWith("COLOR") || event.endsWith("APPEARANCE") || event.includes("THEME")) return "UI"
   return "Get data event"
 }
 
@@ -119,7 +121,13 @@ function renderUsageExample(ev) {
     ? `const res = await ${fnName}(${callArg})`
     : `const res = await ${fnName}()`
 
-  return `**Ví dụ sử dụng**\n\n\`\`\`typescript\n${importLine}\n\n${callLine}\n${responseAccess}\n\`\`\`\n\n`
+  // bundle.js variant
+  const bundleCallLine = callArg
+    ? `const res = await WebviewSdk.${fnName}(${callArg})`
+    : `const res = await WebviewSdk.${fnName}()`
+  const bundleResponseAccess = responseAccess.replace(/isSuccess\(/g, 'WebviewSdk.isSuccess(')
+
+  return `**Ví dụ sử dụng (npm package)**\n\n\`\`\`typescript\n${importLine}\n\n${callLine}\n${responseAccess}\n\`\`\`\n\n**Sử dụng với bundle.js**\n\n\`\`\`javascript\n${bundleCallLine}\n${bundleResponseAccess}\n\`\`\`\n\n`
 }
 
 function getFrontMatter(title, position) {
@@ -134,9 +142,9 @@ title: ${title}
 }
 
 const categoryOrder = [
-    "Routing", "UserData Permission", "Device Request Permission", "Device Check Permission",
-    "Storage", "Location", "UI", "Get data event"
-  ]
+  "Routing", "UserData Permission", "Device Request Permission", "Device Check Permission",
+  "Storage", "Location", "UI", "Get data event"
+]
 
 function generateMarkdown(events) {
   const grouped = {}
@@ -155,25 +163,38 @@ function generateMarkdown(events) {
 > Tự động sinh từ events.json — 56 events.
 
 **Demo Links:**
-- [Demo Angular](https://staging1.viettelmoney.vn/miniapp/01km03tv28thk14tt8bq4adha5-pre-release/)
-- [Demo React](https://staging1.viettelmoney.vn/miniapp/01km03s38mdqyz1xd1fj03yz90-pre-release/)
-- [Demo Vue](https://staging1.viettelmoney.vn/miniapp/01km03swe6njmgnx0jfva6dgvd-pre-release/)
+- [Demo Angular](https://staging1.viettelmoney.vn/miniapp/01km03tv28thk14tt8bq4adha5/)
+- [Demo React](https://staging1.viettelmoney.vn/miniapp/01km03s38mdqyz1xd1fj03yz90/)
+- [Demo Vue](https://staging1.viettelmoney.vn/miniapp/01km03swe6njmgnx0jfva6dgvd/)
+- [Demo Vanilla JS](https://staging1.viettelmoney.vn/miniapp/01kn5wx2sf1at32sjc9v1y6km3/)
 
 ## 1. Getting Started
 
 ### 1.1 Cài đặt
 
-**Bước 1:** Tải file thư viện và code demo
-- [Tải webview-sdk-core-1.0.0.tgz](pathname:///files/webview-sdk-core-1.0.0.tgz)
+Có 2 cách tích hợp SDK:
+
+| Cách | Phù hợp với | File cần tải |
+|------|-------------|------|
+| **npm package** | React, Vue, Angular (có bundler) | \`webview-sdk-core-1.0.0.tgz\` |
+| **bundle.js** | Vanilla JS, HTML thuần (không cần bundler) | \`bundle.js\` |
+
+**Tải file:**
+- [webview-sdk-core-1.0.0.tgz](pathname:///files/webview-sdk-core-1.0.0.tgz) — npm package
+- [bundle.js](pathname:///files/bundle.js) — Script file (IIFE)
 - [Tải code demo](pathname:///files/demo.zip)
 
-**Bước 2:** Copy file \`webview-sdk-core-1.0.0.tgz\` vào thư mục \`core-lib/\` trong project
+---
+
+#### Cách 1: npm package (React / Vue / Angular)
+
+**Bước 1:** Copy file \`webview-sdk-core-1.0.0.tgz\` vào thư mục \`core-lib/\` trong project
 \`\`\`bash
 mkdir -p core-lib
 cp webview-sdk-core-1.0.0.tgz core-lib/
 \`\`\`
 
-**Bước 3:** Thêm dependency vào \`package.json\`
+**Bước 2:** Thêm dependency vào \`package.json\`
 \`\`\`json
 {
   "dependencies": {
@@ -182,12 +203,37 @@ cp webview-sdk-core-1.0.0.tgz core-lib/
 }
 \`\`\`
 
-**Bước 4:** Cài đặt
+**Bước 3:** Cài đặt
 \`\`\`bash
 npm install
 \`\`\`
 
-*Chỉ cần 1 package duy nhất cho mọi framework (React, Vue, Angular, vanilla JS).*
+---
+
+#### Cách 2: bundle.js (Vanilla JS / HTML thuần)
+
+Không cần npm, không cần bundler — chỉ cần 1 file \`bundle.js\`.
+
+**Bước 1:** Copy \`bundle.js\` vào project
+
+**Bước 2:** Thêm script tag vào HTML
+\`\`\`html
+<script src="bundle.js"></script>
+\`\`\`
+
+**Bước 3:** Sử dụng qua global \`WebviewSdk\`
+\`\`\`javascript
+var app = WebviewSdk.getSharedMiniApp({ debug: true })
+app.ready()
+
+// Gọi API
+var res = await WebviewSdk.getLocation()
+if (WebviewSdk.isSuccess(res)) {
+  console.log(res.data)
+}
+\`\`\`
+
+*Tất cả API functions đều có sẵn trên object \`WebviewSdk\` — giống hệt cách dùng với npm package.*
 
 ### 1.2 Bắt đầu nhanh
 
@@ -272,10 +318,27 @@ export class AppComponent {
 }
 \`\`\`
 
+#### Vanilla JS (bundle.js)
+\`\`\`html
+<script src="bundle.js"></script>
+<script>
+  var app = WebviewSdk.getSharedMiniApp({ debug: true })
+  app.ready()
+
+  async function handleClick() {
+    var res = await WebviewSdk.getLocation()
+    if (WebviewSdk.isSuccess(res)) console.log(res.data)
+  }
+</script>
+
+<button onclick="handleClick()">Get Location</button>
+\`\`\`
+
 ## 2. API Reference
 
 ### 2.1 Khoi tao
 
+**npm package:**
 \`\`\`ts
 import { getSharedMiniApp } from '@webview-sdk/core'
 
@@ -284,6 +347,16 @@ const app = getSharedMiniApp({
   debug: true,                    // Bat log debug
   token: '',                      // Token xac thuc
   timeout: 5000                   // Timeout mac dinh (ms)
+})
+\`\`\`
+
+**bundle.js:**
+\`\`\`javascript
+var app = WebviewSdk.getSharedMiniApp({
+  appId: 'com.example.miniapp',
+  debug: true,
+  token: '',
+  timeout: 5000
 })
 \`\`\`
 
@@ -432,8 +505,8 @@ function buildDocs() {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true })
   }
 
-  if (!fs.existsSync(OUTPUT_DIR + '/SDK Function')) {
-    fs.mkdirSync(OUTPUT_DIR + '/SDK Function', { recursive: true })
+  if (!fs.existsSync(OUTPUT_DIR + '/Danh sách API')) {
+    fs.mkdirSync(OUTPUT_DIR + '/Danh sách API', { recursive: true })
   }
 
   const eventsData = JSON.parse(fs.readFileSync(EVENTS_JSON, "utf8"))
@@ -441,7 +514,7 @@ function buildDocs() {
   const docs = generateMarkdown(events)
 
   docs.forEach(doc => {
-    fs.writeFileSync(path.join(OUTPUT_DIR + (categoryOrder.includes(doc.title) ? '/SDK Function' : ''), doc.filename), doc.content)
+    fs.writeFileSync(path.join(OUTPUT_DIR + (categoryOrder.includes(doc.title) ? '/Danh sách API' : ''), doc.filename), doc.content)
     console.log(`  -> ${doc.filename} (generated)`)
   })
 
@@ -449,3 +522,48 @@ function buildDocs() {
 }
 
 buildDocs()
+
+function copyDirSync(src, dest, excludeDirs = []) {
+  if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true })
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    if (entry.isDirectory() && excludeDirs.includes(entry.name)) continue
+    const srcPath = path.join(src, entry.name)
+    const destPath = path.join(dest, entry.name)
+    if (entry.isDirectory()) {
+      copyDirSync(srcPath, destPath, excludeDirs)
+    } else {
+      fs.copyFileSync(srcPath, destPath)
+    }
+  }
+}
+
+function copyAssets() {
+  const STATIC_FILES_DIR = path.join(__dirname, "../developer-portal/static/files")
+  if (!fs.existsSync(STATIC_FILES_DIR)) fs.mkdirSync(STATIC_FILES_DIR, { recursive: true })
+
+  // Copy tgz
+  const tgzSrc = path.join(__dirname, "dist/webview-sdk-core-1.0.0.tgz")
+  const tgzDest = path.join(STATIC_FILES_DIR, "webview-sdk-core-1.0.0.tgz")
+  fs.copyFileSync(tgzSrc, tgzDest)
+  console.log(`  -> Copied dist/webview-sdk-core-1.0.0.tgz -> ${tgzDest}`)
+
+  // Copy bundle.js
+  const bundleSrc = path.join(__dirname, "dist/bundle.js")
+  const bundleDest = path.join(STATIC_FILES_DIR, "bundle.js")
+  fs.copyFileSync(bundleSrc, bundleDest)
+  console.log(`  -> Copied dist/bundle.js -> ${bundleDest}`)
+
+  // Tạo demo.zip (bỏ dist, node_modules)
+  const tempParent = path.join(os.tmpdir(), "webview-sdk-export-" + Date.now())
+  const tempDemo = path.join(tempParent, "demo")
+  if (fs.existsSync(tempParent)) fs.rmSync(tempParent, { recursive: true })
+  copyDirSync(path.join(__dirname, "demo"), tempDemo, ["dist", "node_modules"])
+
+  const zipDest = path.join(STATIC_FILES_DIR, "demo.zip")
+  if (fs.existsSync(zipDest)) fs.unlinkSync(zipDest)
+  execSync(`powershell -Command "Compress-Archive -Path '${tempDemo}' -DestinationPath '${zipDest}'"`)
+  fs.rmSync(tempParent, { recursive: true })
+  console.log(`  -> Created demo.zip -> ${zipDest}`)
+}
+
+copyAssets()

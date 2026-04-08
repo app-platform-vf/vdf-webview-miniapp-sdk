@@ -17,6 +17,13 @@
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
+            "optimization": true,
+            "sourceMap": false,
+            "vendorChunk": false,
+            "aot": true,
+            "buildOptimizer": true,
+            "namedChunks": false,
+            "extractLicenses": true,
             "styles": [],
             "scripts": []
           }

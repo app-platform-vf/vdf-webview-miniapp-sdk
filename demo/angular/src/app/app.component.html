@@ -1,42 +1,12 @@
 <div class="container">
     <h1>MiniApp SDK - Angular Demo</h1>
 
-    <div class="sticky-top">
-        <!-- Input JSON -->
-        <section>
-            <h3 class="section-title">Input Data (JSON)</h3>
-            <textarea
-                rows="5"
-                [(ngModel)]="inputValue"
-                placeholder='{"data":{"url":"https://example.com"}}'
-                class="input-area"
-            ></textarea>
-        </section>
-
-        <!-- Logs -->
-        <div style="margin-top: 16px">
-            <div style="display: flex; justify-content: space-between; align-items: center">
-                <h3 style="margin: 0">Logs</h3>
-                <button class="btn" (click)="logs = []">Clear</button>
-            </div>
-            <pre class="log-area"><code style="width: 800px; display: block;">{{ formatLog }}</code></pre>
-        </div>
-    </div>
-
     <!-- Event groups -->
     <section *ngFor="let group of groups">
         <h3 class="section-title">{{ group.title }}</h3>
         <div class="btn-group">
             <div *ngFor="let evt of group.events" class="evt-wrap">
-                <button class="btn" (click)="showPopup(evt)" [title]="evt.desc">{{ evt.name }}</button>
-                <div class="popup-custom" *ngIf="popup?.name === evt.name">
-                    <div class="popup-title">{{ evt.event }}</div>
-                    <div class="popup-desc" *ngIf="evt.desc">{{ evt.desc }}</div>
-                    <div class="popup-actions">
-                        <button class="btn btn-run" (click)="runEvent(evt)">Run</button>
-                        <button class="btn btn-fill" *ngIf="evt.hasParams" (click)="fillInput(evt)">Fill Input</button>
-                    </div>
-                </div>
+                <button class="btn" (click)="showPopup(evt)" [title]="evt.desc" [attr.data-evt]="evt.name">{{ evt.name }}</button>
             </div>
         </div>
     </section>
@@ -45,11 +15,34 @@
     <section>
         <h3 class="section-title">Generic invoke()</h3>
         <div class="btn-group">
-            <button class="btn" (click)="runEvent({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: false, defaultData: null })">invoke(input)</button>
+            <button class="btn" (click)="showPopup({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: null })">invoke(input)</button>
         </div>
     </section>
     <div style="padding: 50px"></div>
+
+    <!-- Overlay -->
+    <div class="popup-overlay" *ngIf="popup" (click)="popup = null"></div>
+
+    <!-- Popup (bottom sheet) -->
+    <div class="popup-custom" *ngIf="popup">
+        <div class="popup-title">{{ popup.event }}</div>
+        <div class="popup-desc" *ngIf="popup.desc">{{ popup.desc }}</div>
+        <div class="popup-actions">
+            <button class="btn btn-run" (click)="runEvent(popup)">Run</button>
+            <button class="btn btn-fill" *ngIf="popup.hasParams" (click)="fillInput(popup)">Fill Input</button>
+            <button class="btn btn-save" *ngIf="popup.hasParams" (click)="saveInput(popup)">Save</button>
+            <button class="btn btn-delete" *ngIf="popup.hasParams" (click)="deleteInput(popup)">Delete</button>
+            <button class="btn" (click)="clearLog(popup.name)" style="margin-left:auto">Clear Log</button>
+        </div>
+        <textarea *ngIf="popup.hasParams"
+            class="input-area"
+            rows="15"
+            [value]="getInputStr(popup.name)"
+            (input)="setInputStr(popup.name, $any($event.target).value)"
+            (focus)="onInputFocus($event)"
+            placeholder='{"key":"value"}'
+        ></textarea>
+        <pre class="popup-log">{{ getLogsStr(popup.name) }}</pre>
+    </div>
 </div>
 
-<!-- Overlay to close popup -->
-<!-- <div class="overlay" *ngIf="popup" (click)="popup = null"></div> -->

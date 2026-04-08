@@ -139,6 +139,7 @@
         <div class="icon">&#128194;</div>
         <div><strong>Mo file events.json</strong></div>
         <p>Keo tha file vao day hoac click de chon</p>
+        <p style="margin-top:10px;font-size:11px;color:var(--text-muted);font-family:'Cascadia Code','Fira Code',monospace">D:\SDK\webview-sdk\packages\core\src\events.json</p>
       </div>
       <p>hoac</p>
       <button class="btn-primary" onclick="createNew()">Tao moi events.json</button>
@@ -182,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ['dragenter','dragover'].forEach(e => { document.body.addEventListener(e, ev=>ev.preventDefault()); if(dz) dz.addEventListener(e, ev=>{ev.preventDefault();dz.classList.add('dragover')}); });
   ['dragleave','drop'].forEach(e => { if(dz) dz.addEventListener(e, ()=>dz.classList.remove('dragover')); });
   document.body.addEventListener('drop', ev => { ev.preventDefault(); const f=ev.dataTransfer.files[0]; if(f&&f.name.endsWith('.json')) loadFile(f); });
+
 });
 
 function handleFileLoad(e) { const f=e.target.files[0]; if(f) loadFile(f); e.target.value=''; }
