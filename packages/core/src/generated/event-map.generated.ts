@@ -107,7 +107,9 @@ import type {
   MiniAppTokenRequest,
   MiniAppTokenResponse,
   UpdateMiniAppThemeRequest,
-  UpdateMiniAppThemeResponse
+  UpdateMiniAppThemeResponse,
+  ExpiredSessionRequest,
+  ExpiredSessionResponse
 } from './types.generated';
 
 /** Map event name -> [RequestType, ResponseType] */
@@ -164,6 +166,7 @@ export interface MiniAppEventMap {
   'SHARE_TEXT_CONTENT': [ShareTextContentRequest, ShareTextContentResponse];
   'MINI_APP_TOKEN': [MiniAppTokenRequest, MiniAppTokenResponse];
   'UPDATE_MINI_APP_THEME': [UpdateMiniAppThemeRequest, UpdateMiniAppThemeResponse];
+  'EXPIRED_SESSION': [ExpiredSessionRequest, ExpiredSessionResponse];
 }
 
 /** Danh sach event name constants */
@@ -272,4 +275,6 @@ export const MINIAPP_EVENTS = {
   miniAppToken: 'MINI_APP_TOKEN' as const,
   /** Update mini app theme */
   updateMiniAppTheme: 'UPDATE_MINI_APP_THEME' as const,
+  /** Session expiration event, Delegate cho host app xử lý */
+  expiredSession: 'EXPIRED_SESSION' as const,
 };

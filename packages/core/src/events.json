@@ -110,8 +110,7 @@
             "navigationAction": {
               "type": "string",
               "required": false,
-              "description": "Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App",
-              "default": "RETURN_HOME_APP"
+              "description": "RETURN_HOME_APP - về trang chủ của host app; TH khác - Chỉ đóng Mini App"
             }
           }
         }
@@ -1362,6 +1361,12 @@
           }
         }
       },
+      "response": {}
+    },
+    {
+      "event": "EXPIRED_SESSION",
+      "description": "Session expiration event, Delegate cho host app xử lý",
+      "request": {},
       "response": {}
     }
   ]

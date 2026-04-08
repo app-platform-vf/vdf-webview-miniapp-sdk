@@ -110,7 +110,9 @@ import type {
   MiniAppTokenRequest,
   MiniAppTokenResponse,
   UpdateMiniAppThemeRequest,
-  UpdateMiniAppThemeResponse
+  UpdateMiniAppThemeResponse,
+  ExpiredSessionRequest,
+  ExpiredSessionResponse
 } from './types.generated';
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */
@@ -167,7 +169,7 @@ export async function appOpenStore(payload: AppOpenStoreRequest): Promise<MiniAp
 /**
  * Đóng Mini App và điều hướng về màn hình khác.
  * Event: EXIT
- * @param payload.data.navigationAction (optional) Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App [default: "RETURN_HOME_APP"]
+ * @param payload.data.navigationAction (optional) RETURN_HOME_APP - về trang chủ của host app; TH khác - Chỉ đóng Mini App
  */
 export async function exit(payload: ExitRequest): Promise<MiniAppResponse<ExitResponse>> {
   return send<ExitResponse>('EXIT', payload);
@@ -626,6 +628,14 @@ export async function updateMiniAppTheme(payload: UpdateMiniAppThemeRequest): Pr
   return send<UpdateMiniAppThemeResponse>('UPDATE_MINI_APP_THEME', payload);
 }
 
+/**
+ * Session expiration event, Delegate cho host app xử lý
+ * Event: EXPIRED_SESSION
+ */
+export async function expiredSession(): Promise<MiniAppResponse<ExpiredSessionResponse>> {
+  return send<ExpiredSessionResponse>('EXPIRED_SESSION', {});
+}
+
 // ============================================================
 // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
 // ============================================================
@@ -762,6 +772,8 @@ export const MiniAppAPI = {
   miniAppToken,
   /** Update mini app theme */
   updateMiniAppTheme,
+  /** Session expiration event, Delegate cho host app xử lý */
+  expiredSession,
   /** Kiem tra response thanh cong */
   isSuccess,
   /** Khoi tao API module */
