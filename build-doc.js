@@ -4,7 +4,7 @@ const os = require("os")
 const { execSync } = require("child_process")
 
 const EVENTS_JSON = "./packages/core/src/events.json"
-const OUTPUT_DIR = "D:\\SDK\\developer-portal\\docs\\API"
+const OUTPUT_DIR = path.join(__dirname, "../developer-portal/docs/API")
 
 function toCamelCase(str) {
   return str.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase())
@@ -538,7 +538,7 @@ function copyDirSync(src, dest, excludeDirs = []) {
 }
 
 function copyAssets() {
-  const STATIC_FILES_DIR = "D:\\SDK\\developer-portal\\static\\files"
+  const STATIC_FILES_DIR = path.join(__dirname, "../developer-portal/static/files")
   if (!fs.existsSync(STATIC_FILES_DIR)) fs.mkdirSync(STATIC_FILES_DIR, { recursive: true })
 
   // Copy tgz

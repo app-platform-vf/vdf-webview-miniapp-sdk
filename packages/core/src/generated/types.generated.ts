@@ -70,7 +70,7 @@ export interface AppOpenStoreResponse {}
 /** Đóng Mini App và điều hướng về màn hình khác. */
 export interface ExitRequest {
   data: {
-    navigationAction?: string; // Quay về trang chủ của host app; TH khác - Chỉ đóng Mini App
+    navigationAction?: string; // RETURN_HOME_APP - về trang chủ của host app; TH khác - Chỉ đóng Mini App
   }; // Du lieu
 }
 
@@ -586,6 +586,11 @@ export interface UpdateMiniAppThemeRequest {
 
 export interface UpdateMiniAppThemeResponse {}
 
+/** Session expiration event, Delegate cho host app xử lý */
+export interface ExpiredSessionRequest {}
+
+export interface ExpiredSessionResponse {}
+
 // --- Event name constants ---
 
 export type MiniAppEventName =
@@ -640,7 +645,8 @@ export type MiniAppEventName =
   | 'GET_LOCATION'
   | 'SHARE_TEXT_CONTENT'
   | 'MINI_APP_TOKEN'
-  | 'UPDATE_MINI_APP_THEME';
+  | 'UPDATE_MINI_APP_THEME'
+  | 'EXPIRED_SESSION';
 
 /** Danh sach tat ca events voi metadata */
 export const EVENT_LIST = [
@@ -696,4 +702,5 @@ export const EVENT_LIST = [
   { event: 'SHARE_TEXT_CONTENT', method: 'shareTextContent', description: 'Mở dialog chia sẻ nội dung text.', requestType: 'ShareTextContentRequest', responseType: 'ShareTextContentResponse' },
   { event: 'MINI_APP_TOKEN', method: 'miniAppToken', description: 'Get mini app token', requestType: 'MiniAppTokenRequest', responseType: 'MiniAppTokenResponse' },
   { event: 'UPDATE_MINI_APP_THEME', method: 'updateMiniAppTheme', description: 'Update mini app theme', requestType: 'UpdateMiniAppThemeRequest', responseType: 'UpdateMiniAppThemeResponse' },
+  { event: 'EXPIRED_SESSION', method: 'expiredSession', description: 'Session expiration event, Delegate cho host app xử lý', requestType: 'ExpiredSessionRequest', responseType: 'ExpiredSessionResponse' },
 ] as const;
