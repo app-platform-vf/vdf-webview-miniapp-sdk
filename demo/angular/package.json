@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "ng serve",
     "build": "ng build --base-href=/miniapp/01km03tv28thk14tt8bq4adha5/",
+    "build:v22": "set NODE_OPTIONS=--openssl-legacy-provider && ng build --base-href=/miniapp/01km03tv28thk14tt8bq4adha5/",
     "start": "set NODE_OPTIONS=--openssl-legacy-provider && ng serve"
   },
   "dependencies": {
