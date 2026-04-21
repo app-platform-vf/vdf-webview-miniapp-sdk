@@ -663,22 +663,6 @@ var WebviewSdk = (function (exports) {
         });
     }
     /**
-     * Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:
-     * Event: PICK_FILE
-     * @note data duoc JSON.stringify() truoc khi gui
-     * @param payload.data.mimeType (required) Mảng các MIME types cho phép [default: "[\"image/*\", \"video/*\"]"]
-     * @param payload.data.isCapture (optional) true = Mở camera, false = Chọn từ thư viện [default: true]
-     * @param payload.data.source (optional) IOS only: PhotoLibrary hoặc Folder [default: "PhotoLibrary"]
-     */
-    function pickFile() {
-        return __awaiter(this, arguments, void 0, function* (payload = {}) {
-            const _p = Object.assign({}, payload);
-            if (_p.data !== undefined)
-                _p.data = JSON.stringify(_p.data);
-            return send('PICK_FILE', _p);
-        });
-    }
-    /**
      * Lưu giá trị kiểu string.
      * Event: SAVE_STRING_VALUE
      * @param payload.data.key (required) Key lưu [default: "user_preference"]
@@ -948,8 +932,6 @@ var WebviewSdk = (function (exports) {
         getLocalAuthenticationStatus,
         /** Lấy danh sách contacts từ danh bạ hệ thống.  */
         getContacts,
-        /** Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng: */
-        pickFile,
         /** Lưu giá trị kiểu string. */
         saveStringValue,
         /** Lưu giá trị kiểu boolean. */
@@ -1316,7 +1298,6 @@ var WebviewSdk = (function (exports) {
         { event: 'EXECUTE_LOCAL_AUTHENTICATION', method: 'executeLocalAuthentication', description: 'Thực hiện xác thực sinh trắc học (vân tay, Face ID).', requestType: 'ExecuteLocalAuthenticationRequest', responseType: 'ExecuteLocalAuthenticationResponse' },
         { event: 'GET_LOCAL_AUTHENTICATION_STATUS', method: 'getLocalAuthenticationStatus', description: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', requestType: 'GetLocalAuthenticationStatusRequest', responseType: 'GetLocalAuthenticationStatusResponse' },
         { event: 'GET_CONTACTS', method: 'getContacts', description: 'Lấy danh sách contacts từ danh bạ hệ thống. ', requestType: 'GetContactsRequest', responseType: 'GetContactsResponse' },
-        { event: 'PICK_FILE', method: 'pickFile', description: 'Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:', requestType: 'PickFileRequest', responseType: 'PickFileResponse' },
         { event: 'SAVE_STRING_VALUE', method: 'saveStringValue', description: 'Lưu giá trị kiểu string.', requestType: 'SaveStringValueRequest', responseType: 'SaveStringValueResponse' },
         { event: 'SAVE_BOOLEAN_VALUE', method: 'saveBooleanValue', description: 'Lưu giá trị kiểu boolean.', requestType: 'SaveBooleanValueRequest', responseType: 'SaveBooleanValueResponse' },
         { event: 'SAVE_INTEGER_VALUE', method: 'saveIntegerValue', description: 'Lưu giá trị kiểu int.', requestType: 'SaveIntegerValueRequest', responseType: 'SaveIntegerValueResponse' },
@@ -1413,8 +1394,6 @@ var WebviewSdk = (function (exports) {
         getLocalAuthenticationStatus: 'GET_LOCAL_AUTHENTICATION_STATUS',
         /** Lấy danh sách contacts từ danh bạ hệ thống.  */
         getContacts: 'GET_CONTACTS',
-        /** Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng: */
-        pickFile: 'PICK_FILE',
         /** Lưu giá trị kiểu string. */
         saveStringValue: 'SAVE_STRING_VALUE',
         /** Lưu giá trị kiểu boolean. */
@@ -1498,7 +1477,6 @@ var WebviewSdk = (function (exports) {
     exports.openExternalLink = openExternalLink;
     exports.openMiniApp = openMiniApp;
     exports.parseNativeMessage = parseNativeMessage;
-    exports.pickFile = pickFile;
     exports.requestAudioPermission = requestAudioPermission;
     exports.requestCameraPermission = requestCameraPermission;
     exports.requestContactsPermission = requestContactsPermission;

@@ -18,7 +18,7 @@ const EVENTS_FILE = path.join(__dirname, "../packages/core/src/events.json")
 // Shared CSS
 // ==================================================================
 
-const CSS_SHARED = `.container { font-family: system-ui; top: 0; left: 0; padding: 16px; margin: 0 auto; position: fixed; width: 100vw; height: 100vh; overflow: auto; background: #f9f9f9; }
+const CSS_SHARED = `.container { font-family: system-ui; top: 0; left: 0; padding: 16px; padding-top: calc(16px + env(safe-area-inset-top)); padding-bottom: calc(16px + env(safe-area-inset-bottom)); padding-left: calc(16px + env(safe-area-inset-left)); padding-right: calc(16px + env(safe-area-inset-right)); margin: 0 auto; position: fixed; width: 100vw; height: 100vh; height: 100dvh; overflow: auto; background: #f9f9f9; box-sizing: border-box; }
 h1 { font-size: 20px; }
 .sticky-top { position: sticky; top: -20px; background: white; z-index: 1; padding-right: 20px;}
 .section-title { font-size: 14px; color: #666; border-bottom: 1px solid #eee; padding-bottom: 4px; }
@@ -102,7 +102,7 @@ function groupEvents(events) {
     else if ((evt.event.startsWith("REQUEST") && evt.event.includes("PERMISSION")) || evt.event.includes("EXECUTE_LOCAL_AUTHENTICATION")) prefix = "Device Request Permission"
     else if (evt.event.startsWith("CHECK") && evt.event.includes("PERMISSION")) prefix = "Device Check Permission"
     else if (((evt.event.startsWith("SAVE_") || evt.event.startsWith("GET_")) && evt.event.endsWith("VALUE")) || evt.event.includes("STORAGE")) prefix = "Storage"
-    else if (evt.event.includes("LOCATION")) prefix = "Location"
+    // else if (evt.event.includes("LOCATION")) prefix = "Location"
     else if (evt.event.includes("COLOR") || evt.event.includes("APPEARANCE") || evt.event.includes("THEME")) prefix = "UI"
     else prefix = "Get data event"
     if (!groups[prefix]) groups[prefix] = []
@@ -795,7 +795,7 @@ function genVanillaHTML(events) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>MiniApp SDK - Demo</title>
   <style>
 ${CSS_SHARED}

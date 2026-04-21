@@ -38,7 +38,6 @@ import {
   executeLocalAuthentication,
   getLocalAuthenticationStatus,
   getContacts,
-  pickFile,
   saveStringValue,
   saveBooleanValue,
   saveIntegerValue,
@@ -145,7 +144,6 @@ const fns: Record<string, () => Promise<any>> = {
   'executeLocalAuthentication': () => executeLocalAuthentication(getInputFor('executeLocalAuthentication') || {'data':{'authOptionsParam':{'sensitiveTransaction':true,'authClassification':['WEAK','STRONG','DEVICE'],'sticky':false,'isShowErrorDialog':true}}}),
   'getLocalAuthenticationStatus': () => getLocalAuthenticationStatus(),
   'getContacts': () => getContacts(getInputFor('getContacts') || {'data':{'filter':{'contactName':'John'},'pager':{'pageNumber':1,'limitRow':100}}}),
-  'pickFile': () => pickFile(getInputFor('pickFile') || {'data':{'mimeType':['image/*','video/*'],'isCapture':true,'source':'PhotoLibrary'}}),
   'saveStringValue': () => saveStringValue(getInputFor('saveStringValue') || {'data':{'key':'user_preference','value':'dark_mode'}}),
   'saveBooleanValue': () => saveBooleanValue(getInputFor('saveBooleanValue') || {'data':{'key':'notifications_enabled','value':true}}),
   'saveIntegerValue': () => saveIntegerValue(getInputFor('saveIntegerValue') || {'data':{'key':'login_count','value':5}}),
@@ -190,7 +188,7 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: 'Xóa tất cả quyền đã cache ở local.', hasParams: true, defaultData: '{"data":{}}' },
       { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: '' },
       { name: 'getContacts', event: 'GET_CONTACTS', desc: 'Lấy danh sách contacts từ danh bạ hệ thống. ', hasParams: true, defaultData: '{"data":{"filter":{"contactName":"John"},"pager":{"pageNumber":1,"limitRow":100}}}' },
-      { name: 'pickFile', event: 'PICK_FILE', desc: 'Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:', hasParams: true, defaultData: '{"data":{"mimeType":["image/*","video/*"],"isCapture":true,"source":"PhotoLibrary"}}' },
+      { name: 'getLocation', event: 'GET_LOCATION', desc: 'Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.', hasParams: false, defaultData: '' },
       { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: 'Mở dialog chia sẻ nội dung text.', hasParams: true, defaultData: '{"data":{"content":"Check out this amazing product!"}}' },
       { name: 'miniAppToken', event: 'MINI_APP_TOKEN', desc: 'Get mini app token', hasParams: false, defaultData: '' },
       { name: 'expiredSession', event: 'EXPIRED_SESSION', desc: 'Session expiration event, Delegate cho host app xử lý', hasParams: false, defaultData: '' }
@@ -236,9 +234,6 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'getLongValue', event: 'GET_LONG_VALUE', desc: 'Lấy giá trị kiểu long.', hasParams: true, defaultData: '{"data":{"key":"...","defaultValue":0}}' },
       { name: 'getFloatValue', event: 'GET_FLOAT_VALUE', desc: 'Lấy giá trị kiểu float.', hasParams: true, defaultData: '{"data":{"key":"...","defaultValue":"..."}}' },
       { name: 'clearStorage', event: 'CLEAR_STORAGE', desc: 'Lấy giá trị kiểu float.', hasParams: false, defaultData: '' }
-  ] },
-  { title: 'Location', events: [
-      { name: 'getLocation', event: 'GET_LOCATION', desc: 'Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.', hasParams: false, defaultData: '' }
   ] },
   { title: 'UI', events: [
       { name: 'updateMiniAppTheme', event: 'UPDATE_MINI_APP_THEME', desc: 'Update mini app theme', hasParams: true, defaultData: '{"data":{"headerColor":"#FFFFFF","headerTitle":"Mini App","textColor":"#EE0033","leftButton":"back","actionButtonThemeType":"light","hideAndroidBottomNavigationBar":false,"hideIOSSafeAreaBottom":false,"toolbarMode":"normal"}}' }
@@ -359,7 +354,7 @@ function onInputFocus(e: FocusEvent) {
 </template>
 
 <style>
-.container { font-family: system-ui; top: 0; left: 0; padding: 16px; margin: 0 auto; position: fixed; width: 100vw; height: 100vh; overflow: auto; background: #f9f9f9; }
+.container { font-family: system-ui; top: 0; left: 0; padding: 16px; padding-top: calc(16px + env(safe-area-inset-top)); padding-bottom: calc(16px + env(safe-area-inset-bottom)); padding-left: calc(16px + env(safe-area-inset-left)); padding-right: calc(16px + env(safe-area-inset-right)); margin: 0 auto; position: fixed; width: 100vw; height: 100vh; height: 100dvh; overflow: auto; background: #f9f9f9; box-sizing: border-box; }
 h1 { font-size: 20px; }
 .sticky-top { position: sticky; top: -20px; background: white; z-index: 1; padding-right: 20px;}
 .section-title { font-size: 14px; color: #666; border-bottom: 1px solid #eee; padding-bottom: 4px; }
