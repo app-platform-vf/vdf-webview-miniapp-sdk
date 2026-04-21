@@ -40,7 +40,7 @@ function waitForFileChange(filePath) {
     return new Promise((resolve) => {
         const initialContent = fs.readFileSync(filePath, 'utf8');
         console.log(`\n📝 Đang mở Notepad++: ${filePath}`);
-        
+
         // Cố gắng mở Notepad++ (thử lệnh trực tiếp hoặc đường dẫn tuyệt đối)
         const openCmd = `start "" notepad++ "${filePath}" || start "" ${NPP_PATH} "${filePath}"`;
         exec(openCmd, (err) => {
@@ -87,14 +87,14 @@ async function main() {
     console.log("\n[1/2] COMMIT & PUSH: webview-sdk");
     runCommand("git add .");
     runCommand("git commit -m \"them event\"", __dirname, true);
-    runCommand("git push origin caopv-update-event");
+    runCommand("git push origin duyennt43");
 
     // 2. Thư mục developer-portal
     console.log("\n[2/2] COMMIT & PUSH: developer-portal");
     const portalDir = path.join(__dirname, '../developer-portal');
     runCommand("git add .", portalDir);
     runCommand("git commit -m \"them event doc\"", portalDir, true);
-    runCommand("git push origin caopv-sdk-doc", portalDir);
+    runCommand("git push origin duyennt43", portalDir);
 
     console.log("\n🎉 HOÀN THÀNH TOÀN BỘ CHU TRÌNH!\n");
 }

@@ -89,7 +89,7 @@ export interface OpenExternalLinkResponse {}
 export interface OpenMiniAppRequest {
   data: {
     route?: Record<string, any>; // Định tuyến màn hình trong Mini App 
-    miniappKey?: string; // Key của Mini App cần mở 
+    miniAppKey?: string; // Key của Mini App cần mở 
     additional?: Record<string, any>; // Dữ liệu bổ sung truyền cho Mini App 
     launchConfig?: Record<string, any>; // Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)	;  
     themeConfig?: Record<string, any>; // Style cho navigation bar

@@ -152,7 +152,7 @@
               "description": "Định tuyến màn hình trong Mini App ",
               "default": "{       \"screenName\": \"home\"     }"
             },
-            "miniappKey": {
+            "miniAppKey": {
               "type": "string",
               "required": false,
               "description": "Key của Mini App cần mở ",
@@ -1370,4 +1370,4 @@
       "response": {}
     }
   ]
-}
+} 
