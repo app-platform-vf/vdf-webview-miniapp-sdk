@@ -79,8 +79,6 @@ import type {
   GetLocalAuthenticationStatusResponse,
   GetContactsRequest,
   GetContactsResponse,
-  PickFileRequest,
-  PickFileResponse,
   SaveStringValueRequest,
   SaveStringValueResponse,
   SaveBooleanValueRequest,
@@ -463,20 +461,6 @@ export async function getContacts(payload: GetContactsRequest = {} as any): Prom
 }
 
 /**
- * Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:
- * Event: PICK_FILE
- * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.mimeType (required) Mảng các MIME types cho phép [default: "[\"image/*\", \"video/*\"]"]
- * @param payload.data.isCapture (optional) true = Mở camera, false = Chọn từ thư viện [default: true]
- * @param payload.data.source (optional) IOS only: PhotoLibrary hoặc Folder [default: "PhotoLibrary"]
- */
-export async function pickFile(payload: PickFileRequest = {} as any): Promise<MiniAppResponse<PickFileResponse>> {
-  const _p: any = { ...payload };
-  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
-  return send<PickFileResponse>('PICK_FILE', _p);
-}
-
-/**
  * Lưu giá trị kiểu string.
  * Event: SAVE_STRING_VALUE
  * @param payload.data.key (required) Key lưu [default: "user_preference"]
@@ -740,8 +724,6 @@ export const MiniAppAPI = {
   getLocalAuthenticationStatus,
   /** Lấy danh sách contacts từ danh bạ hệ thống.  */
   getContacts,
-  /** Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng: */
-  pickFile,
   /** Lưu giá trị kiểu string. */
   saveStringValue,
   /** Lưu giá trị kiểu boolean. */

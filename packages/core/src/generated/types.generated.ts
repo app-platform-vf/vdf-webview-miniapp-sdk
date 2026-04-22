@@ -414,21 +414,6 @@ export interface GetContactsResponse {
   };
 }
 
-/** Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng: */
-export interface PickFileRequest {
-  data?: {
-    mimeType: string[]; // Mảng các MIME types cho phép
-    isCapture?: boolean; // true = Mở camera, false = Chọn từ thư viện
-    source?: string; // IOS only: PhotoLibrary hoặc Folder
-  };
-}
-
-export interface PickFileResponse {
-  data?: {
-    hostUrl?: string;
-  };
-}
-
 /** Lưu giá trị kiểu string. */
 export interface SaveStringValueRequest {
   data?: {
@@ -630,7 +615,6 @@ export type MiniAppEventName =
   | 'EXECUTE_LOCAL_AUTHENTICATION'
   | 'GET_LOCAL_AUTHENTICATION_STATUS'
   | 'GET_CONTACTS'
-  | 'PICK_FILE'
   | 'SAVE_STRING_VALUE'
   | 'SAVE_BOOLEAN_VALUE'
   | 'SAVE_INTEGER_VALUE'
@@ -686,7 +670,6 @@ export const EVENT_LIST = [
   { event: 'EXECUTE_LOCAL_AUTHENTICATION', method: 'executeLocalAuthentication', description: 'Thực hiện xác thực sinh trắc học (vân tay, Face ID).', requestType: 'ExecuteLocalAuthenticationRequest', responseType: 'ExecuteLocalAuthenticationResponse' },
   { event: 'GET_LOCAL_AUTHENTICATION_STATUS', method: 'getLocalAuthenticationStatus', description: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', requestType: 'GetLocalAuthenticationStatusRequest', responseType: 'GetLocalAuthenticationStatusResponse' },
   { event: 'GET_CONTACTS', method: 'getContacts', description: 'Lấy danh sách contacts từ danh bạ hệ thống. ', requestType: 'GetContactsRequest', responseType: 'GetContactsResponse' },
-  { event: 'PICK_FILE', method: 'pickFile', description: 'Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:', requestType: 'PickFileRequest', responseType: 'PickFileResponse' },
   { event: 'SAVE_STRING_VALUE', method: 'saveStringValue', description: 'Lưu giá trị kiểu string.', requestType: 'SaveStringValueRequest', responseType: 'SaveStringValueResponse' },
   { event: 'SAVE_BOOLEAN_VALUE', method: 'saveBooleanValue', description: 'Lưu giá trị kiểu boolean.', requestType: 'SaveBooleanValueRequest', responseType: 'SaveBooleanValueResponse' },
   { event: 'SAVE_INTEGER_VALUE', method: 'saveIntegerValue', description: 'Lưu giá trị kiểu int.', requestType: 'SaveIntegerValueRequest', responseType: 'SaveIntegerValueResponse' },

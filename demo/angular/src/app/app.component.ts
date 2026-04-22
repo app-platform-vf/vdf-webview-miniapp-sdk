@@ -38,7 +38,6 @@ import {
   executeLocalAuthentication,
   getLocalAuthenticationStatus,
   getContacts,
-  pickFile,
   saveStringValue,
   saveBooleanValue,
   saveIntegerValue,
@@ -191,7 +190,6 @@ export class AppComponent implements AfterViewInit {
     this.fns['executeLocalAuthentication'] = () => executeLocalAuthentication(this.getInputFor_('executeLocalAuthentication') || {"data":{"authOptionsParam":{"sensitiveTransaction":true,"authClassification":["WEAK","STRONG","DEVICE"],"sticky":false,"isShowErrorDialog":true}}});
     this.fns['getLocalAuthenticationStatus'] = () => getLocalAuthenticationStatus();
     this.fns['getContacts'] = () => getContacts(this.getInputFor_('getContacts') || {"data":{"filter":{"contactName":"John"},"pager":{"pageNumber":1,"limitRow":100}}});
-    this.fns['pickFile'] = () => pickFile(this.getInputFor_('pickFile') || {"data":{"mimeType":["image/*","video/*"],"isCapture":true,"source":"PhotoLibrary"}});
     this.fns['saveStringValue'] = () => saveStringValue(this.getInputFor_('saveStringValue') || {"data":{"key":"user_preference","value":"dark_mode"}});
     this.fns['saveBooleanValue'] = () => saveBooleanValue(this.getInputFor_('saveBooleanValue') || {"data":{"key":"notifications_enabled","value":true}});
     this.fns['saveIntegerValue'] = () => saveIntegerValue(this.getInputFor_('saveIntegerValue') || {"data":{"key":"login_count","value":5}});
@@ -229,7 +227,7 @@ export class AppComponent implements AfterViewInit {
       { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: 'Xóa tất cả quyền đã cache ở local.', hasParams: true, defaultData: '{"data":{}}' },
       { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: null },
       { name: 'getContacts', event: 'GET_CONTACTS', desc: 'Lấy danh sách contacts từ danh bạ hệ thống. ', hasParams: true, defaultData: '{"data":{"filter":{"contactName":"John"},"pager":{"pageNumber":1,"limitRow":100}}}' },
-      { name: 'pickFile', event: 'PICK_FILE', desc: 'Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:', hasParams: true, defaultData: '{"data":{"mimeType":["image/*","video/*"],"isCapture":true,"source":"PhotoLibrary"}}' },
+      { name: 'getLocation', event: 'GET_LOCATION', desc: 'Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.', hasParams: false, defaultData: null },
       { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: 'Mở dialog chia sẻ nội dung text.', hasParams: true, defaultData: '{"data":{"content":"Check out this amazing product!"}}' },
       { name: 'miniAppToken', event: 'MINI_APP_TOKEN', desc: 'Get mini app token', hasParams: false, defaultData: null },
       { name: 'expiredSession', event: 'EXPIRED_SESSION', desc: 'Session expiration event, Delegate cho host app xử lý', hasParams: false, defaultData: null }
@@ -275,9 +273,6 @@ export class AppComponent implements AfterViewInit {
       { name: 'getLongValue', event: 'GET_LONG_VALUE', desc: 'Lấy giá trị kiểu long.', hasParams: true, defaultData: '{"data":{"key":"...","defaultValue":0}}' },
       { name: 'getFloatValue', event: 'GET_FLOAT_VALUE', desc: 'Lấy giá trị kiểu float.', hasParams: true, defaultData: '{"data":{"key":"...","defaultValue":"..."}}' },
       { name: 'clearStorage', event: 'CLEAR_STORAGE', desc: 'Lấy giá trị kiểu float.', hasParams: false, defaultData: null }
-    ] },
-    { title: 'Location', events: [
-      { name: 'getLocation', event: 'GET_LOCATION', desc: 'Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.', hasParams: false, defaultData: null }
     ] },
     { title: 'UI', events: [
       { name: 'updateMiniAppTheme', event: 'UPDATE_MINI_APP_THEME', desc: 'Update mini app theme', hasParams: true, defaultData: '{"data":{"headerColor":"#FFFFFF","headerTitle":"Mini App","textColor":"#EE0033","leftButton":"back","actionButtonThemeType":"light","hideAndroidBottomNavigationBar":false,"hideIOSSafeAreaBottom":false,"toolbarMode":"normal"}}' }

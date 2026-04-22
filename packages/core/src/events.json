@@ -927,49 +927,6 @@
       }
     },
     {
-      "event": "PICK_FILE",
-      "description": "Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:",
-      "request": {
-        "data": {
-          "meta_data": "stringify",
-          "required": false,
-          "fields": {
-            "mimeType": {
-              "type": "array",
-              "items": "string",
-              "description": "Mảng các MIME types cho phép",
-              "default": "[\"image/*\", \"video/*\"]"
-            },
-            "isCapture": {
-              "type": "boolean",
-              "required": false,
-              "description": "true = Mở camera, false = Chọn từ thư viện",
-              "default": true
-            },
-            "source": {
-              "type": "string",
-              "required": false,
-              "description": "IOS only: PhotoLibrary hoặc Folder",
-              "default": "PhotoLibrary"
-            }
-          }
-        }
-      },
-      "response": {
-        "data": {
-          "meta_data": "object",
-          "required": false,
-          "fields": {
-            "hostUrl": {
-              "type": "string",
-              "required": false,
-              "default": "https://cdn.example.com/file.jpg"
-            }
-          }
-        }
-      }
-    },
-    {
       "event": "SAVE_STRING_VALUE",
       "description": "Lưu giá trị kiểu string.",
       "request": {
@@ -1370,4 +1327,4 @@
       "response": {}
     }
   ]
-} 
+}

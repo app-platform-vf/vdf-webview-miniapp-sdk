@@ -16,7 +16,7 @@ function categorizeEvent(event) {
   if ((event.startsWith("REQUEST") && event.includes("PERMISSION")) || event.includes("EXECUTE_LOCAL_AUTHENTICATION")) return "Device Request Permission"
   if (event.startsWith("CHECK") && event.includes("PERMISSION")) return "Device Check Permission"
   if (((event.startsWith("SAVE_") || event.startsWith("GET_")) && event.endsWith("VALUE")) || event.includes("STORAGE")) return "Storage"
-  if (event.includes("LOCATION")) return "Location"
+  // if (event.includes("LOCATION")) return "Location"
   if (event.endsWith("COLOR") || event.endsWith("APPEARANCE") || event.includes("THEME")) return "UI"
   return "Get data event"
 }
@@ -103,7 +103,7 @@ function renderUsageExample(ev) {
     const fieldNames = Object.keys(res.data.fields)
     const isArray = res.data.meta_data === 'array'
     if (isArray) {
-      responseAccess = `if (isSuccess(res)) {\n  // res.data la mang: ${fieldNames.slice(0, 3).join(', ')}...\n  res.data.forEach(item => console.log(item))\n}`
+      responseAccess = `if (isSuccess(res)) {\n  // res.data là mảng: ${fieldNames.slice(0, 3).join(', ')}...\n  res.data.forEach(item => console.log(item))\n}`
     } else {
       const accesses = fieldNames.slice(0, 3).map(f => `  console.log(res.data.${f})`).join('\n')
       responseAccess = `if (isSuccess(res)) {\n${accesses}\n}`
@@ -112,7 +112,7 @@ function renderUsageExample(ev) {
     const accesses = flatResponseKeys.slice(0, 3).map(f => `  console.log(res.${f})`).join('\n')
     responseAccess = `if (isSuccess(res)) {\n${accesses}\n}`
   } else {
-    responseAccess = `if (isSuccess(res)) {\n  console.log('Thanh cong')\n}`
+    responseAccess = `if (isSuccess(res)) {\n  console.log('Thành công')\n}`
   }
 
   // --- Tổng hợp example ---
@@ -336,17 +336,17 @@ export class AppComponent {
 
 ## 2. API Reference
 
-### 2.1 Khoi tao
+### 2.1 Khởi tạo
 
 **npm package:**
 \`\`\`ts
 import { getSharedMiniApp } from '@webview-sdk/core'
 
 const app = getSharedMiniApp({
-  appId: 'com.example.miniapp',  // ID ung dung
-  debug: true,                    // Bat log debug
-  token: '',                      // Token xac thuc
-  timeout: 5000                   // Timeout mac dinh (ms)
+  appId: 'com.example.miniapp',  // ID ứng dụng
+  debug: true,                    // Bật log debug
+  token: '',                      // Token xác thực
+  timeout: 5000                   // Timeout mặc định (ms)
 })
 \`\`\`
 
@@ -360,30 +360,30 @@ var app = WebviewSdk.getSharedMiniApp({
 })
 \`\`\`
 
-\`getSharedMiniApp()\` tao singleton — goi nhieu lan van tra ve cung 1 instance, tu dong wire generated API.
+\`getSharedMiniApp()\` tạo singleton — gọi nhiều lần vẫn trả về cùng 1 instance, tự động wire generated API.
 
-### 2.2 Giao tiep voi Native
+### 2.2 Giao tiếp với Native
 
-| Method | Mo ta |
+| Method | Mô tả |
 |--------|-------|
-| \`app.invoke(api, data?)\` | Goi native API, tra ve \`Promise\` voi ket qua |
-| \`app.sendRaw(msg)\` | Gui \`MiniAppRequestBase\` truc tiep, day la core method |
-| \`app.emit(event, data?)\` | Gui su kien 1 chieu den native |
-| \`app.on(event, callback)\` | Lang nghe su kien tu native |
-| \`app.once(event, callback)\` | Lang nghe su kien 1 lan |
-| \`app.off(event, callback?)\` | Huy lang nghe. Bo \`callback\` de huy tat ca |
+| \`app.invoke(api, data?)\` | Gọi native API, trả về \`Promise\` với kết quả |
+| \`app.sendRaw(msg)\` | Gửi \`MiniAppRequestBase\` trực tiếp, đây là core method |
+| \`app.emit(event, data?)\` | Gửi sự kiện 1 chiều đến native |
+| \`app.on(event, callback)\` | Lắng nghe sự kiện từ native |
+| \`app.once(event, callback)\` | Lắng nghe sự kiện 1 lần |
+| \`app.off(event, callback?)\` | Hủy lắng nghe. Bỏ \`callback\` để hủy tất cả |
 
 ### 2.3 Lifecycle
 
-| Method | Mo ta |
+| Method | Mô tả |
 |--------|-------|
-| \`app.ready()\` | Danh dau SDK san sang, xa hang doi message |
-| \`app.destroy()\` | Huy SDK, don dep tai nguyen |
-| \`app.onReady(cb)\` | Goi khi SDK san sang |
-| \`app.onShow(cb)\` | Goi khi app hien thi |
-| \`app.onHide(cb)\` | Goi khi app bi an |
-| \`app.onError(cb)\` | Goi khi co loi |
-| \`app.onDestroy(cb)\` | Goi khi app bi huy |
+| \`app.ready()\` | Đánh dấu SDK sẵn sàng, xả hàng đợi message |
+| \`app.destroy()\` | Hủy SDK, dọn dẹp tài nguyên |
+| \`app.onReady(cb)\` | Gọi khi SDK sẵn sàng |
+| \`app.onShow(cb)\` | Gọi khi app hiển thị |
+| \`app.onHide(cb)\` | Gọi khi app bị ẩn |
+| \`app.onError(cb)\` | Gọi khi có lỗi |
+| \`app.onDestroy(cb)\` | Gọi khi app bị hủy |
 
 ### 2.4 Plugin
 
@@ -446,7 +446,7 @@ Tất cả request và response đều kế thừa các trường chung bên dư
 
 | Field | Type | Description |
 |---|---|---|
-| \`errorCode\` | \`string\` | "SDK000" = thành công. Dùng \`isSuccess(res)\` de kiem tra |
+| \`errorCode\` | \`string\` | "SDK000" = thành công. Dùng \`isSuccess(res)\` để kiểm tra |
 | \`errorMessageVN\` | \`string\` | Thông báo lỗi tiếng Việt |
 | \`errorMessageEN\` | \`string\` | Thông báo lỗi tiếng Anh |
 | \`realMsg\` | \`string\` | Thông báo gốc từ native |

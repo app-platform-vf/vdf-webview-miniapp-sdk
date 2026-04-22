@@ -76,8 +76,6 @@ import type {
   GetLocalAuthenticationStatusResponse,
   GetContactsRequest,
   GetContactsResponse,
-  PickFileRequest,
-  PickFileResponse,
   SaveStringValueRequest,
   SaveStringValueResponse,
   SaveBooleanValueRequest,
@@ -150,7 +148,6 @@ export interface MiniAppEventMap {
   'EXECUTE_LOCAL_AUTHENTICATION': [ExecuteLocalAuthenticationRequest, ExecuteLocalAuthenticationResponse];
   'GET_LOCAL_AUTHENTICATION_STATUS': [GetLocalAuthenticationStatusRequest, GetLocalAuthenticationStatusResponse];
   'GET_CONTACTS': [GetContactsRequest, GetContactsResponse];
-  'PICK_FILE': [PickFileRequest, PickFileResponse];
   'SAVE_STRING_VALUE': [SaveStringValueRequest, SaveStringValueResponse];
   'SAVE_BOOLEAN_VALUE': [SaveBooleanValueRequest, SaveBooleanValueResponse];
   'SAVE_INTEGER_VALUE': [SaveIntegerValueRequest, SaveIntegerValueResponse];
@@ -243,8 +240,6 @@ export const MINIAPP_EVENTS = {
   getLocalAuthenticationStatus: 'GET_LOCAL_AUTHENTICATION_STATUS' as const,
   /** Lấy danh sách contacts từ danh bạ hệ thống.  */
   getContacts: 'GET_CONTACTS' as const,
-  /** Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng: */
-  pickFile: 'PICK_FILE' as const,
   /** Lưu giá trị kiểu string. */
   saveStringValue: 'SAVE_STRING_VALUE' as const,
   /** Lưu giá trị kiểu boolean. */
