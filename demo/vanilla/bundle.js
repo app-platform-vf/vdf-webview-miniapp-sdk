@@ -635,11 +635,15 @@ var WebviewSdk = (function (exports) {
     /**
      * Thực hiện xác thực sinh trắc học (vân tay, Face ID).
      * Event: EXECUTE_LOCAL_AUTHENTICATION
+     * @note data duoc JSON.stringify() truoc khi gui
      * @param payload.data.authOptionsParam (optional)  [default: "{       \"sensitiveTransaction\": true,       \"authClassification\": [\"WEAK\", \"STRONG\", \"DEVICE\"],       \"sticky\": false,       \"isShowErrorDialog\": true     }"]
      */
     function executeLocalAuthentication() {
         return __awaiter(this, arguments, void 0, function* (payload = {}) {
-            return send('EXECUTE_LOCAL_AUTHENTICATION', payload);
+            const _p = Object.assign({}, payload);
+            if (_p.data !== undefined)
+                _p.data = JSON.stringify(_p.data);
+            return send('EXECUTE_LOCAL_AUTHENTICATION', _p);
         });
     }
     /**
