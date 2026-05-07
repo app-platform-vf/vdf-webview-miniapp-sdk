@@ -105,7 +105,14 @@ async function main() {
 
     console.log(`[${platform.name}] Đang build...`)
     try {
-      execSync("npm run build", {
+      let buildCommand = "npm run build";
+      if (platform.name === 'angular') {
+        const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10);
+        if (nodeMajorVersion >= 17) {
+          buildCommand = "npm run build:v22";
+        }
+      }
+      execSync(buildCommand, {
         cwd: platform.dir,
         stdio: "inherit",
       })

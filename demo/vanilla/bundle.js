@@ -353,7 +353,7 @@ var WebviewSdk = (function (exports) {
      * Mở một Mini App khác từ Mini App hiện tại.
      * Event: OPEN_MINI_APP
      * @param payload.data.route (optional) Định tuyến màn hình trong Mini App  [default: "{       \"screenName\": \"home\"     }"]
-     * @param payload.data.miniappKey (optional) Key của Mini App cần mở  [default: "01K5FY191HP42SMMJXHWG545ZZ"]
+     * @param payload.data.miniAppKey (optional) Key của Mini App cần mở  [default: "01K5FY191HP42SMMJXHWG545ZZ"]
      * @param payload.data.additional (optional) Dữ liệu bổ sung truyền cho Mini App  [default: "{       \"param1\": \"value1\",       \"param2\": \"value2\"     }"]
      * @param payload.data.launchConfig (optional) Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)	;   [default: "{       \"mode\": \"present\"     }"]
      * @param payload.data.themeConfig (optional) Style cho navigation bar [default: "{       \"title\": \"My App\",       \"headerColor\": \"#EE0033\",       \"headerTitle\": \"Videos\",       \"textColor\": \"white\",       \"leftButton\": \"back\",       \"actionButtonThemeType\": \"normal\",       \"hideAndroidBottomNavigationBar\": true,       \"hideIOSSafeAreaBottom\": true     }"]
@@ -635,11 +635,15 @@ var WebviewSdk = (function (exports) {
     /**
      * Thực hiện xác thực sinh trắc học (vân tay, Face ID).
      * Event: EXECUTE_LOCAL_AUTHENTICATION
+     * @note data duoc JSON.stringify() truoc khi gui
      * @param payload.data.authOptionsParam (optional)  [default: "{       \"sensitiveTransaction\": true,       \"authClassification\": [\"WEAK\", \"STRONG\", \"DEVICE\"],       \"sticky\": false,       \"isShowErrorDialog\": true     }"]
      */
     function executeLocalAuthentication() {
         return __awaiter(this, arguments, void 0, function* (payload = {}) {
-            return send('EXECUTE_LOCAL_AUTHENTICATION', payload);
+            const _p = Object.assign({}, payload);
+            if (_p.data !== undefined)
+                _p.data = JSON.stringify(_p.data);
+            return send('EXECUTE_LOCAL_AUTHENTICATION', _p);
         });
     }
     /**
@@ -660,22 +664,6 @@ var WebviewSdk = (function (exports) {
     function getContacts() {
         return __awaiter(this, arguments, void 0, function* (payload = {}) {
             return send('GET_CONTACTS', payload);
-        });
-    }
-    /**
-     * Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:
-     * Event: PICK_FILE
-     * @note data duoc JSON.stringify() truoc khi gui
-     * @param payload.data.mimeType (required) Mảng các MIME types cho phép [default: "[\"image/*\", \"video/*\"]"]
-     * @param payload.data.isCapture (optional) true = Mở camera, false = Chọn từ thư viện [default: true]
-     * @param payload.data.source (optional) IOS only: PhotoLibrary hoặc Folder [default: "PhotoLibrary"]
-     */
-    function pickFile() {
-        return __awaiter(this, arguments, void 0, function* (payload = {}) {
-            const _p = Object.assign({}, payload);
-            if (_p.data !== undefined)
-                _p.data = JSON.stringify(_p.data);
-            return send('PICK_FILE', _p);
         });
     }
     /**
@@ -948,8 +936,6 @@ var WebviewSdk = (function (exports) {
         getLocalAuthenticationStatus,
         /** Lấy danh sách contacts từ danh bạ hệ thống.  */
         getContacts,
-        /** Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng: */
-        pickFile,
         /** Lưu giá trị kiểu string. */
         saveStringValue,
         /** Lưu giá trị kiểu boolean. */
@@ -1316,7 +1302,6 @@ var WebviewSdk = (function (exports) {
         { event: 'EXECUTE_LOCAL_AUTHENTICATION', method: 'executeLocalAuthentication', description: 'Thực hiện xác thực sinh trắc học (vân tay, Face ID).', requestType: 'ExecuteLocalAuthenticationRequest', responseType: 'ExecuteLocalAuthenticationResponse' },
         { event: 'GET_LOCAL_AUTHENTICATION_STATUS', method: 'getLocalAuthenticationStatus', description: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', requestType: 'GetLocalAuthenticationStatusRequest', responseType: 'GetLocalAuthenticationStatusResponse' },
         { event: 'GET_CONTACTS', method: 'getContacts', description: 'Lấy danh sách contacts từ danh bạ hệ thống. ', requestType: 'GetContactsRequest', responseType: 'GetContactsResponse' },
-        { event: 'PICK_FILE', method: 'pickFile', description: 'Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:', requestType: 'PickFileRequest', responseType: 'PickFileResponse' },
         { event: 'SAVE_STRING_VALUE', method: 'saveStringValue', description: 'Lưu giá trị kiểu string.', requestType: 'SaveStringValueRequest', responseType: 'SaveStringValueResponse' },
         { event: 'SAVE_BOOLEAN_VALUE', method: 'saveBooleanValue', description: 'Lưu giá trị kiểu boolean.', requestType: 'SaveBooleanValueRequest', responseType: 'SaveBooleanValueResponse' },
         { event: 'SAVE_INTEGER_VALUE', method: 'saveIntegerValue', description: 'Lưu giá trị kiểu int.', requestType: 'SaveIntegerValueRequest', responseType: 'SaveIntegerValueResponse' },
@@ -1413,8 +1398,6 @@ var WebviewSdk = (function (exports) {
         getLocalAuthenticationStatus: 'GET_LOCAL_AUTHENTICATION_STATUS',
         /** Lấy danh sách contacts từ danh bạ hệ thống.  */
         getContacts: 'GET_CONTACTS',
-        /** Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng: */
-        pickFile: 'PICK_FILE',
         /** Lưu giá trị kiểu string. */
         saveStringValue: 'SAVE_STRING_VALUE',
         /** Lưu giá trị kiểu boolean. */
@@ -1498,7 +1481,6 @@ var WebviewSdk = (function (exports) {
     exports.openExternalLink = openExternalLink;
     exports.openMiniApp = openMiniApp;
     exports.parseNativeMessage = parseNativeMessage;
-    exports.pickFile = pickFile;
     exports.requestAudioPermission = requestAudioPermission;
     exports.requestCameraPermission = requestCameraPermission;
     exports.requestContactsPermission = requestContactsPermission;

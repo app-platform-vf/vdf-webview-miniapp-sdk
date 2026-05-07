@@ -79,8 +79,6 @@ import type {
   GetLocalAuthenticationStatusResponse,
   GetContactsRequest,
   GetContactsResponse,
-  PickFileRequest,
-  PickFileResponse,
   SaveStringValueRequest,
   SaveStringValueResponse,
   SaveBooleanValueRequest,
@@ -188,7 +186,7 @@ export async function openExternalLink(payload: OpenExternalLinkRequest): Promis
  * Mở một Mini App khác từ Mini App hiện tại.
  * Event: OPEN_MINI_APP
  * @param payload.data.route (optional) Định tuyến màn hình trong Mini App  [default: "{       \"screenName\": \"home\"     }"]
- * @param payload.data.miniappKey (optional) Key của Mini App cần mở  [default: "01K5FY191HP42SMMJXHWG545ZZ"]
+ * @param payload.data.miniAppKey (optional) Key của Mini App cần mở  [default: "01K5FY191HP42SMMJXHWG545ZZ"]
  * @param payload.data.additional (optional) Dữ liệu bổ sung truyền cho Mini App  [default: "{       \"param1\": \"value1\",       \"param2\": \"value2\"     }"]
  * @param payload.data.launchConfig (optional) Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)	;   [default: "{       \"mode\": \"present\"     }"]
  * @param payload.data.themeConfig (optional) Style cho navigation bar [default: "{       \"title\": \"My App\",       \"headerColor\": \"#EE0033\",       \"headerTitle\": \"Videos\",       \"textColor\": \"white\",       \"leftButton\": \"back\",       \"actionButtonThemeType\": \"normal\",       \"hideAndroidBottomNavigationBar\": true,       \"hideIOSSafeAreaBottom\": true     }"]
@@ -438,10 +436,13 @@ export async function checkLocalAuthenticationPermission(): Promise<MiniAppRespo
 /**
  * Thực hiện xác thực sinh trắc học (vân tay, Face ID).
  * Event: EXECUTE_LOCAL_AUTHENTICATION
+ * @note data duoc JSON.stringify() truoc khi gui
  * @param payload.data.authOptionsParam (optional)  [default: "{       \"sensitiveTransaction\": true,       \"authClassification\": [\"WEAK\", \"STRONG\", \"DEVICE\"],       \"sticky\": false,       \"isShowErrorDialog\": true     }"]
  */
 export async function executeLocalAuthentication(payload: ExecuteLocalAuthenticationRequest = {} as any): Promise<MiniAppResponse<ExecuteLocalAuthenticationResponse>> {
-  return send<ExecuteLocalAuthenticationResponse>('EXECUTE_LOCAL_AUTHENTICATION', payload);
+  const _p: any = { ...payload };
+  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
+  return send<ExecuteLocalAuthenticationResponse>('EXECUTE_LOCAL_AUTHENTICATION', _p);
 }
 
 /**
@@ -460,20 +461,6 @@ export async function getLocalAuthenticationStatus(): Promise<MiniAppResponse<Ge
  */
 export async function getContacts(payload: GetContactsRequest = {} as any): Promise<MiniAppResponse<GetContactsResponse>> {
   return send<GetContactsResponse>('GET_CONTACTS', payload);
-}
-
-/**
- * Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:
- * Event: PICK_FILE
- * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.mimeType (required) Mảng các MIME types cho phép [default: "[\"image/*\", \"video/*\"]"]
- * @param payload.data.isCapture (optional) true = Mở camera, false = Chọn từ thư viện [default: true]
- * @param payload.data.source (optional) IOS only: PhotoLibrary hoặc Folder [default: "PhotoLibrary"]
- */
-export async function pickFile(payload: PickFileRequest = {} as any): Promise<MiniAppResponse<PickFileResponse>> {
-  const _p: any = { ...payload };
-  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
-  return send<PickFileResponse>('PICK_FILE', _p);
 }
 
 /**
@@ -740,8 +727,6 @@ export const MiniAppAPI = {
   getLocalAuthenticationStatus,
   /** Lấy danh sách contacts từ danh bạ hệ thống.  */
   getContacts,
-  /** Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng: */
-  pickFile,
   /** Lưu giá trị kiểu string. */
   saveStringValue,
   /** Lưu giá trị kiểu boolean. */
