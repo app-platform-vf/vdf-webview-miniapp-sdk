@@ -436,10 +436,13 @@ export async function checkLocalAuthenticationPermission(): Promise<MiniAppRespo
 /**
  * Thực hiện xác thực sinh trắc học (vân tay, Face ID).
  * Event: EXECUTE_LOCAL_AUTHENTICATION
+ * @note data duoc JSON.stringify() truoc khi gui
  * @param payload.data.authOptionsParam (optional)  [default: "{       \"sensitiveTransaction\": true,       \"authClassification\": [\"WEAK\", \"STRONG\", \"DEVICE\"],       \"sticky\": false,       \"isShowErrorDialog\": true     }"]
  */
 export async function executeLocalAuthentication(payload: ExecuteLocalAuthenticationRequest = {} as any): Promise<MiniAppResponse<ExecuteLocalAuthenticationResponse>> {
-  return send<ExecuteLocalAuthenticationResponse>('EXECUTE_LOCAL_AUTHENTICATION', payload);
+  const _p: any = { ...payload };
+  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
+  return send<ExecuteLocalAuthenticationResponse>('EXECUTE_LOCAL_AUTHENTICATION', _p);
 }
 
 /**

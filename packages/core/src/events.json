@@ -826,7 +826,7 @@
       "description": "Thực hiện xác thực sinh trắc học (vân tay, Face ID).",
       "request": {
         "data": {
-          "meta_data": "object",
+          "meta_data": "stringify",
           "required": false,
           "fields": {
             "authOptionsParam": {

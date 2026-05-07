@@ -18,7 +18,7 @@ const EVENTS_FILE = path.join(__dirname, "../packages/core/src/events.json")
 // Shared CSS
 // ==================================================================
 
-const CSS_SHARED = `.container { font-family: system-ui; top: 0; left: 0; padding: 16px; padding-top: calc(16px + env(safe-area-inset-top)); padding-bottom: calc(16px + env(safe-area-inset-bottom)); padding-left: calc(16px + env(safe-area-inset-left)); padding-right: calc(16px + env(safe-area-inset-right)); margin: 0 auto; position: fixed; width: 100vw; height: 100vh; height: 100dvh; overflow: auto; background: #f9f9f9; box-sizing: border-box; }
+const CSS_SHARED = `.container { font-family: system-ui; top: 0; left: 0; padding: 16px; margin: 0 auto; position: fixed; width: 100vw; height: 100vh; overflow: auto; background: #f9f9f9; }
 h1 { font-size: 20px; }
 .sticky-top { position: sticky; top: -20px; background: white; z-index: 1; padding-right: 20px;}
 .section-title { font-size: 14px; color: #666; border-bottom: 1px solid #eee; padding-bottom: 4px; }
