@@ -110,7 +110,13 @@ import type {
   UpdateMiniAppThemeRequest,
   UpdateMiniAppThemeResponse,
   ExpiredSessionRequest,
-  ExpiredSessionResponse
+  ExpiredSessionResponse,
+  SaveImageToGalleryRequest,
+  SaveImageToGalleryResponse,
+  SaveFileRequest,
+  SaveFileResponse,
+  OpenInAppDeeplinkRequest,
+  OpenInAppDeeplinkResponse
 } from './types.generated';
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */
@@ -623,6 +629,35 @@ export async function expiredSession(): Promise<MiniAppResponse<ExpiredSessionRe
   return send<ExpiredSessionResponse>('EXPIRED_SESSION', {});
 }
 
+/**
+ * Lưu ảnh vào bộ sưu tập
+ * Event: SAVE_IMAGE_TO_GALLERY
+ * @param payload.data.type (optional) Loại nguồn ảnh. Giá trị: `"url"` hoặc `"base64"` (không phân biệt hoa thường)  [default: "url"]
+ * @param payload.data.data (optional) Nội dung ảnh: đường dẫn URL đầy đủ (nếu type=url) hoặc chuỗi Base64 (nếu type=base64) [default: "https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhat--Dem-Sai-G.jpg"]
+ */
+export async function saveImageToGallery(payload: SaveImageToGalleryRequest = {} as any): Promise<MiniAppResponse<SaveImageToGalleryResponse>> {
+  return send<SaveImageToGalleryResponse>('SAVE_IMAGE_TO_GALLERY', payload);
+}
+
+/**
+ * Lưu file vào thư mục
+ * Event: SAVE_FILE
+ * @param payload.data.url (optional) Đường dẫn URL đầy đủ của File [default: "https://pdfobject.com/pdf/sample.pdf"]
+ * @param payload.data.fileName (optional) Tên file, không bắt buộc, nếu không truyền thì sẽ tự động lấy tên file trong url [default: "test_file"]
+ */
+export async function saveFile(payload: SaveFileRequest = {} as any): Promise<MiniAppResponse<SaveFileResponse>> {
+  return send<SaveFileResponse>('SAVE_FILE', payload);
+}
+
+/**
+ * Mở deeplink nội bộ app
+ * Event: OPEN_IN_APP_DEEPLINK
+ * @param payload.data.url (required) Deeplink [default: "viettelpay://action/c=FECRDT&t=FINANCE4"]
+ */
+export async function openInAppDeeplink(payload: OpenInAppDeeplinkRequest): Promise<MiniAppResponse<OpenInAppDeeplinkResponse>> {
+  return send<OpenInAppDeeplinkResponse>('OPEN_IN_APP_DEEPLINK', payload);
+}
+
 // ============================================================
 // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
 // ============================================================
@@ -759,6 +794,12 @@ export const MiniAppAPI = {
   updateMiniAppTheme,
   /** Session expiration event, Delegate cho host app xử lý */
   expiredSession,
+  /** Lưu ảnh vào bộ sưu tập */
+  saveImageToGallery,
+  /** Lưu file vào thư mục */
+  saveFile,
+  /** Mở deeplink nội bộ app */
+  openInAppDeeplink,
   /** Kiem tra response thanh cong */
   isSuccess,
   /** Khoi tao API module */
