@@ -62,6 +62,9 @@ export interface AppOpenStoreRequest {
   data: {
     fallbackUrlAndroid?: string; // URL android
     fallbackUrlIos?: string; // URL Ios
+    needToExitMiniApp?: boolean; // Cần thoát MiniApp trước khi mở deeplink
+    package?: string; // package id của ứng dụng android
+    appId?: string; // appid của ứng dụng ios
   }; // Du lieu
 }
 

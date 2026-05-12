@@ -321,8 +321,11 @@ var WebviewSdk = (function (exports) {
     /**
      * Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.
      * Event: APP_OPEN_STORE
-     * @param payload.data.fallbackUrlAndroid (optional) URL android [default: "market://details?id=com.example.app"]
-     * @param payload.data.fallbackUrlIos (optional) URL Ios [default: "itms-apps://itunes.apple.com/app/id123456789"]
+     * @param payload.data.fallbackUrlAndroid (optional) URL android [default: "viettelpay://action/c=FECRDT&t=FINANCE4"]
+     * @param payload.data.fallbackUrlIos (optional) URL Ios [default: "viettelpay://action/c=FECRDT&t=FINANCE4"]
+     * @param payload.data.needToExitMiniApp (optional) Cần thoát MiniApp trước khi mở deeplink [default: true]
+     * @param payload.data.package (optional) package id của ứng dụng android [default: "null"]
+     * @param payload.data.appId (optional) appid của ứng dụng ios [default: "null"]
      */
     function appOpenStore(payload) {
         return __awaiter(this, void 0, void 0, function* () {
