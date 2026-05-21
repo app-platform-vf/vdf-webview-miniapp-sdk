@@ -62,6 +62,9 @@ export interface AppOpenStoreRequest {
   data: {
     fallbackUrlAndroid?: string; // URL android
     fallbackUrlIos?: string; // URL Ios
+    needToExitMiniApp?: boolean; // Cần thoát MiniApp trước khi mở deeplink
+    package?: string; // package id của ứng dụng android
+    appId?: string; // appid của ứng dụng ios
   }; // Du lieu
 }
 
@@ -576,6 +579,47 @@ export interface ExpiredSessionRequest {}
 
 export interface ExpiredSessionResponse {}
 
+/** Lưu ảnh vào bộ sưu tập */
+export interface SaveImageToGalleryRequest {
+  data?: {
+    type?: string; // Loại nguồn ảnh. Giá trị: `"url"` hoặc `"base64"` (không phân biệt hoa thường) 
+    data?: string; // Nội dung ảnh: đường dẫn URL đầy đủ (nếu type=url) hoặc chuỗi Base64 (nếu type=base64)
+  };
+}
+
+export interface SaveImageToGalleryResponse {
+  data: {
+    success: boolean; // Thanh cong
+  }; // Ket qua
+}
+
+/** Lưu file vào thư mục */
+export interface SaveFileRequest {
+  data?: {
+    url?: string; // Đường dẫn URL đầy đủ của File
+    fileName?: string; // Tên file, không bắt buộc, nếu không truyền thì sẽ tự động lấy tên file trong url
+  };
+}
+
+export interface SaveFileResponse {
+  data: {
+    success: boolean; // Thanh cong
+  }; // Ket qua
+}
+
+/** Mở deeplink nội bộ app */
+export interface OpenInAppDeeplinkRequest {
+  data: {
+    url: string; // Deeplink
+  }; // Du lieu
+}
+
+export interface OpenInAppDeeplinkResponse {
+  data: {
+    success: boolean; // Thanh cong
+  }; // Ket qua
+}
+
 // --- Event name constants ---
 
 export type MiniAppEventName =
@@ -630,7 +674,10 @@ export type MiniAppEventName =
   | 'SHARE_TEXT_CONTENT'
   | 'MINI_APP_TOKEN'
   | 'UPDATE_MINI_APP_THEME'
-  | 'EXPIRED_SESSION';
+  | 'EXPIRED_SESSION'
+  | 'SAVE_IMAGE_TO_GALLERY'
+  | 'SAVE_FILE'
+  | 'OPEN_IN_APP_DEEPLINK';
 
 /** Danh sach tat ca events voi metadata */
 export const EVENT_LIST = [
@@ -686,4 +733,7 @@ export const EVENT_LIST = [
   { event: 'MINI_APP_TOKEN', method: 'miniAppToken', description: 'Get mini app token', requestType: 'MiniAppTokenRequest', responseType: 'MiniAppTokenResponse' },
   { event: 'UPDATE_MINI_APP_THEME', method: 'updateMiniAppTheme', description: 'Update mini app theme', requestType: 'UpdateMiniAppThemeRequest', responseType: 'UpdateMiniAppThemeResponse' },
   { event: 'EXPIRED_SESSION', method: 'expiredSession', description: 'Session expiration event, Delegate cho host app xử lý', requestType: 'ExpiredSessionRequest', responseType: 'ExpiredSessionResponse' },
+  { event: 'SAVE_IMAGE_TO_GALLERY', method: 'saveImageToGallery', description: 'Lưu ảnh vào bộ sưu tập', requestType: 'SaveImageToGalleryRequest', responseType: 'SaveImageToGalleryResponse' },
+  { event: 'SAVE_FILE', method: 'saveFile', description: 'Lưu file vào thư mục', requestType: 'SaveFileRequest', responseType: 'SaveFileResponse' },
+  { event: 'OPEN_IN_APP_DEEPLINK', method: 'openInAppDeeplink', description: 'Mở deeplink nội bộ app', requestType: 'OpenInAppDeeplinkRequest', responseType: 'OpenInAppDeeplinkResponse' },
 ] as const;

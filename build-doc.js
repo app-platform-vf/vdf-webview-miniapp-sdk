@@ -561,7 +561,12 @@ function copyAssets() {
 
   const zipDest = path.join(STATIC_FILES_DIR, "demo.zip")
   if (fs.existsSync(zipDest)) fs.unlinkSync(zipDest)
-  execSync(`powershell -Command "Compress-Archive -Path '${tempDemo}' -DestinationPath '${zipDest}'"`)
+  if (process.platform === 'win32') {
+    execSync(`powershell -Command "Compress-Archive -Path '${tempDemo}' -DestinationPath '${zipDest}'"`)
+  } else {
+    // macOS/Linux: Zip the demo directory from its parent temp directory
+    execSync(`cd '${tempParent}' && zip -r '${zipDest}' demo -x "*.DS_Store" -x "__MACOSX"`)
+  }
   fs.rmSync(tempParent, { recursive: true })
   console.log(`  -> Created demo.zip -> ${zipDest}`)
 }

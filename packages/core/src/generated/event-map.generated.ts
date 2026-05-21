@@ -107,7 +107,13 @@ import type {
   UpdateMiniAppThemeRequest,
   UpdateMiniAppThemeResponse,
   ExpiredSessionRequest,
-  ExpiredSessionResponse
+  ExpiredSessionResponse,
+  SaveImageToGalleryRequest,
+  SaveImageToGalleryResponse,
+  SaveFileRequest,
+  SaveFileResponse,
+  OpenInAppDeeplinkRequest,
+  OpenInAppDeeplinkResponse
 } from './types.generated';
 
 /** Map event name -> [RequestType, ResponseType] */
@@ -164,6 +170,9 @@ export interface MiniAppEventMap {
   'MINI_APP_TOKEN': [MiniAppTokenRequest, MiniAppTokenResponse];
   'UPDATE_MINI_APP_THEME': [UpdateMiniAppThemeRequest, UpdateMiniAppThemeResponse];
   'EXPIRED_SESSION': [ExpiredSessionRequest, ExpiredSessionResponse];
+  'SAVE_IMAGE_TO_GALLERY': [SaveImageToGalleryRequest, SaveImageToGalleryResponse];
+  'SAVE_FILE': [SaveFileRequest, SaveFileResponse];
+  'OPEN_IN_APP_DEEPLINK': [OpenInAppDeeplinkRequest, OpenInAppDeeplinkResponse];
 }
 
 /** Danh sach event name constants */
@@ -272,4 +281,10 @@ export const MINIAPP_EVENTS = {
   updateMiniAppTheme: 'UPDATE_MINI_APP_THEME' as const,
   /** Session expiration event, Delegate cho host app xử lý */
   expiredSession: 'EXPIRED_SESSION' as const,
+  /** Lưu ảnh vào bộ sưu tập */
+  saveImageToGallery: 'SAVE_IMAGE_TO_GALLERY' as const,
+  /** Lưu file vào thư mục */
+  saveFile: 'SAVE_FILE' as const,
+  /** Mở deeplink nội bộ app */
+  openInAppDeeplink: 'OPEN_IN_APP_DEEPLINK' as const,
 };

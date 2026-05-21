@@ -321,8 +321,11 @@ var WebviewSdk = (function (exports) {
     /**
      * Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.
      * Event: APP_OPEN_STORE
-     * @param payload.data.fallbackUrlAndroid (optional) URL android [default: "market://details?id=com.example.app"]
-     * @param payload.data.fallbackUrlIos (optional) URL Ios [default: "itms-apps://itunes.apple.com/app/id123456789"]
+     * @param payload.data.fallbackUrlAndroid (optional) URL android [default: "viettelpay://action/c=FECRDT&t=FINANCE4"]
+     * @param payload.data.fallbackUrlIos (optional) URL Ios [default: "viettelpay://action/c=FECRDT&t=FINANCE4"]
+     * @param payload.data.needToExitMiniApp (optional) Cần thoát MiniApp trước khi mở deeplink [default: true]
+     * @param payload.data.package (optional) package id của ứng dụng android [default: "null"]
+     * @param payload.data.appId (optional) appid của ứng dụng ios [default: "null"]
      */
     function appOpenStore(payload) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -843,6 +846,38 @@ var WebviewSdk = (function (exports) {
             return send('EXPIRED_SESSION', {});
         });
     }
+    /**
+     * Lưu ảnh vào bộ sưu tập
+     * Event: SAVE_IMAGE_TO_GALLERY
+     * @param payload.data.type (optional) Loại nguồn ảnh. Giá trị: `"url"` hoặc `"base64"` (không phân biệt hoa thường)  [default: "url"]
+     * @param payload.data.data (optional) Nội dung ảnh: đường dẫn URL đầy đủ (nếu type=url) hoặc chuỗi Base64 (nếu type=base64) [default: "https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhat--Dem-Sai-G.jpg"]
+     */
+    function saveImageToGallery() {
+        return __awaiter(this, arguments, void 0, function* (payload = {}) {
+            return send('SAVE_IMAGE_TO_GALLERY', payload);
+        });
+    }
+    /**
+     * Lưu file vào thư mục
+     * Event: SAVE_FILE
+     * @param payload.data.url (optional) Đường dẫn URL đầy đủ của File [default: "https://pdfobject.com/pdf/sample.pdf"]
+     * @param payload.data.fileName (optional) Tên file, không bắt buộc, nếu không truyền thì sẽ tự động lấy tên file trong url [default: "test_file"]
+     */
+    function saveFile() {
+        return __awaiter(this, arguments, void 0, function* (payload = {}) {
+            return send('SAVE_FILE', payload);
+        });
+    }
+    /**
+     * Mở deeplink nội bộ app
+     * Event: OPEN_IN_APP_DEEPLINK
+     * @param payload.data.url (required) Deeplink [default: "viettelpay://action/c=FECRDT&t=FINANCE4"]
+     */
+    function openInAppDeeplink(payload) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return send('OPEN_IN_APP_DEEPLINK', payload);
+        });
+    }
     // ============================================================
     // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
     // ============================================================
@@ -968,6 +1003,12 @@ var WebviewSdk = (function (exports) {
         updateMiniAppTheme,
         /** Session expiration event, Delegate cho host app xử lý */
         expiredSession,
+        /** Lưu ảnh vào bộ sưu tập */
+        saveImageToGallery,
+        /** Lưu file vào thư mục */
+        saveFile,
+        /** Mở deeplink nội bộ app */
+        openInAppDeeplink,
         /** Kiem tra response thanh cong */
         isSuccess,
         /** Khoi tao API module */
@@ -1318,6 +1359,9 @@ var WebviewSdk = (function (exports) {
         { event: 'MINI_APP_TOKEN', method: 'miniAppToken', description: 'Get mini app token', requestType: 'MiniAppTokenRequest', responseType: 'MiniAppTokenResponse' },
         { event: 'UPDATE_MINI_APP_THEME', method: 'updateMiniAppTheme', description: 'Update mini app theme', requestType: 'UpdateMiniAppThemeRequest', responseType: 'UpdateMiniAppThemeResponse' },
         { event: 'EXPIRED_SESSION', method: 'expiredSession', description: 'Session expiration event, Delegate cho host app xử lý', requestType: 'ExpiredSessionRequest', responseType: 'ExpiredSessionResponse' },
+        { event: 'SAVE_IMAGE_TO_GALLERY', method: 'saveImageToGallery', description: 'Lưu ảnh vào bộ sưu tập', requestType: 'SaveImageToGalleryRequest', responseType: 'SaveImageToGalleryResponse' },
+        { event: 'SAVE_FILE', method: 'saveFile', description: 'Lưu file vào thư mục', requestType: 'SaveFileRequest', responseType: 'SaveFileResponse' },
+        { event: 'OPEN_IN_APP_DEEPLINK', method: 'openInAppDeeplink', description: 'Mở deeplink nội bộ app', requestType: 'OpenInAppDeeplinkRequest', responseType: 'OpenInAppDeeplinkResponse' },
     ];
 
     // ============================================================
@@ -1430,6 +1474,12 @@ var WebviewSdk = (function (exports) {
         updateMiniAppTheme: 'UPDATE_MINI_APP_THEME',
         /** Session expiration event, Delegate cho host app xử lý */
         expiredSession: 'EXPIRED_SESSION',
+        /** Lưu ảnh vào bộ sưu tập */
+        saveImageToGallery: 'SAVE_IMAGE_TO_GALLERY',
+        /** Lưu file vào thư mục */
+        saveFile: 'SAVE_FILE',
+        /** Mở deeplink nội bộ app */
+        openInAppDeeplink: 'OPEN_IN_APP_DEEPLINK',
     };
 
     exports.EVENT_LIST = EVENT_LIST;
@@ -1479,6 +1529,7 @@ var WebviewSdk = (function (exports) {
     exports.isSuccess = isSuccess;
     exports.miniAppToken = miniAppToken;
     exports.openExternalLink = openExternalLink;
+    exports.openInAppDeeplink = openInAppDeeplink;
     exports.openMiniApp = openMiniApp;
     exports.parseNativeMessage = parseNativeMessage;
     exports.requestAudioPermission = requestAudioPermission;
@@ -1496,7 +1547,9 @@ var WebviewSdk = (function (exports) {
     exports.requestVideosPermission = requestVideosPermission;
     exports.retry = retry;
     exports.saveBooleanValue = saveBooleanValue;
+    exports.saveFile = saveFile;
     exports.saveFloatValue = saveFloatValue;
+    exports.saveImageToGallery = saveImageToGallery;
     exports.saveIntegerValue = saveIntegerValue;
     exports.saveLongValue = saveLongValue;
     exports.saveStringValue = saveStringValue;
