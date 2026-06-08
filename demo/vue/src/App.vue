@@ -57,6 +57,7 @@ import {
   saveImageToGallery,
   saveFile,
   openInAppDeeplink,
+  initRequest,
 } from '@webview-sdk/core';
 
 const app = getSharedMiniApp({ debug: true });
@@ -166,6 +167,7 @@ const fns: Record<string, () => Promise<any>> = {
   'saveImageToGallery': () => saveImageToGallery(getInputFor('saveImageToGallery') || {'data':{'type':'url','data':'https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhat--Dem-Sai-G.jpg'}}),
   'saveFile': () => saveFile(getInputFor('saveFile') || {'data':{'url':'https://pdfobject.com/pdf/sample.pdf','fileName':'test_file'}}),
   'openInAppDeeplink': () => openInAppDeeplink(getInputFor('openInAppDeeplink') || {'data':{'url':'viettelpay://action/c=FECRDT&t=FINANCE4'}}),
+  'initRequest': () => initRequest(),
   'invoke': () => app.invoke(getInputFor('invoke')?.event || 'GET_LOCATION', getInputFor('invoke')),
 };
 
@@ -200,7 +202,8 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'miniAppToken', event: 'MINI_APP_TOKEN', desc: 'Get mini app token', hasParams: false, defaultData: '' },
       { name: 'expiredSession', event: 'EXPIRED_SESSION', desc: 'Session expiration event, Delegate cho host app xử lý', hasParams: false, defaultData: '' },
       { name: 'saveImageToGallery', event: 'SAVE_IMAGE_TO_GALLERY', desc: 'Lưu ảnh vào bộ sưu tập', hasParams: true, defaultData: '{"data":{"type":"url","data":"https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhat--Dem-Sai-G.jpg"}}' },
-      { name: 'saveFile', event: 'SAVE_FILE', desc: 'Lưu file vào thư mục', hasParams: true, defaultData: '{"data":{"url":"https://pdfobject.com/pdf/sample.pdf","fileName":"test_file"}}' }
+      { name: 'saveFile', event: 'SAVE_FILE', desc: 'Lưu file vào thư mục', hasParams: true, defaultData: '{"data":{"url":"https://pdfobject.com/pdf/sample.pdf","fileName":"test_file"}}' },
+      { name: 'initRequest', event: 'INIT_REQUEST', desc: 'Get init event', hasParams: false, defaultData: '' }
   ] },
   { title: 'Device Request Permission', events: [
       { name: 'requestCameraPermission', event: 'REQUEST_CAMERA_PERMISSION', desc: 'Yêu cầu mở camera', hasParams: false, defaultData: '' },

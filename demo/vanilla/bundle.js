@@ -878,6 +878,15 @@ var WebviewSdk = (function (exports) {
             return send('OPEN_IN_APP_DEEPLINK', payload);
         });
     }
+    /**
+     * Get init event
+     * Event: INIT_REQUEST
+     */
+    function initRequest() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return send('INIT_REQUEST', {});
+        });
+    }
     // ============================================================
     // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
     // ============================================================
@@ -1009,6 +1018,8 @@ var WebviewSdk = (function (exports) {
         saveFile,
         /** Mở deeplink nội bộ app */
         openInAppDeeplink,
+        /** Get init event */
+        initRequest,
         /** Kiem tra response thanh cong */
         isSuccess,
         /** Khoi tao API module */
@@ -1362,6 +1373,7 @@ var WebviewSdk = (function (exports) {
         { event: 'SAVE_IMAGE_TO_GALLERY', method: 'saveImageToGallery', description: 'Lưu ảnh vào bộ sưu tập', requestType: 'SaveImageToGalleryRequest', responseType: 'SaveImageToGalleryResponse' },
         { event: 'SAVE_FILE', method: 'saveFile', description: 'Lưu file vào thư mục', requestType: 'SaveFileRequest', responseType: 'SaveFileResponse' },
         { event: 'OPEN_IN_APP_DEEPLINK', method: 'openInAppDeeplink', description: 'Mở deeplink nội bộ app', requestType: 'OpenInAppDeeplinkRequest', responseType: 'OpenInAppDeeplinkResponse' },
+        { event: 'INIT_REQUEST', method: 'initRequest', description: 'Get init event', requestType: 'InitRequestRequest', responseType: 'InitRequestResponse' },
     ];
 
     // ============================================================
@@ -1480,6 +1492,8 @@ var WebviewSdk = (function (exports) {
         saveFile: 'SAVE_FILE',
         /** Mở deeplink nội bộ app */
         openInAppDeeplink: 'OPEN_IN_APP_DEEPLINK',
+        /** Get init event */
+        initRequest: 'INIT_REQUEST',
     };
 
     exports.EVENT_LIST = EVENT_LIST;
@@ -1526,6 +1540,7 @@ var WebviewSdk = (function (exports) {
     exports.getSharedMiniApp = getSharedMiniApp;
     exports.getStringValue = getStringValue;
     exports.initMiniAppAPI = initMiniAppAPI;
+    exports.initRequest = initRequest;
     exports.isSuccess = isSuccess;
     exports.miniAppToken = miniAppToken;
     exports.openExternalLink = openExternalLink;

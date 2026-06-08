@@ -87,14 +87,14 @@ async function main() {
     console.log("\n[1/2] COMMIT & PUSH: webview-sdk");
     runCommand("git add .");
     runCommand("git commit -m \"them event\"", __dirname, true);
-    runCommand("git push origin cuongnm70");
+    runCommand("git push origin feat/init-request-event");
 
     // 2. Thư mục developer-portal
     console.log("\n[2/2] COMMIT & PUSH: developer-portal");
     const portalDir = path.join(__dirname, '../developer-portal');
     runCommand("git add .", portalDir);
     runCommand("git commit -m \"them event doc\"", portalDir, true);
-    runCommand("git push origin cuongnm70", portalDir);
+    runCommand("git push origin feat/init-request-event", portalDir);
 
     console.log("\n🎉 HOÀN THÀNH TOÀN BỘ CHU TRÌNH!\n");
 }
