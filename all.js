@@ -66,7 +66,7 @@ function waitForFileChange(filePath) {
 
 async function main() {
     // Bước 0: Chờ thay đổi file events.json
-    // await waitForFileChange(EVENTS_JSON_PATH);
+    await waitForFileChange(EVENTS_JSON_PATH);
 
     console.log("\n⚡ BẮT ĐẦU CHU TRÌNH TỰ ĐỘNG ⚡");
 
