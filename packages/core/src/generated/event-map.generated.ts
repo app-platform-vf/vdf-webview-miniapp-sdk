@@ -113,7 +113,9 @@ import type {
   SaveFileRequest,
   SaveFileResponse,
   OpenInAppDeeplinkRequest,
-  OpenInAppDeeplinkResponse
+  OpenInAppDeeplinkResponse,
+  InitRequestRequest,
+  InitRequestResponse
 } from './types.generated';
 
 /** Map event name -> [RequestType, ResponseType] */
@@ -173,6 +175,7 @@ export interface MiniAppEventMap {
   'SAVE_IMAGE_TO_GALLERY': [SaveImageToGalleryRequest, SaveImageToGalleryResponse];
   'SAVE_FILE': [SaveFileRequest, SaveFileResponse];
   'OPEN_IN_APP_DEEPLINK': [OpenInAppDeeplinkRequest, OpenInAppDeeplinkResponse];
+  'INIT_REQUEST': [InitRequestRequest, InitRequestResponse];
 }
 
 /** Danh sach event name constants */
@@ -287,4 +290,6 @@ export const MINIAPP_EVENTS = {
   saveFile: 'SAVE_FILE' as const,
   /** Mở deeplink nội bộ app */
   openInAppDeeplink: 'OPEN_IN_APP_DEEPLINK' as const,
+  /** Get init event */
+  initRequest: 'INIT_REQUEST' as const,
 };

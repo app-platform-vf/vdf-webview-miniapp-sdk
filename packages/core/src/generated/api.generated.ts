@@ -116,7 +116,9 @@ import type {
   SaveFileRequest,
   SaveFileResponse,
   OpenInAppDeeplinkRequest,
-  OpenInAppDeeplinkResponse
+  OpenInAppDeeplinkResponse,
+  InitRequestRequest,
+  InitRequestResponse
 } from './types.generated';
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */
@@ -661,6 +663,14 @@ export async function openInAppDeeplink(payload: OpenInAppDeeplinkRequest): Prom
   return send<OpenInAppDeeplinkResponse>('OPEN_IN_APP_DEEPLINK', payload);
 }
 
+/**
+ * Get init event
+ * Event: INIT_REQUEST
+ */
+export async function initRequest(): Promise<MiniAppResponse<InitRequestResponse>> {
+  return send<InitRequestResponse>('INIT_REQUEST', {});
+}
+
 // ============================================================
 // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
 // ============================================================
@@ -803,6 +813,8 @@ export const MiniAppAPI = {
   saveFile,
   /** Mở deeplink nội bộ app */
   openInAppDeeplink,
+  /** Get init event */
+  initRequest,
   /** Kiem tra response thanh cong */
   isSuccess,
   /** Khoi tao API module */
