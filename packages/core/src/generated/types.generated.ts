@@ -620,6 +620,11 @@ export interface OpenInAppDeeplinkResponse {
   }; // Ket qua
 }
 
+/** Get init event */
+export interface InitRequestRequest {}
+
+export interface InitRequestResponse {}
+
 // --- Event name constants ---
 
 export type MiniAppEventName =
@@ -677,7 +682,8 @@ export type MiniAppEventName =
   | 'EXPIRED_SESSION'
   | 'SAVE_IMAGE_TO_GALLERY'
   | 'SAVE_FILE'
-  | 'OPEN_IN_APP_DEEPLINK';
+  | 'OPEN_IN_APP_DEEPLINK'
+  | 'INIT_REQUEST';
 
 /** Danh sach tat ca events voi metadata */
 export const EVENT_LIST = [
@@ -736,4 +742,5 @@ export const EVENT_LIST = [
   { event: 'SAVE_IMAGE_TO_GALLERY', method: 'saveImageToGallery', description: 'Lưu ảnh vào bộ sưu tập', requestType: 'SaveImageToGalleryRequest', responseType: 'SaveImageToGalleryResponse' },
   { event: 'SAVE_FILE', method: 'saveFile', description: 'Lưu file vào thư mục', requestType: 'SaveFileRequest', responseType: 'SaveFileResponse' },
   { event: 'OPEN_IN_APP_DEEPLINK', method: 'openInAppDeeplink', description: 'Mở deeplink nội bộ app', requestType: 'OpenInAppDeeplinkRequest', responseType: 'OpenInAppDeeplinkResponse' },
+  { event: 'INIT_REQUEST', method: 'initRequest', description: 'Get init event', requestType: 'InitRequestRequest', responseType: 'InitRequestResponse' },
 ] as const;
