@@ -247,7 +247,6 @@ export class MiniApp {
     // Response — co request_id de match
     if (msg.request_id || msg.requestd) {
       this.handleResponse(msg);
-      return;
     }
 
     // Event — lifecycle hoac user event
