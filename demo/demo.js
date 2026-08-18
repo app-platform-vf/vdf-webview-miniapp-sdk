@@ -102,7 +102,7 @@ function groupEvents(events) {
     else if ((evt.event.startsWith("REQUEST") && evt.event.includes("PERMISSION")) || evt.event.includes("EXECUTE_LOCAL_AUTHENTICATION")) prefix = "Device Request Permission"
     else if (evt.event.startsWith("CHECK") && evt.event.includes("PERMISSION")) prefix = "Device Check Permission"
     else if (((evt.event.startsWith("SAVE_") || evt.event.startsWith("GET_")) && evt.event.endsWith("VALUE")) || evt.event.includes("STORAGE")) prefix = "Storage"
-    else if (evt.event.includes("LOCATION")) prefix = "Location"
+    // else if (evt.event.includes("LOCATION")) prefix = "Location"
     else if (evt.event.includes("COLOR") || evt.event.includes("APPEARANCE") || evt.event.includes("THEME")) prefix = "UI"
     else prefix = "Get data event"
     if (!groups[prefix]) groups[prefix] = []
@@ -795,7 +795,7 @@ function genVanillaHTML(events) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>MiniApp SDK - Demo</title>
   <style>
 ${CSS_SHARED}

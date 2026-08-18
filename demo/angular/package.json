@@ -3,9 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "ng serve",
+    "dev": "NODE_OPTIONS=--openssl-legacy-provider ng serve",
     "build": "ng build --base-href=/miniapp/01km03tv28thk14tt8bq4adha5/",
-    "start": "set NODE_OPTIONS=--openssl-legacy-provider && ng serve"
+    "build:v22": "NODE_OPTIONS=--openssl-legacy-provider ng build --base-href=/miniapp/01km03tv28thk14tt8bq4adha5/",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider ng serve"
   },
   "dependencies": {
     "@angular/animations": "^10.2.4",

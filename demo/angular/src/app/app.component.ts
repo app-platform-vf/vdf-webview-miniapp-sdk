@@ -38,7 +38,6 @@ import {
   executeLocalAuthentication,
   getLocalAuthenticationStatus,
   getContacts,
-  pickFile,
   saveStringValue,
   saveBooleanValue,
   saveIntegerValue,
@@ -55,6 +54,10 @@ import {
   miniAppToken,
   updateMiniAppTheme,
   expiredSession,
+  saveImageToGallery,
+  saveFile,
+  openInAppDeeplink,
+  initRequest,
 } from '@webview-sdk/core';
 
 interface EventInfo {
@@ -156,10 +159,10 @@ export class AppComponent implements AfterViewInit {
 
   private registerFns(): void {
     this.fns['appOpenWebview'] = () => appOpenWebview(this.getInputFor_('appOpenWebview') || {"data":{"url":"https://example.com","serviceName":"Tên dịch vụ","isPaymentConfirm":false,"resourceType":"HTML","returnUrl":"https://example.com/return","cancelUrl":"https://example.com/cancel"}});
-    this.fns['appOpenStore'] = () => appOpenStore(this.getInputFor_('appOpenStore') || {"data":{"fallbackUrlAndroid":"market://details?id=com.example.app","fallbackUrlIos":"itms-apps://itunes.apple.com/app/id123456789"}});
+    this.fns['appOpenStore'] = () => appOpenStore(this.getInputFor_('appOpenStore') || {"data":{"fallbackUrlAndroid":"viettelpay://action/c=FECRDT&t=FINANCE4","fallbackUrlIos":"viettelpay://action/c=FECRDT&t=FINANCE4","needToExitMiniApp":true,"package":"null","appId":"null"}});
     this.fns['exit'] = () => exit(this.getInputFor_('exit') || {"data":{"navigationAction":"..."}});
     this.fns['openExternalLink'] = () => openExternalLink(this.getInputFor_('openExternalLink') || {"data":{"uri":"https://google.com"}});
-    this.fns['openMiniApp'] = () => openMiniApp(this.getInputFor_('openMiniApp') || {"data":{"route":{"screenName":"home"},"miniappKey":"01K5FY191HP42SMMJXHWG545ZZ","additional":{"param1":"value1","param2":"value2"},"launchConfig":{"mode":"present"},"themeConfig":{"title":"My App","headerColor":"#EE0033","headerTitle":"Videos","textColor":"white","leftButton":"back","actionButtonThemeType":"normal","hideAndroidBottomNavigationBar":true,"hideIOSSafeAreaBottom":true},"tracking":{"campaign":"promotion","utmSource":"miniapp"}}});
+    this.fns['openMiniApp'] = () => openMiniApp(this.getInputFor_('openMiniApp') || {"data":{"route":{"screenName":"home"},"miniAppKey":"01K5FY191HP42SMMJXHWG545ZZ","additional":{"param1":"value1","param2":"value2"},"launchConfig":{"mode":"present"},"themeConfig":{"title":"My App","headerColor":"#EE0033","headerTitle":"Videos","textColor":"white","leftButton":"back","actionButtonThemeType":"normal","hideAndroidBottomNavigationBar":true,"hideIOSSafeAreaBottom":true},"tracking":{"campaign":"promotion","utmSource":"miniapp"}}});
     this.fns['requestMultipleUserDataPermission'] = () => requestMultipleUserDataPermission(this.getInputFor_('requestMultipleUserDataPermission') || {"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION","USER_BIRTH_DATE_PERMISSION","USER_GENDER_PERMISSION","USER_NATIONAL_ID_PERMISSION"],"useSameReason":true}});
     this.fns['checkMultipleUserDataPermission'] = () => checkMultipleUserDataPermission(this.getInputFor_('checkMultipleUserDataPermission') || {"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION","USER_BIRTH_DATE_PERMISSION","USER_GENDER_PERMISSION","USER_NATIONAL_ID_PERMISSION"]}});
     this.fns['getMultipleUserData'] = () => getMultipleUserData(this.getInputFor_('getMultipleUserData') || {"data":{"dataNames":["age","userName","fullName","phoneNumber","avatar","gender","birthday","idNo"]}});
@@ -191,7 +194,6 @@ export class AppComponent implements AfterViewInit {
     this.fns['executeLocalAuthentication'] = () => executeLocalAuthentication(this.getInputFor_('executeLocalAuthentication') || {"data":{"authOptionsParam":{"sensitiveTransaction":true,"authClassification":["WEAK","STRONG","DEVICE"],"sticky":false,"isShowErrorDialog":true}}});
     this.fns['getLocalAuthenticationStatus'] = () => getLocalAuthenticationStatus();
     this.fns['getContacts'] = () => getContacts(this.getInputFor_('getContacts') || {"data":{"filter":{"contactName":"John"},"pager":{"pageNumber":1,"limitRow":100}}});
-    this.fns['pickFile'] = () => pickFile(this.getInputFor_('pickFile') || {"data":{"mimeType":["image/*","video/*"],"isCapture":true,"source":"PhotoLibrary"}});
     this.fns['saveStringValue'] = () => saveStringValue(this.getInputFor_('saveStringValue') || {"data":{"key":"user_preference","value":"dark_mode"}});
     this.fns['saveBooleanValue'] = () => saveBooleanValue(this.getInputFor_('saveBooleanValue') || {"data":{"key":"notifications_enabled","value":true}});
     this.fns['saveIntegerValue'] = () => saveIntegerValue(this.getInputFor_('saveIntegerValue') || {"data":{"key":"login_count","value":5}});
@@ -208,6 +210,10 @@ export class AppComponent implements AfterViewInit {
     this.fns['miniAppToken'] = () => miniAppToken();
     this.fns['updateMiniAppTheme'] = () => updateMiniAppTheme(this.getInputFor_('updateMiniAppTheme') || {"data":{"headerColor":"#FFFFFF","headerTitle":"Mini App","textColor":"#EE0033","leftButton":"back","actionButtonThemeType":"light","hideAndroidBottomNavigationBar":false,"hideIOSSafeAreaBottom":false,"toolbarMode":"normal"}});
     this.fns['expiredSession'] = () => expiredSession();
+    this.fns['saveImageToGallery'] = () => saveImageToGallery(this.getInputFor_('saveImageToGallery') || {"data":{"type":"url","data":"https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhat--Dem-Sai-G.jpg"}});
+    this.fns['saveFile'] = () => saveFile(this.getInputFor_('saveFile') || {"data":{"url":"https://pdfobject.com/pdf/sample.pdf","fileName":"test_file"}});
+    this.fns['openInAppDeeplink'] = () => openInAppDeeplink(this.getInputFor_('openInAppDeeplink') || {"data":{"url":"viettelpay://action/c=FECRDT&t=FINANCE4"}});
+    this.fns['initRequest'] = () => initRequest();
     this.fns['invoke'] = () => this.app.invoke(this.getInputFor_('invoke')?.event || 'GET_LOCATION', this.getInputFor_('invoke'));
   }
 
@@ -215,10 +221,11 @@ export class AppComponent implements AfterViewInit {
   groups: { title: string; events: EventInfo[] }[] = [
     { title: 'Routing', events: [
       { name: 'appOpenWebview', event: 'APP_OPEN_WEBVIEW', desc: 'Mở một WebView mới với URL và cấu hình tùy chỉnh.', hasParams: true, defaultData: '{"data":{"url":"https://example.com","serviceName":"Tên dịch vụ","isPaymentConfirm":false,"resourceType":"HTML","returnUrl":"https://example.com/return","cancelUrl":"https://example.com/cancel"}}' },
-      { name: 'appOpenStore', event: 'APP_OPEN_STORE', desc: 'Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.', hasParams: true, defaultData: '{"data":{"fallbackUrlAndroid":"market://details?id=com.example.app","fallbackUrlIos":"itms-apps://itunes.apple.com/app/id123456789"}}' },
+      { name: 'appOpenStore', event: 'APP_OPEN_STORE', desc: 'Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.', hasParams: true, defaultData: '{"data":{"fallbackUrlAndroid":"viettelpay://action/c=FECRDT&t=FINANCE4","fallbackUrlIos":"viettelpay://action/c=FECRDT&t=FINANCE4","needToExitMiniApp":true,"package":"null","appId":"null"}}' },
       { name: 'exit', event: 'EXIT', desc: 'Đóng Mini App và điều hướng về màn hình khác.', hasParams: true, defaultData: '{"data":{"navigationAction":"..."}}' },
       { name: 'openExternalLink', event: 'OPEN_EXTERNAL_LINK', desc: 'Mở URL bằng browser mặc định của hệ thống.', hasParams: true, defaultData: '{"data":{"uri":"https://google.com"}}' },
-      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: 'Mở một Mini App khác từ Mini App hiện tại.', hasParams: true, defaultData: '{"data":{"route":{"screenName":"home"},"miniappKey":"01K5FY191HP42SMMJXHWG545ZZ","additional":{"param1":"value1","param2":"value2"},"launchConfig":{"mode":"present"},"themeConfig":{"title":"My App","headerColor":"#EE0033","headerTitle":"Videos","textColor":"white","leftButton":"back","actionButtonThemeType":"normal","hideAndroidBottomNavigationBar":true,"hideIOSSafeAreaBottom":true},"tracking":{"campaign":"promotion","utmSource":"miniapp"}}}' }
+      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: 'Mở một Mini App khác từ Mini App hiện tại.', hasParams: true, defaultData: '{"data":{"route":{"screenName":"home"},"miniAppKey":"01K5FY191HP42SMMJXHWG545ZZ","additional":{"param1":"value1","param2":"value2"},"launchConfig":{"mode":"present"},"themeConfig":{"title":"My App","headerColor":"#EE0033","headerTitle":"Videos","textColor":"white","leftButton":"back","actionButtonThemeType":"normal","hideAndroidBottomNavigationBar":true,"hideIOSSafeAreaBottom":true},"tracking":{"campaign":"promotion","utmSource":"miniapp"}}}' },
+      { name: 'openInAppDeeplink', event: 'OPEN_IN_APP_DEEPLINK', desc: 'Mở deeplink nội bộ app', hasParams: true, defaultData: '{"data":{"url":"viettelpay://action/c=FECRDT&t=FINANCE4"}}' }
     ] },
     { title: 'UserData Permission', events: [
       { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: 'Yêu cầu nhiều quyền user data cùng một lúc.', hasParams: true, defaultData: '{"data":{"permissionCodes":["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION","USER_BIRTH_DATE_PERMISSION","USER_GENDER_PERMISSION","USER_NATIONAL_ID_PERMISSION"],"useSameReason":true}}' },
@@ -229,10 +236,13 @@ export class AppComponent implements AfterViewInit {
       { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: 'Xóa tất cả quyền đã cache ở local.', hasParams: true, defaultData: '{"data":{}}' },
       { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: null },
       { name: 'getContacts', event: 'GET_CONTACTS', desc: 'Lấy danh sách contacts từ danh bạ hệ thống. ', hasParams: true, defaultData: '{"data":{"filter":{"contactName":"John"},"pager":{"pageNumber":1,"limitRow":100}}}' },
-      { name: 'pickFile', event: 'PICK_FILE', desc: 'Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:', hasParams: true, defaultData: '{"data":{"mimeType":["image/*","video/*"],"isCapture":true,"source":"PhotoLibrary"}}' },
+      { name: 'getLocation', event: 'GET_LOCATION', desc: 'Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.', hasParams: false, defaultData: null },
       { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: 'Mở dialog chia sẻ nội dung text.', hasParams: true, defaultData: '{"data":{"content":"Check out this amazing product!"}}' },
       { name: 'miniAppToken', event: 'MINI_APP_TOKEN', desc: 'Get mini app token', hasParams: false, defaultData: null },
-      { name: 'expiredSession', event: 'EXPIRED_SESSION', desc: 'Session expiration event, Delegate cho host app xử lý', hasParams: false, defaultData: null }
+      { name: 'expiredSession', event: 'EXPIRED_SESSION', desc: 'Session expiration event, Delegate cho host app xử lý', hasParams: false, defaultData: null },
+      { name: 'saveImageToGallery', event: 'SAVE_IMAGE_TO_GALLERY', desc: 'Lưu ảnh vào bộ sưu tập', hasParams: true, defaultData: '{"data":{"type":"url","data":"https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhat--Dem-Sai-G.jpg"}}' },
+      { name: 'saveFile', event: 'SAVE_FILE', desc: 'Lưu file vào thư mục', hasParams: true, defaultData: '{"data":{"url":"https://pdfobject.com/pdf/sample.pdf","fileName":"test_file"}}' },
+      { name: 'initRequest', event: 'INIT_REQUEST', desc: 'Get init event', hasParams: false, defaultData: null }
     ] },
     { title: 'Device Request Permission', events: [
       { name: 'requestCameraPermission', event: 'REQUEST_CAMERA_PERMISSION', desc: 'Yêu cầu mở camera', hasParams: false, defaultData: null },
@@ -275,9 +285,6 @@ export class AppComponent implements AfterViewInit {
       { name: 'getLongValue', event: 'GET_LONG_VALUE', desc: 'Lấy giá trị kiểu long.', hasParams: true, defaultData: '{"data":{"key":"...","defaultValue":0}}' },
       { name: 'getFloatValue', event: 'GET_FLOAT_VALUE', desc: 'Lấy giá trị kiểu float.', hasParams: true, defaultData: '{"data":{"key":"...","defaultValue":"..."}}' },
       { name: 'clearStorage', event: 'CLEAR_STORAGE', desc: 'Lấy giá trị kiểu float.', hasParams: false, defaultData: null }
-    ] },
-    { title: 'Location', events: [
-      { name: 'getLocation', event: 'GET_LOCATION', desc: 'Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.', hasParams: false, defaultData: null }
     ] },
     { title: 'UI', events: [
       { name: 'updateMiniAppTheme', event: 'UPDATE_MINI_APP_THEME', desc: 'Update mini app theme', hasParams: true, defaultData: '{"data":{"headerColor":"#FFFFFF","headerTitle":"Mini App","textColor":"#EE0033","leftButton":"back","actionButtonThemeType":"light","hideAndroidBottomNavigationBar":false,"hideIOSSafeAreaBottom":false,"toolbarMode":"normal"}}' }

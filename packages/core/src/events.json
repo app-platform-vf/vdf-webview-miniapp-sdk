@@ -85,13 +85,31 @@
               "type": "string",
               "required": false,
               "description": "URL android",
-              "default": "market://details?id=com.example.app"
+              "default": "viettelpay://action/c=FECRDT&t=FINANCE4"
             },
             "fallbackUrlIos": {
               "type": "string",
               "required": false,
               "description": "URL Ios",
-              "default": "itms-apps://itunes.apple.com/app/id123456789"
+              "default": "viettelpay://action/c=FECRDT&t=FINANCE4"
+            },
+            "needToExitMiniApp": {
+              "type": "boolean",
+              "required": false,
+              "description": "Cần thoát MiniApp trước khi mở deeplink",
+              "default": true
+            },
+            "package": {
+              "type": "string",
+              "required": false,
+              "description": "package id của ứng dụng android",
+              "default": "null"
+            },
+            "appId": {
+              "type": "string",
+              "required": false,
+              "description": "appid của ứng dụng ios",
+              "default": "null"
             }
           }
         }
@@ -152,7 +170,7 @@
               "description": "Định tuyến màn hình trong Mini App ",
               "default": "{       \"screenName\": \"home\"     }"
             },
-            "miniappKey": {
+            "miniAppKey": {
               "type": "string",
               "required": false,
               "description": "Key của Mini App cần mở ",
@@ -826,7 +844,7 @@
       "description": "Thực hiện xác thực sinh trắc học (vân tay, Face ID).",
       "request": {
         "data": {
-          "meta_data": "object",
+          "meta_data": "stringify",
           "required": false,
           "fields": {
             "authOptionsParam": {
@@ -921,49 +939,6 @@
               "type": "number",
               "required": false,
               "default": 1
-            }
-          }
-        }
-      }
-    },
-    {
-      "event": "PICK_FILE",
-      "description": "Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:",
-      "request": {
-        "data": {
-          "meta_data": "stringify",
-          "required": false,
-          "fields": {
-            "mimeType": {
-              "type": "array",
-              "items": "string",
-              "description": "Mảng các MIME types cho phép",
-              "default": "[\"image/*\", \"video/*\"]"
-            },
-            "isCapture": {
-              "type": "boolean",
-              "required": false,
-              "description": "true = Mở camera, false = Chọn từ thư viện",
-              "default": true
-            },
-            "source": {
-              "type": "string",
-              "required": false,
-              "description": "IOS only: PhotoLibrary hoặc Folder",
-              "default": "PhotoLibrary"
-            }
-          }
-        }
-      },
-      "response": {
-        "data": {
-          "meta_data": "object",
-          "required": false,
-          "fields": {
-            "hostUrl": {
-              "type": "string",
-              "required": false,
-              "default": "https://cdn.example.com/file.jpg"
             }
           }
         }
@@ -1366,6 +1341,121 @@
     {
       "event": "EXPIRED_SESSION",
       "description": "Session expiration event, Delegate cho host app xử lý",
+      "request": {},
+      "response": {}
+    },
+    {
+      "event": "SAVE_IMAGE_TO_GALLERY",
+      "description": "Lưu ảnh vào bộ sưu tập",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "fields": {
+            "type": {
+              "type": "string",
+              "required": false,
+              "description": "Loại nguồn ảnh. Giá trị: `\"url\"` hoặc `\"base64\"` (không phân biệt hoa thường) ",
+              "default": "url"
+            },
+            "data": {
+              "type": "string",
+              "required": false,
+              "description": "Nội dung ảnh: đường dẫn URL đầy đủ (nếu type=url) hoặc chuỗi Base64 (nếu type=base64)",
+              "default": "https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhat--Dem-Sai-G.jpg"
+            }
+          }
+        }
+      },
+      "response": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Ket qua",
+          "fields": {
+            "success": {
+              "type": "boolean",
+              "required": true,
+              "description": "Thanh cong"
+            }
+          }
+        }
+      }
+    },
+    {
+      "event": "SAVE_FILE",
+      "description": "Lưu file vào thư mục",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "fields": {
+            "url": {
+              "type": "string",
+              "required": false,
+              "description": "Đường dẫn URL đầy đủ của File",
+              "default": "https://pdfobject.com/pdf/sample.pdf"
+            },
+            "fileName": {
+              "type": "string",
+              "required": false,
+              "description": "Tên file, không bắt buộc, nếu không truyền thì sẽ tự động lấy tên file trong url",
+              "default": "test_file"
+            }
+          }
+        }
+      },
+      "response": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Ket qua",
+          "fields": {
+            "success": {
+              "type": "boolean",
+              "required": true,
+              "description": "Thanh cong"
+            }
+          }
+        }
+      }
+    },
+    {
+      "event": "OPEN_IN_APP_DEEPLINK",
+      "description": "Mở deeplink nội bộ app",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Du lieu",
+          "fields": {
+            "url": {
+              "type": "string",
+              "required": true,
+              "description": "Deeplink",
+              "default": "viettelpay://action/c=FECRDT&t=FINANCE4"
+            }
+          }
+        }
+      },
+      "response": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Ket qua",
+          "fields": {
+            "success": {
+              "type": "boolean",
+              "required": true,
+              "description": "Thanh cong"
+            }
+          }
+        }
+      }
+    },
+    {
+      "event": "INIT_REQUEST",
+      "description": "Get init event",
       "request": {},
       "response": {}
     }

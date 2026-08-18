@@ -79,8 +79,6 @@ import type {
   GetLocalAuthenticationStatusResponse,
   GetContactsRequest,
   GetContactsResponse,
-  PickFileRequest,
-  PickFileResponse,
   SaveStringValueRequest,
   SaveStringValueResponse,
   SaveBooleanValueRequest,
@@ -112,7 +110,15 @@ import type {
   UpdateMiniAppThemeRequest,
   UpdateMiniAppThemeResponse,
   ExpiredSessionRequest,
-  ExpiredSessionResponse
+  ExpiredSessionResponse,
+  SaveImageToGalleryRequest,
+  SaveImageToGalleryResponse,
+  SaveFileRequest,
+  SaveFileResponse,
+  OpenInAppDeeplinkRequest,
+  OpenInAppDeeplinkResponse,
+  InitRequestRequest,
+  InitRequestResponse
 } from './types.generated';
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */
@@ -159,8 +165,11 @@ export async function appOpenWebview(payload: AppOpenWebviewRequest): Promise<Mi
 /**
  * Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.
  * Event: APP_OPEN_STORE
- * @param payload.data.fallbackUrlAndroid (optional) URL android [default: "market://details?id=com.example.app"]
- * @param payload.data.fallbackUrlIos (optional) URL Ios [default: "itms-apps://itunes.apple.com/app/id123456789"]
+ * @param payload.data.fallbackUrlAndroid (optional) URL android [default: "viettelpay://action/c=FECRDT&t=FINANCE4"]
+ * @param payload.data.fallbackUrlIos (optional) URL Ios [default: "viettelpay://action/c=FECRDT&t=FINANCE4"]
+ * @param payload.data.needToExitMiniApp (optional) Cần thoát MiniApp trước khi mở deeplink [default: true]
+ * @param payload.data.package (optional) package id của ứng dụng android [default: "null"]
+ * @param payload.data.appId (optional) appid của ứng dụng ios [default: "null"]
  */
 export async function appOpenStore(payload: AppOpenStoreRequest): Promise<MiniAppResponse<AppOpenStoreResponse>> {
   return send<AppOpenStoreResponse>('APP_OPEN_STORE', payload);
@@ -188,7 +197,7 @@ export async function openExternalLink(payload: OpenExternalLinkRequest): Promis
  * Mở một Mini App khác từ Mini App hiện tại.
  * Event: OPEN_MINI_APP
  * @param payload.data.route (optional) Định tuyến màn hình trong Mini App  [default: "{       \"screenName\": \"home\"     }"]
- * @param payload.data.miniappKey (optional) Key của Mini App cần mở  [default: "01K5FY191HP42SMMJXHWG545ZZ"]
+ * @param payload.data.miniAppKey (optional) Key của Mini App cần mở  [default: "01K5FY191HP42SMMJXHWG545ZZ"]
  * @param payload.data.additional (optional) Dữ liệu bổ sung truyền cho Mini App  [default: "{       \"param1\": \"value1\",       \"param2\": \"value2\"     }"]
  * @param payload.data.launchConfig (optional) Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)	;   [default: "{       \"mode\": \"present\"     }"]
  * @param payload.data.themeConfig (optional) Style cho navigation bar [default: "{       \"title\": \"My App\",       \"headerColor\": \"#EE0033\",       \"headerTitle\": \"Videos\",       \"textColor\": \"white\",       \"leftButton\": \"back\",       \"actionButtonThemeType\": \"normal\",       \"hideAndroidBottomNavigationBar\": true,       \"hideIOSSafeAreaBottom\": true     }"]
@@ -438,10 +447,13 @@ export async function checkLocalAuthenticationPermission(): Promise<MiniAppRespo
 /**
  * Thực hiện xác thực sinh trắc học (vân tay, Face ID).
  * Event: EXECUTE_LOCAL_AUTHENTICATION
+ * @note data duoc JSON.stringify() truoc khi gui
  * @param payload.data.authOptionsParam (optional)  [default: "{       \"sensitiveTransaction\": true,       \"authClassification\": [\"WEAK\", \"STRONG\", \"DEVICE\"],       \"sticky\": false,       \"isShowErrorDialog\": true     }"]
  */
 export async function executeLocalAuthentication(payload: ExecuteLocalAuthenticationRequest = {} as any): Promise<MiniAppResponse<ExecuteLocalAuthenticationResponse>> {
-  return send<ExecuteLocalAuthenticationResponse>('EXECUTE_LOCAL_AUTHENTICATION', payload);
+  const _p: any = { ...payload };
+  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
+  return send<ExecuteLocalAuthenticationResponse>('EXECUTE_LOCAL_AUTHENTICATION', _p);
 }
 
 /**
@@ -460,20 +472,6 @@ export async function getLocalAuthenticationStatus(): Promise<MiniAppResponse<Ge
  */
 export async function getContacts(payload: GetContactsRequest = {} as any): Promise<MiniAppResponse<GetContactsResponse>> {
   return send<GetContactsResponse>('GET_CONTACTS', payload);
-}
-
-/**
- * Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:
- * Event: PICK_FILE
- * @note data duoc JSON.stringify() truoc khi gui
- * @param payload.data.mimeType (required) Mảng các MIME types cho phép [default: "[\"image/*\", \"video/*\"]"]
- * @param payload.data.isCapture (optional) true = Mở camera, false = Chọn từ thư viện [default: true]
- * @param payload.data.source (optional) IOS only: PhotoLibrary hoặc Folder [default: "PhotoLibrary"]
- */
-export async function pickFile(payload: PickFileRequest = {} as any): Promise<MiniAppResponse<PickFileResponse>> {
-  const _p: any = { ...payload };
-  if (_p.data !== undefined) _p.data = JSON.stringify(_p.data);
-  return send<PickFileResponse>('PICK_FILE', _p);
 }
 
 /**
@@ -636,6 +634,43 @@ export async function expiredSession(): Promise<MiniAppResponse<ExpiredSessionRe
   return send<ExpiredSessionResponse>('EXPIRED_SESSION', {});
 }
 
+/**
+ * Lưu ảnh vào bộ sưu tập
+ * Event: SAVE_IMAGE_TO_GALLERY
+ * @param payload.data.type (optional) Loại nguồn ảnh. Giá trị: `"url"` hoặc `"base64"` (không phân biệt hoa thường)  [default: "url"]
+ * @param payload.data.data (optional) Nội dung ảnh: đường dẫn URL đầy đủ (nếu type=url) hoặc chuỗi Base64 (nếu type=base64) [default: "https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhat--Dem-Sai-G.jpg"]
+ */
+export async function saveImageToGallery(payload: SaveImageToGalleryRequest = {} as any): Promise<MiniAppResponse<SaveImageToGalleryResponse>> {
+  return send<SaveImageToGalleryResponse>('SAVE_IMAGE_TO_GALLERY', payload);
+}
+
+/**
+ * Lưu file vào thư mục
+ * Event: SAVE_FILE
+ * @param payload.data.url (optional) Đường dẫn URL đầy đủ của File [default: "https://pdfobject.com/pdf/sample.pdf"]
+ * @param payload.data.fileName (optional) Tên file, không bắt buộc, nếu không truyền thì sẽ tự động lấy tên file trong url [default: "test_file"]
+ */
+export async function saveFile(payload: SaveFileRequest = {} as any): Promise<MiniAppResponse<SaveFileResponse>> {
+  return send<SaveFileResponse>('SAVE_FILE', payload);
+}
+
+/**
+ * Mở deeplink nội bộ app
+ * Event: OPEN_IN_APP_DEEPLINK
+ * @param payload.data.url (required) Deeplink [default: "viettelpay://action/c=FECRDT&t=FINANCE4"]
+ */
+export async function openInAppDeeplink(payload: OpenInAppDeeplinkRequest): Promise<MiniAppResponse<OpenInAppDeeplinkResponse>> {
+  return send<OpenInAppDeeplinkResponse>('OPEN_IN_APP_DEEPLINK', payload);
+}
+
+/**
+ * Get init event
+ * Event: INIT_REQUEST
+ */
+export async function initRequest(): Promise<MiniAppResponse<InitRequestResponse>> {
+  return send<InitRequestResponse>('INIT_REQUEST', {});
+}
+
 // ============================================================
 // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
 // ============================================================
@@ -740,8 +775,6 @@ export const MiniAppAPI = {
   getLocalAuthenticationStatus,
   /** Lấy danh sách contacts từ danh bạ hệ thống.  */
   getContacts,
-  /** Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng: */
-  pickFile,
   /** Lưu giá trị kiểu string. */
   saveStringValue,
   /** Lưu giá trị kiểu boolean. */
@@ -774,6 +807,14 @@ export const MiniAppAPI = {
   updateMiniAppTheme,
   /** Session expiration event, Delegate cho host app xử lý */
   expiredSession,
+  /** Lưu ảnh vào bộ sưu tập */
+  saveImageToGallery,
+  /** Lưu file vào thư mục */
+  saveFile,
+  /** Mở deeplink nội bộ app */
+  openInAppDeeplink,
+  /** Get init event */
+  initRequest,
   /** Kiem tra response thanh cong */
   isSuccess,
   /** Khoi tao API module */

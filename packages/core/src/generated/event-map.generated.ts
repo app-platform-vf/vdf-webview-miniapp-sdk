@@ -76,8 +76,6 @@ import type {
   GetLocalAuthenticationStatusResponse,
   GetContactsRequest,
   GetContactsResponse,
-  PickFileRequest,
-  PickFileResponse,
   SaveStringValueRequest,
   SaveStringValueResponse,
   SaveBooleanValueRequest,
@@ -109,7 +107,15 @@ import type {
   UpdateMiniAppThemeRequest,
   UpdateMiniAppThemeResponse,
   ExpiredSessionRequest,
-  ExpiredSessionResponse
+  ExpiredSessionResponse,
+  SaveImageToGalleryRequest,
+  SaveImageToGalleryResponse,
+  SaveFileRequest,
+  SaveFileResponse,
+  OpenInAppDeeplinkRequest,
+  OpenInAppDeeplinkResponse,
+  InitRequestRequest,
+  InitRequestResponse
 } from './types.generated';
 
 /** Map event name -> [RequestType, ResponseType] */
@@ -150,7 +156,6 @@ export interface MiniAppEventMap {
   'EXECUTE_LOCAL_AUTHENTICATION': [ExecuteLocalAuthenticationRequest, ExecuteLocalAuthenticationResponse];
   'GET_LOCAL_AUTHENTICATION_STATUS': [GetLocalAuthenticationStatusRequest, GetLocalAuthenticationStatusResponse];
   'GET_CONTACTS': [GetContactsRequest, GetContactsResponse];
-  'PICK_FILE': [PickFileRequest, PickFileResponse];
   'SAVE_STRING_VALUE': [SaveStringValueRequest, SaveStringValueResponse];
   'SAVE_BOOLEAN_VALUE': [SaveBooleanValueRequest, SaveBooleanValueResponse];
   'SAVE_INTEGER_VALUE': [SaveIntegerValueRequest, SaveIntegerValueResponse];
@@ -167,6 +172,10 @@ export interface MiniAppEventMap {
   'MINI_APP_TOKEN': [MiniAppTokenRequest, MiniAppTokenResponse];
   'UPDATE_MINI_APP_THEME': [UpdateMiniAppThemeRequest, UpdateMiniAppThemeResponse];
   'EXPIRED_SESSION': [ExpiredSessionRequest, ExpiredSessionResponse];
+  'SAVE_IMAGE_TO_GALLERY': [SaveImageToGalleryRequest, SaveImageToGalleryResponse];
+  'SAVE_FILE': [SaveFileRequest, SaveFileResponse];
+  'OPEN_IN_APP_DEEPLINK': [OpenInAppDeeplinkRequest, OpenInAppDeeplinkResponse];
+  'INIT_REQUEST': [InitRequestRequest, InitRequestResponse];
 }
 
 /** Danh sach event name constants */
@@ -243,8 +252,6 @@ export const MINIAPP_EVENTS = {
   getLocalAuthenticationStatus: 'GET_LOCAL_AUTHENTICATION_STATUS' as const,
   /** Lấy danh sách contacts từ danh bạ hệ thống.  */
   getContacts: 'GET_CONTACTS' as const,
-  /** Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng: */
-  pickFile: 'PICK_FILE' as const,
   /** Lưu giá trị kiểu string. */
   saveStringValue: 'SAVE_STRING_VALUE' as const,
   /** Lưu giá trị kiểu boolean. */
@@ -277,4 +284,12 @@ export const MINIAPP_EVENTS = {
   updateMiniAppTheme: 'UPDATE_MINI_APP_THEME' as const,
   /** Session expiration event, Delegate cho host app xử lý */
   expiredSession: 'EXPIRED_SESSION' as const,
+  /** Lưu ảnh vào bộ sưu tập */
+  saveImageToGallery: 'SAVE_IMAGE_TO_GALLERY' as const,
+  /** Lưu file vào thư mục */
+  saveFile: 'SAVE_FILE' as const,
+  /** Mở deeplink nội bộ app */
+  openInAppDeeplink: 'OPEN_IN_APP_DEEPLINK' as const,
+  /** Get init event */
+  initRequest: 'INIT_REQUEST' as const,
 };

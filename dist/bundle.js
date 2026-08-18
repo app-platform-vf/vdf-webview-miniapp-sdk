@@ -321,8 +321,11 @@ var WebviewSdk = (function (exports) {
     /**
      * Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.
      * Event: APP_OPEN_STORE
-     * @param payload.data.fallbackUrlAndroid (optional) URL android [default: "market://details?id=com.example.app"]
-     * @param payload.data.fallbackUrlIos (optional) URL Ios [default: "itms-apps://itunes.apple.com/app/id123456789"]
+     * @param payload.data.fallbackUrlAndroid (optional) URL android [default: "viettelpay://action/c=FECRDT&t=FINANCE4"]
+     * @param payload.data.fallbackUrlIos (optional) URL Ios [default: "viettelpay://action/c=FECRDT&t=FINANCE4"]
+     * @param payload.data.needToExitMiniApp (optional) Cần thoát MiniApp trước khi mở deeplink [default: true]
+     * @param payload.data.package (optional) package id của ứng dụng android [default: "null"]
+     * @param payload.data.appId (optional) appid của ứng dụng ios [default: "null"]
      */
     function appOpenStore(payload) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -353,7 +356,7 @@ var WebviewSdk = (function (exports) {
      * Mở một Mini App khác từ Mini App hiện tại.
      * Event: OPEN_MINI_APP
      * @param payload.data.route (optional) Định tuyến màn hình trong Mini App  [default: "{       \"screenName\": \"home\"     }"]
-     * @param payload.data.miniappKey (optional) Key của Mini App cần mở  [default: "01K5FY191HP42SMMJXHWG545ZZ"]
+     * @param payload.data.miniAppKey (optional) Key của Mini App cần mở  [default: "01K5FY191HP42SMMJXHWG545ZZ"]
      * @param payload.data.additional (optional) Dữ liệu bổ sung truyền cho Mini App  [default: "{       \"param1\": \"value1\",       \"param2\": \"value2\"     }"]
      * @param payload.data.launchConfig (optional) Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)	;   [default: "{       \"mode\": \"present\"     }"]
      * @param payload.data.themeConfig (optional) Style cho navigation bar [default: "{       \"title\": \"My App\",       \"headerColor\": \"#EE0033\",       \"headerTitle\": \"Videos\",       \"textColor\": \"white\",       \"leftButton\": \"back\",       \"actionButtonThemeType\": \"normal\",       \"hideAndroidBottomNavigationBar\": true,       \"hideIOSSafeAreaBottom\": true     }"]
@@ -635,11 +638,15 @@ var WebviewSdk = (function (exports) {
     /**
      * Thực hiện xác thực sinh trắc học (vân tay, Face ID).
      * Event: EXECUTE_LOCAL_AUTHENTICATION
+     * @note data duoc JSON.stringify() truoc khi gui
      * @param payload.data.authOptionsParam (optional)  [default: "{       \"sensitiveTransaction\": true,       \"authClassification\": [\"WEAK\", \"STRONG\", \"DEVICE\"],       \"sticky\": false,       \"isShowErrorDialog\": true     }"]
      */
     function executeLocalAuthentication() {
         return __awaiter(this, arguments, void 0, function* (payload = {}) {
-            return send('EXECUTE_LOCAL_AUTHENTICATION', payload);
+            const _p = Object.assign({}, payload);
+            if (_p.data !== undefined)
+                _p.data = JSON.stringify(_p.data);
+            return send('EXECUTE_LOCAL_AUTHENTICATION', _p);
         });
     }
     /**
@@ -660,22 +667,6 @@ var WebviewSdk = (function (exports) {
     function getContacts() {
         return __awaiter(this, arguments, void 0, function* (payload = {}) {
             return send('GET_CONTACTS', payload);
-        });
-    }
-    /**
-     * Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:
-     * Event: PICK_FILE
-     * @note data duoc JSON.stringify() truoc khi gui
-     * @param payload.data.mimeType (required) Mảng các MIME types cho phép [default: "[\"image/*\", \"video/*\"]"]
-     * @param payload.data.isCapture (optional) true = Mở camera, false = Chọn từ thư viện [default: true]
-     * @param payload.data.source (optional) IOS only: PhotoLibrary hoặc Folder [default: "PhotoLibrary"]
-     */
-    function pickFile() {
-        return __awaiter(this, arguments, void 0, function* (payload = {}) {
-            const _p = Object.assign({}, payload);
-            if (_p.data !== undefined)
-                _p.data = JSON.stringify(_p.data);
-            return send('PICK_FILE', _p);
         });
     }
     /**
@@ -855,6 +846,47 @@ var WebviewSdk = (function (exports) {
             return send('EXPIRED_SESSION', {});
         });
     }
+    /**
+     * Lưu ảnh vào bộ sưu tập
+     * Event: SAVE_IMAGE_TO_GALLERY
+     * @param payload.data.type (optional) Loại nguồn ảnh. Giá trị: `"url"` hoặc `"base64"` (không phân biệt hoa thường)  [default: "url"]
+     * @param payload.data.data (optional) Nội dung ảnh: đường dẫn URL đầy đủ (nếu type=url) hoặc chuỗi Base64 (nếu type=base64) [default: "https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhat--Dem-Sai-G.jpg"]
+     */
+    function saveImageToGallery() {
+        return __awaiter(this, arguments, void 0, function* (payload = {}) {
+            return send('SAVE_IMAGE_TO_GALLERY', payload);
+        });
+    }
+    /**
+     * Lưu file vào thư mục
+     * Event: SAVE_FILE
+     * @param payload.data.url (optional) Đường dẫn URL đầy đủ của File [default: "https://pdfobject.com/pdf/sample.pdf"]
+     * @param payload.data.fileName (optional) Tên file, không bắt buộc, nếu không truyền thì sẽ tự động lấy tên file trong url [default: "test_file"]
+     */
+    function saveFile() {
+        return __awaiter(this, arguments, void 0, function* (payload = {}) {
+            return send('SAVE_FILE', payload);
+        });
+    }
+    /**
+     * Mở deeplink nội bộ app
+     * Event: OPEN_IN_APP_DEEPLINK
+     * @param payload.data.url (required) Deeplink [default: "viettelpay://action/c=FECRDT&t=FINANCE4"]
+     */
+    function openInAppDeeplink(payload) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return send('OPEN_IN_APP_DEEPLINK', payload);
+        });
+    }
+    /**
+     * Get init event
+     * Event: INIT_REQUEST
+     */
+    function initRequest() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return send('INIT_REQUEST', {});
+        });
+    }
     // ============================================================
     // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
     // ============================================================
@@ -948,8 +980,6 @@ var WebviewSdk = (function (exports) {
         getLocalAuthenticationStatus,
         /** Lấy danh sách contacts từ danh bạ hệ thống.  */
         getContacts,
-        /** Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng: */
-        pickFile,
         /** Lưu giá trị kiểu string. */
         saveStringValue,
         /** Lưu giá trị kiểu boolean. */
@@ -982,6 +1012,14 @@ var WebviewSdk = (function (exports) {
         updateMiniAppTheme,
         /** Session expiration event, Delegate cho host app xử lý */
         expiredSession,
+        /** Lưu ảnh vào bộ sưu tập */
+        saveImageToGallery,
+        /** Lưu file vào thư mục */
+        saveFile,
+        /** Mở deeplink nội bộ app */
+        openInAppDeeplink,
+        /** Get init event */
+        initRequest,
         /** Kiem tra response thanh cong */
         isSuccess,
         /** Khoi tao API module */
@@ -1316,7 +1354,6 @@ var WebviewSdk = (function (exports) {
         { event: 'EXECUTE_LOCAL_AUTHENTICATION', method: 'executeLocalAuthentication', description: 'Thực hiện xác thực sinh trắc học (vân tay, Face ID).', requestType: 'ExecuteLocalAuthenticationRequest', responseType: 'ExecuteLocalAuthenticationResponse' },
         { event: 'GET_LOCAL_AUTHENTICATION_STATUS', method: 'getLocalAuthenticationStatus', description: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', requestType: 'GetLocalAuthenticationStatusRequest', responseType: 'GetLocalAuthenticationStatusResponse' },
         { event: 'GET_CONTACTS', method: 'getContacts', description: 'Lấy danh sách contacts từ danh bạ hệ thống. ', requestType: 'GetContactsRequest', responseType: 'GetContactsResponse' },
-        { event: 'PICK_FILE', method: 'pickFile', description: 'Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:', requestType: 'PickFileRequest', responseType: 'PickFileResponse' },
         { event: 'SAVE_STRING_VALUE', method: 'saveStringValue', description: 'Lưu giá trị kiểu string.', requestType: 'SaveStringValueRequest', responseType: 'SaveStringValueResponse' },
         { event: 'SAVE_BOOLEAN_VALUE', method: 'saveBooleanValue', description: 'Lưu giá trị kiểu boolean.', requestType: 'SaveBooleanValueRequest', responseType: 'SaveBooleanValueResponse' },
         { event: 'SAVE_INTEGER_VALUE', method: 'saveIntegerValue', description: 'Lưu giá trị kiểu int.', requestType: 'SaveIntegerValueRequest', responseType: 'SaveIntegerValueResponse' },
@@ -1333,6 +1370,10 @@ var WebviewSdk = (function (exports) {
         { event: 'MINI_APP_TOKEN', method: 'miniAppToken', description: 'Get mini app token', requestType: 'MiniAppTokenRequest', responseType: 'MiniAppTokenResponse' },
         { event: 'UPDATE_MINI_APP_THEME', method: 'updateMiniAppTheme', description: 'Update mini app theme', requestType: 'UpdateMiniAppThemeRequest', responseType: 'UpdateMiniAppThemeResponse' },
         { event: 'EXPIRED_SESSION', method: 'expiredSession', description: 'Session expiration event, Delegate cho host app xử lý', requestType: 'ExpiredSessionRequest', responseType: 'ExpiredSessionResponse' },
+        { event: 'SAVE_IMAGE_TO_GALLERY', method: 'saveImageToGallery', description: 'Lưu ảnh vào bộ sưu tập', requestType: 'SaveImageToGalleryRequest', responseType: 'SaveImageToGalleryResponse' },
+        { event: 'SAVE_FILE', method: 'saveFile', description: 'Lưu file vào thư mục', requestType: 'SaveFileRequest', responseType: 'SaveFileResponse' },
+        { event: 'OPEN_IN_APP_DEEPLINK', method: 'openInAppDeeplink', description: 'Mở deeplink nội bộ app', requestType: 'OpenInAppDeeplinkRequest', responseType: 'OpenInAppDeeplinkResponse' },
+        { event: 'INIT_REQUEST', method: 'initRequest', description: 'Get init event', requestType: 'InitRequestRequest', responseType: 'InitRequestResponse' },
     ];
 
     // ============================================================
@@ -1413,8 +1454,6 @@ var WebviewSdk = (function (exports) {
         getLocalAuthenticationStatus: 'GET_LOCAL_AUTHENTICATION_STATUS',
         /** Lấy danh sách contacts từ danh bạ hệ thống.  */
         getContacts: 'GET_CONTACTS',
-        /** Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng: */
-        pickFile: 'PICK_FILE',
         /** Lưu giá trị kiểu string. */
         saveStringValue: 'SAVE_STRING_VALUE',
         /** Lưu giá trị kiểu boolean. */
@@ -1447,6 +1486,14 @@ var WebviewSdk = (function (exports) {
         updateMiniAppTheme: 'UPDATE_MINI_APP_THEME',
         /** Session expiration event, Delegate cho host app xử lý */
         expiredSession: 'EXPIRED_SESSION',
+        /** Lưu ảnh vào bộ sưu tập */
+        saveImageToGallery: 'SAVE_IMAGE_TO_GALLERY',
+        /** Lưu file vào thư mục */
+        saveFile: 'SAVE_FILE',
+        /** Mở deeplink nội bộ app */
+        openInAppDeeplink: 'OPEN_IN_APP_DEEPLINK',
+        /** Get init event */
+        initRequest: 'INIT_REQUEST',
     };
 
     exports.EVENT_LIST = EVENT_LIST;
@@ -1493,12 +1540,13 @@ var WebviewSdk = (function (exports) {
     exports.getSharedMiniApp = getSharedMiniApp;
     exports.getStringValue = getStringValue;
     exports.initMiniAppAPI = initMiniAppAPI;
+    exports.initRequest = initRequest;
     exports.isSuccess = isSuccess;
     exports.miniAppToken = miniAppToken;
     exports.openExternalLink = openExternalLink;
+    exports.openInAppDeeplink = openInAppDeeplink;
     exports.openMiniApp = openMiniApp;
     exports.parseNativeMessage = parseNativeMessage;
-    exports.pickFile = pickFile;
     exports.requestAudioPermission = requestAudioPermission;
     exports.requestCameraPermission = requestCameraPermission;
     exports.requestContactsPermission = requestContactsPermission;
@@ -1514,7 +1562,9 @@ var WebviewSdk = (function (exports) {
     exports.requestVideosPermission = requestVideosPermission;
     exports.retry = retry;
     exports.saveBooleanValue = saveBooleanValue;
+    exports.saveFile = saveFile;
     exports.saveFloatValue = saveFloatValue;
+    exports.saveImageToGallery = saveImageToGallery;
     exports.saveIntegerValue = saveIntegerValue;
     exports.saveLongValue = saveLongValue;
     exports.saveStringValue = saveStringValue;

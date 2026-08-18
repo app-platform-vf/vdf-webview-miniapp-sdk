@@ -62,6 +62,9 @@ export interface AppOpenStoreRequest {
   data: {
     fallbackUrlAndroid?: string; // URL android
     fallbackUrlIos?: string; // URL Ios
+    needToExitMiniApp?: boolean; // Cần thoát MiniApp trước khi mở deeplink
+    package?: string; // package id của ứng dụng android
+    appId?: string; // appid của ứng dụng ios
   }; // Du lieu
 }
 
@@ -89,7 +92,7 @@ export interface OpenExternalLinkResponse {}
 export interface OpenMiniAppRequest {
   data: {
     route?: Record<string, any>; // Định tuyến màn hình trong Mini App 
-    miniappKey?: string; // Key của Mini App cần mở 
+    miniAppKey?: string; // Key của Mini App cần mở 
     additional?: Record<string, any>; // Dữ liệu bổ sung truyền cho Mini App 
     launchConfig?: Record<string, any>; // Chế độ launchConfig.mode: present(Mở Mini App mới đè lên Mini App cũ) hoặc replace(Kill Mini App cũ trước khi mở Mini App mới)	;  
     themeConfig?: Record<string, any>; // Style cho navigation bar
@@ -414,21 +417,6 @@ export interface GetContactsResponse {
   };
 }
 
-/** Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng: */
-export interface PickFileRequest {
-  data?: {
-    mimeType: string[]; // Mảng các MIME types cho phép
-    isCapture?: boolean; // true = Mở camera, false = Chọn từ thư viện
-    source?: string; // IOS only: PhotoLibrary hoặc Folder
-  };
-}
-
-export interface PickFileResponse {
-  data?: {
-    hostUrl?: string;
-  };
-}
-
 /** Lưu giá trị kiểu string. */
 export interface SaveStringValueRequest {
   data?: {
@@ -591,6 +579,52 @@ export interface ExpiredSessionRequest {}
 
 export interface ExpiredSessionResponse {}
 
+/** Lưu ảnh vào bộ sưu tập */
+export interface SaveImageToGalleryRequest {
+  data?: {
+    type?: string; // Loại nguồn ảnh. Giá trị: `"url"` hoặc `"base64"` (không phân biệt hoa thường) 
+    data?: string; // Nội dung ảnh: đường dẫn URL đầy đủ (nếu type=url) hoặc chuỗi Base64 (nếu type=base64)
+  };
+}
+
+export interface SaveImageToGalleryResponse {
+  data: {
+    success: boolean; // Thanh cong
+  }; // Ket qua
+}
+
+/** Lưu file vào thư mục */
+export interface SaveFileRequest {
+  data?: {
+    url?: string; // Đường dẫn URL đầy đủ của File
+    fileName?: string; // Tên file, không bắt buộc, nếu không truyền thì sẽ tự động lấy tên file trong url
+  };
+}
+
+export interface SaveFileResponse {
+  data: {
+    success: boolean; // Thanh cong
+  }; // Ket qua
+}
+
+/** Mở deeplink nội bộ app */
+export interface OpenInAppDeeplinkRequest {
+  data: {
+    url: string; // Deeplink
+  }; // Du lieu
+}
+
+export interface OpenInAppDeeplinkResponse {
+  data: {
+    success: boolean; // Thanh cong
+  }; // Ket qua
+}
+
+/** Get init event */
+export interface InitRequestRequest {}
+
+export interface InitRequestResponse {}
+
 // --- Event name constants ---
 
 export type MiniAppEventName =
@@ -630,7 +664,6 @@ export type MiniAppEventName =
   | 'EXECUTE_LOCAL_AUTHENTICATION'
   | 'GET_LOCAL_AUTHENTICATION_STATUS'
   | 'GET_CONTACTS'
-  | 'PICK_FILE'
   | 'SAVE_STRING_VALUE'
   | 'SAVE_BOOLEAN_VALUE'
   | 'SAVE_INTEGER_VALUE'
@@ -646,7 +679,11 @@ export type MiniAppEventName =
   | 'SHARE_TEXT_CONTENT'
   | 'MINI_APP_TOKEN'
   | 'UPDATE_MINI_APP_THEME'
-  | 'EXPIRED_SESSION';
+  | 'EXPIRED_SESSION'
+  | 'SAVE_IMAGE_TO_GALLERY'
+  | 'SAVE_FILE'
+  | 'OPEN_IN_APP_DEEPLINK'
+  | 'INIT_REQUEST';
 
 /** Danh sach tat ca events voi metadata */
 export const EVENT_LIST = [
@@ -686,7 +723,6 @@ export const EVENT_LIST = [
   { event: 'EXECUTE_LOCAL_AUTHENTICATION', method: 'executeLocalAuthentication', description: 'Thực hiện xác thực sinh trắc học (vân tay, Face ID).', requestType: 'ExecuteLocalAuthenticationRequest', responseType: 'ExecuteLocalAuthenticationResponse' },
   { event: 'GET_LOCAL_AUTHENTICATION_STATUS', method: 'getLocalAuthenticationStatus', description: ' lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).', requestType: 'GetLocalAuthenticationStatusRequest', responseType: 'GetLocalAuthenticationStatusResponse' },
   { event: 'GET_CONTACTS', method: 'getContacts', description: 'Lấy danh sách contacts từ danh bạ hệ thống. ', requestType: 'GetContactsRequest', responseType: 'GetContactsResponse' },
-  { event: 'PICK_FILE', method: 'pickFile', description: 'Mở trình chọn file từ thư viện hoặc camera. Phải có quyền tương ứng trước khi sử dụng:', requestType: 'PickFileRequest', responseType: 'PickFileResponse' },
   { event: 'SAVE_STRING_VALUE', method: 'saveStringValue', description: 'Lưu giá trị kiểu string.', requestType: 'SaveStringValueRequest', responseType: 'SaveStringValueResponse' },
   { event: 'SAVE_BOOLEAN_VALUE', method: 'saveBooleanValue', description: 'Lưu giá trị kiểu boolean.', requestType: 'SaveBooleanValueRequest', responseType: 'SaveBooleanValueResponse' },
   { event: 'SAVE_INTEGER_VALUE', method: 'saveIntegerValue', description: 'Lưu giá trị kiểu int.', requestType: 'SaveIntegerValueRequest', responseType: 'SaveIntegerValueResponse' },
@@ -703,4 +739,8 @@ export const EVENT_LIST = [
   { event: 'MINI_APP_TOKEN', method: 'miniAppToken', description: 'Get mini app token', requestType: 'MiniAppTokenRequest', responseType: 'MiniAppTokenResponse' },
   { event: 'UPDATE_MINI_APP_THEME', method: 'updateMiniAppTheme', description: 'Update mini app theme', requestType: 'UpdateMiniAppThemeRequest', responseType: 'UpdateMiniAppThemeResponse' },
   { event: 'EXPIRED_SESSION', method: 'expiredSession', description: 'Session expiration event, Delegate cho host app xử lý', requestType: 'ExpiredSessionRequest', responseType: 'ExpiredSessionResponse' },
+  { event: 'SAVE_IMAGE_TO_GALLERY', method: 'saveImageToGallery', description: 'Lưu ảnh vào bộ sưu tập', requestType: 'SaveImageToGalleryRequest', responseType: 'SaveImageToGalleryResponse' },
+  { event: 'SAVE_FILE', method: 'saveFile', description: 'Lưu file vào thư mục', requestType: 'SaveFileRequest', responseType: 'SaveFileResponse' },
+  { event: 'OPEN_IN_APP_DEEPLINK', method: 'openInAppDeeplink', description: 'Mở deeplink nội bộ app', requestType: 'OpenInAppDeeplinkRequest', responseType: 'OpenInAppDeeplinkResponse' },
+  { event: 'INIT_REQUEST', method: 'initRequest', description: 'Get init event', requestType: 'InitRequestRequest', responseType: 'InitRequestResponse' },
 ] as const;
