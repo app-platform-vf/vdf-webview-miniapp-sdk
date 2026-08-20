@@ -23,11 +23,11 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/vdf/vdf-webview-miniapp-sdk.git"
+        "url": "git+https://github.com/app-platform-vf/vdf-webview-miniapp-sdk.git"
     },
-    "homepage": "https://vdf.github.io/vdf-webview-miniapp-sdk/",
+    "homepage": "https://app-platform-vf.github.io/vdf-webview-miniapp-sdk/",
     "bugs": {
-        "url": "https://github.com/vdf/vdf-webview-miniapp-sdk/issues"
+        "url": "https://github.com/app-platform-vf/vdf-webview-miniapp-sdk/issues"
     },
     "publishConfig": {
         "access": "public"
