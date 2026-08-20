@@ -1,0 +1,21 @@
+Copyright (c) 2026 VDF. All rights reserved.
+
+This software and its accompanying source code, documentation and generated
+artifacts are proprietary and confidential to VDF ("Proprietary Software").
+
+No license, express or implied, is granted to any person or entity to use,
+copy, reproduce, distribute, modify, create derivative works of, publicly
+display, publicly perform, sublicense, or sell the Proprietary Software, in
+whole or in part, without the prior written permission of VDF.
+
+The Proprietary Software may be published to public package registries
+(including the npm registry) solely for distribution and integration
+convenience. Such publication does NOT grant any license or right to use the
+Proprietary Software beyond what is expressly authorized in writing by VDF.
+
+THE PROPRIETARY SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+EVENT SHALL VDF BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE PROPRIETARY SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE PROPRIETARY SOFTWARE.

@@ -1,14 +1,39 @@
 {
-    "name": "@webview-sdk/core",
+    "name": "vdf-webview-miniapp-sdk",
     "version": "1.0.0",
+    "description": "SDK phía WebView cho Super MiniApp — giao tiếp giữa WebView (JS/TS) và app Native (Android/iOS) qua bridge event. API type-safe sinh tự động từ events.json.",
+    "license": "UNLICENSED",
+    "author": "VDF",
     "main": "dist/index.js",
+    "module": "dist/index.js",
     "types": "dist/index.d.ts",
-    "scripts": {
-        "build": "tsc -p tsconfig.json"
-    },
+    "sideEffects": false,
     "files": [
         "dist",
         "README.md",
         "LICENSE"
-    ]
+    ],
+    "keywords": [
+        "miniapp",
+        "webview",
+        "sdk",
+        "bridge",
+        "super-app",
+        "vdf"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/vdf/vdf-webview-miniapp-sdk.git"
+    },
+    "homepage": "https://vdf.github.io/vdf-webview-miniapp-sdk/",
+    "bugs": {
+        "url": "https://github.com/vdf/vdf-webview-miniapp-sdk/issues"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "prepublishOnly": "npm run build"
+    }
 }
