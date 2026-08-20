@@ -1,0 +1,3 @@
+# NTAPP-SDK R13 §8b#6 — repo này là EXTERNAL CONTRACT SOURCE (web contract cho MiniApp).
+# bootstrap KHÔNG adopt như code repo: chỉ vào .code-workspace (read-only), không cài pre-commit
+# hook SDK / không ghi .bmm-config.yaml / không chèn marker vào CLAUDE.md.
