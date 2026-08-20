@@ -1,0 +1,5 @@
+/* Theme tối giản cho docs SDK — dùng Infima mặc định của Docusaurus */
+:root {
+  --ifm-color-primary: #0b57d0;
+  --ifm-code-font-size: 92%;
+}

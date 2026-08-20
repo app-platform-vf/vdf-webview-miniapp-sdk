@@ -11,5 +11,5 @@ all.js
 
 # github-page build artifacts
 _site/
-docs/
+/docs/
 *.tgz

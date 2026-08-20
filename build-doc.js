@@ -4,7 +4,9 @@ const os = require("os")
 const { execSync } = require("child_process")
 
 const EVENTS_JSON = "./packages/core/src/events.json"
-const OUTPUT_DIR = path.join(__dirname, "../developer-portal/docs/API")
+// Output vào Docusaurus site TỰ CHỨA trong repo (trước đây ghi cross-repo ../developer-portal — bỏ).
+// Override qua env DOC_OUTPUT_DIR nếu cần.
+const OUTPUT_DIR = process.env.DOC_OUTPUT_DIR || path.join(__dirname, "website/docs")
 
 function toCamelCase(str) {
   return str.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase())
@@ -162,11 +164,11 @@ function generateMarkdown(events) {
 
 > Tự động sinh từ events.json — 56 events.
 
-**Demo Links:**
-- [Demo Angular](https://staging1.viettelmoney.vn/miniapp/01km03tv28thk14tt8bq4adha5/)
-- [Demo React](https://staging1.viettelmoney.vn/miniapp/01km03s38mdqyz1xd1fj03yz90/)
-- [Demo Vue](https://staging1.viettelmoney.vn/miniapp/01km03swe6njmgnx0jfva6dgvd/)
-- [Demo Vanilla JS](https://staging1.viettelmoney.vn/miniapp/01kn5wx2sf1at32sjc9v1y6km3/)
+**Demo Links (GitHub Pages):**
+- [Demo Vanilla JS](https://app-platform-vf.github.io/vdf-webview-miniapp-sdk/demo/vanilla/)
+- [Demo React](https://app-platform-vf.github.io/vdf-webview-miniapp-sdk/demo/react/)
+- [Demo Vue](https://app-platform-vf.github.io/vdf-webview-miniapp-sdk/demo/vue/)
+- [Demo Angular](https://app-platform-vf.github.io/vdf-webview-miniapp-sdk/demo/angular/)
 
 ## 1. Getting Started
 
@@ -571,4 +573,6 @@ function copyAssets() {
   console.log(`  -> Created demo.zip -> ${zipDest}`)
 }
 
-copyAssets()
+// copyAssets() copy tgz/bundle/demo.zip sang ../developer-portal (cross-repo, tên tgz cũ) —
+// TẮT mặc định cho luồng self-contained github-page. Bật lại: DOC_COPY_ASSETS=1 node build-doc.js
+if (process.env.DOC_COPY_ASSETS) copyAssets()

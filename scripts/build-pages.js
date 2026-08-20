@@ -27,11 +27,15 @@ const cp = (src, dst) => fs.cpSync(src, dst, { recursive: true });
 fs.rmSync(SITE, { recursive: true, force: true });
 fs.mkdirSync(SITE, { recursive: true });
 
-// ── 1. Docs (typedoc) -> /docs/ ───────────────────────────────────────────────
-run("npm run typedoc");
-const docsDir = path.join(ROOT, "docs");
-if (!fs.existsSync(docsDir)) { console.error("❌ typedoc không sinh docs/ — kiểm typedoc.json"); process.exit(1); }
-cp(docsDir, path.join(SITE, "docs"));
+// ── 1. Docs (Docusaurus) -> /docs/  +  typedoc API reference -> /docs/reference/ ─
+run("node build-doc.js");                                   // regen website/docs từ events.json
+run("npm install --no-audit --no-fund", path.join(ROOT, "website"));
+run("npm run build", path.join(ROOT, "website"));           // docusaurus build -> website/build
+cp(path.join(ROOT, "website", "build"), path.join(SITE, "docs"));
+run("npm run typedoc");                                     // typedoc -> docs/
+const tdDir = path.join(ROOT, "docs");
+if (!fs.existsSync(tdDir)) { console.error("❌ typedoc không sinh docs/ — kiểm typedoc.json"); process.exit(1); }
+cp(tdDir, path.join(SITE, "docs", "reference"));            // giữ API reference tại /docs/reference/
 
 // ── 2. Vanilla demo (luôn có) -> /demo/vanilla/ ───────────────────────────────
 run("npm run build:js"); // bundle.js tươi
