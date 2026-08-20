@@ -8,3 +8,8 @@ demo/vue/dist/
 demo/react/dist/
 demo/dist/
 all.js
+
+# github-page build artifacts
+_site/
+docs/
+*.tgz

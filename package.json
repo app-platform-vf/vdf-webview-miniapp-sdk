@@ -12,12 +12,15 @@
         "demo": "node build-all-demo.js",
         "build:ts": "tsc -p packages/core/tsconfig.json",
         "build:bundle": "rollup -c",
-        "build:js": "npm run build:ts && npm run build:bundle"
+        "build:js": "npm run build:ts && npm run build:bundle",
+        "typedoc": "typedoc",
+        "pages": "node scripts/build-pages.js"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^29.0.2",
         "@rollup/plugin-node-resolve": "^16.0.3",
         "rollup": "^4.60.1",
+        "typedoc": "^0.28.0",
         "typescript": "^5.9.3"
     }
 }
