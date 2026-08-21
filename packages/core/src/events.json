@@ -1458,6 +1458,67 @@
       "description": "Get init event",
       "request": {},
       "response": {}
+    },
+    {
+      "event": "SET_SCREEN_BRIGHTNESS",
+      "description": "Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Du lieu",
+          "fields": {
+            "value": {
+              "type": "number",
+              "required": true,
+              "description": "Độ sáng 0.0–1.0",
+              "default": 0.8
+            }
+          }
+        }
+      },
+      "response": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Ket qua",
+          "fields": {
+            "success": {
+              "type": "boolean",
+              "required": true,
+              "description": "Thành công",
+              "default": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "event": "RESTORE_SCREEN_BRIGHTNESS",
+      "description": "Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "description": "Du lieu",
+          "fields": {}
+        }
+      },
+      "response": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Ket qua",
+          "fields": {
+            "success": {
+              "type": "boolean",
+              "required": true,
+              "description": "Thành công",
+              "default": true
+            }
+          }
+        }
+      }
     }
   ]
-} 
+}

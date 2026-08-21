@@ -115,7 +115,11 @@ import type {
   OpenInAppDeeplinkRequest,
   OpenInAppDeeplinkResponse,
   InitRequestRequest,
-  InitRequestResponse
+  InitRequestResponse,
+  SetScreenBrightnessRequest,
+  SetScreenBrightnessResponse,
+  RestoreScreenBrightnessRequest,
+  RestoreScreenBrightnessResponse
 } from './types.generated';
 
 /** Map event name -> [RequestType, ResponseType] */
@@ -176,6 +180,8 @@ export interface MiniAppEventMap {
   'SAVE_FILE': [SaveFileRequest, SaveFileResponse];
   'OPEN_IN_APP_DEEPLINK': [OpenInAppDeeplinkRequest, OpenInAppDeeplinkResponse];
   'INIT_REQUEST': [InitRequestRequest, InitRequestResponse];
+  'SET_SCREEN_BRIGHTNESS': [SetScreenBrightnessRequest, SetScreenBrightnessResponse];
+  'RESTORE_SCREEN_BRIGHTNESS': [RestoreScreenBrightnessRequest, RestoreScreenBrightnessResponse];
 }
 
 /** Danh sach event name constants */
@@ -292,4 +298,8 @@ export const MINIAPP_EVENTS = {
   openInAppDeeplink: 'OPEN_IN_APP_DEEPLINK' as const,
   /** Get init event */
   initRequest: 'INIT_REQUEST' as const,
+  /** Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền. */
+  setScreenBrightness: 'SET_SCREEN_BRIGHTNESS' as const,
+  /** Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app. */
+  restoreScreenBrightness: 'RESTORE_SCREEN_BRIGHTNESS' as const,
 };

@@ -59,6 +59,8 @@ import {
   saveFile,
   openInAppDeeplink,
   initRequest,
+  setScreenBrightness,
+  restoreScreenBrightness,
 } from 'vdf-webview-miniapp-sdk';
 
 interface EventInfo {
@@ -215,6 +217,8 @@ export class AppComponent implements AfterViewInit {
     this.fns['saveFile'] = () => saveFile(this.getInputFor_('saveFile') || {"data":{"url":"https://pdfobject.com/pdf/sample.pdf","fileName":"test_file"}});
     this.fns['openInAppDeeplink'] = () => openInAppDeeplink(this.getInputFor_('openInAppDeeplink') || {"data":{"url":"viettelpay://action/c=FECRDT&t=FINANCE4"}});
     this.fns['initRequest'] = () => initRequest();
+    this.fns['setScreenBrightness'] = () => setScreenBrightness(this.getInputFor_('setScreenBrightness') || {"data":{"value":0.8}});
+    this.fns['restoreScreenBrightness'] = () => restoreScreenBrightness(this.getInputFor_('restoreScreenBrightness') || {"data":{}});
     this.fns['invoke'] = () => this.app.invoke(this.getInputFor_('invoke')?.event || 'GET_LOCATION', this.getInputFor_('invoke'));
   }
 
@@ -243,7 +247,9 @@ export class AppComponent implements AfterViewInit {
       { name: 'expiredSession', event: 'EXPIRED_SESSION', desc: 'Session expiration event, Delegate cho host app xử lý', hasParams: false, defaultData: null },
       { name: 'saveImageToGallery', event: 'SAVE_IMAGE_TO_GALLERY', desc: 'Lưu ảnh vào bộ sưu tập', hasParams: true, defaultData: '{"data":{"type":"url","data":"https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhat--Dem-Sai-G.jpg"}}' },
       { name: 'saveFile', event: 'SAVE_FILE', desc: 'Lưu file vào thư mục', hasParams: true, defaultData: '{"data":{"url":"https://pdfobject.com/pdf/sample.pdf","fileName":"test_file"}}' },
-      { name: 'initRequest', event: 'INIT_REQUEST', desc: 'Get init event', hasParams: false, defaultData: null }
+      { name: 'initRequest', event: 'INIT_REQUEST', desc: 'Get init event', hasParams: false, defaultData: null },
+      { name: 'setScreenBrightness', event: 'SET_SCREEN_BRIGHTNESS', desc: 'Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.', hasParams: true, defaultData: '{"data":{"value":0.8}}' },
+      { name: 'restoreScreenBrightness', event: 'RESTORE_SCREEN_BRIGHTNESS', desc: 'Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.', hasParams: true, defaultData: '{"data":{}}' }
     ] },
     { title: 'Device Request Permission', events: [
       { name: 'requestCameraPermission', event: 'REQUEST_CAMERA_PERMISSION', desc: 'Yêu cầu mở camera', hasParams: false, defaultData: null },

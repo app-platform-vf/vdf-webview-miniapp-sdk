@@ -118,7 +118,11 @@ import type {
   OpenInAppDeeplinkRequest,
   OpenInAppDeeplinkResponse,
   InitRequestRequest,
-  InitRequestResponse
+  InitRequestResponse,
+  SetScreenBrightnessRequest,
+  SetScreenBrightnessResponse,
+  RestoreScreenBrightnessRequest,
+  RestoreScreenBrightnessResponse
 } from './types.generated';
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */
@@ -671,6 +675,23 @@ export async function initRequest(): Promise<MiniAppResponse<InitRequestResponse
   return send<InitRequestResponse>('INIT_REQUEST', {});
 }
 
+/**
+ * Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.
+ * Event: SET_SCREEN_BRIGHTNESS
+ * @param payload.data.value (required) Độ sáng 0.0–1.0 [default: 0.8]
+ */
+export async function setScreenBrightness(payload: SetScreenBrightnessRequest): Promise<MiniAppResponse<SetScreenBrightnessResponse>> {
+  return send<SetScreenBrightnessResponse>('SET_SCREEN_BRIGHTNESS', payload);
+}
+
+/**
+ * Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.
+ * Event: RESTORE_SCREEN_BRIGHTNESS
+ */
+export async function restoreScreenBrightness(payload: RestoreScreenBrightnessRequest = {} as any): Promise<MiniAppResponse<RestoreScreenBrightnessResponse>> {
+  return send<RestoreScreenBrightnessResponse>('RESTORE_SCREEN_BRIGHTNESS', payload);
+}
+
 // ============================================================
 // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
 // ============================================================
@@ -815,6 +836,10 @@ export const MiniAppAPI = {
   openInAppDeeplink,
   /** Get init event */
   initRequest,
+  /** Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền. */
+  setScreenBrightness,
+  /** Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app. */
+  restoreScreenBrightness,
   /** Kiem tra response thanh cong */
   isSuccess,
   /** Khoi tao API module */
