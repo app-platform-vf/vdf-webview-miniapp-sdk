@@ -59,6 +59,8 @@ import {
   saveFile,
   openInAppDeeplink,
   initRequest,
+  setScreenBrightness,
+  restoreScreenBrightness,
 } from 'vdf-webview-miniapp-sdk';
 
 const app = getSharedMiniApp({ debug: true });
@@ -86,10 +88,12 @@ const groups: { title: string; events: EventInfo[] }[] = [
   ] },
   { title: "Get data event", events: [
       { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: "Lấy nhiều trường dữ liệu người dùng từ host app.", hasParams: true, defaultData: "{\"data\":{\"dataNames\":[\"age\",\"userName\",\"fullName\",\"phoneNumber\",\"avatar\",\"gender\",\"birthday\",\"idNo\"]}}" },
-      { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: "Xóa tất cả quyền đã cache ở local.", hasParams: true, defaultData: "{\"data\":{}}" },
       { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: " lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).", hasParams: false, defaultData: null },
       { name: 'getContacts', event: 'GET_CONTACTS', desc: "Lấy danh sách contacts từ danh bạ hệ thống. ", hasParams: true, defaultData: "{\"data\":{\"filter\":{\"contactName\":\"John\"},\"pager\":{\"pageNumber\":1,\"limitRow\":100}}}" },
-      { name: 'getLocation', event: 'GET_LOCATION', desc: "Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.", hasParams: false, defaultData: null },
+      { name: 'getLocation', event: 'GET_LOCATION', desc: "Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.", hasParams: false, defaultData: null }
+  ] },
+  { title: "Other", events: [
+      { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: "Xóa tất cả quyền đã cache ở local.", hasParams: true, defaultData: "{\"data\":{}}" },
       { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: "Mở dialog chia sẻ nội dung text.", hasParams: true, defaultData: "{\"data\":{\"content\":\"Check out this amazing product!\"}}" },
       { name: 'miniAppToken', event: 'MINI_APP_TOKEN', desc: "Get mini app token", hasParams: false, defaultData: null },
       { name: 'expiredSession', event: 'EXPIRED_SESSION', desc: "Session expiration event, Delegate cho host app xử lý", hasParams: false, defaultData: null },
@@ -140,7 +144,9 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'clearStorage', event: 'CLEAR_STORAGE', desc: "Lấy giá trị kiểu float.", hasParams: false, defaultData: null }
   ] },
   { title: "UI", events: [
-      { name: 'updateMiniAppTheme', event: 'UPDATE_MINI_APP_THEME', desc: "Update mini app theme", hasParams: true, defaultData: "{\"data\":{\"headerColor\":\"#FFFFFF\",\"headerTitle\":\"Mini App\",\"textColor\":\"#EE0033\",\"leftButton\":\"back\",\"actionButtonThemeType\":\"light\",\"hideAndroidBottomNavigationBar\":false,\"hideIOSSafeAreaBottom\":false,\"toolbarMode\":\"normal\"}}" }
+      { name: 'updateMiniAppTheme', event: 'UPDATE_MINI_APP_THEME', desc: "Update mini app theme", hasParams: true, defaultData: "{\"data\":{\"headerColor\":\"#FFFFFF\",\"headerTitle\":\"Mini App\",\"textColor\":\"#EE0033\",\"leftButton\":\"back\",\"actionButtonThemeType\":\"light\",\"hideAndroidBottomNavigationBar\":false,\"hideIOSSafeAreaBottom\":false,\"toolbarMode\":\"normal\"}}" },
+      { name: 'setScreenBrightness', event: 'SET_SCREEN_BRIGHTNESS', desc: "Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.", hasParams: true, defaultData: "{\"data\":{\"value\":0.8}}" },
+      { name: 'restoreScreenBrightness', event: 'RESTORE_SCREEN_BRIGHTNESS', desc: "Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.", hasParams: true, defaultData: "{\"data\":{}}" }
   ] }
 ];
 
@@ -253,6 +259,8 @@ export default function App() {
     'saveFile': () => saveFile(getInputFor('saveFile') || {"data":{"url":"https://pdfobject.com/pdf/sample.pdf","fileName":"test_file"}}),
     'openInAppDeeplink': () => openInAppDeeplink(getInputFor('openInAppDeeplink') || {"data":{"url":"viettelpay://action/c=FECRDT&t=FINANCE4"}}),
     'initRequest': () => initRequest(),
+    'setScreenBrightness': () => setScreenBrightness(getInputFor('setScreenBrightness') || {"data":{"value":0.8}}),
+    'restoreScreenBrightness': () => restoreScreenBrightness(getInputFor('restoreScreenBrightness') || {"data":{}}),
     'invoke': () => app.invoke(getInputFor('invoke')?.event || 'GET_LOCATION', getInputFor('invoke')),
   };
 

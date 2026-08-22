@@ -625,6 +625,30 @@ export interface InitRequestRequest {}
 
 export interface InitRequestResponse {}
 
+/** Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền. */
+export interface SetScreenBrightnessRequest {
+  data: {
+    value: number; // Độ sáng 0.0–1.0
+  }; // Du lieu
+}
+
+export interface SetScreenBrightnessResponse {
+  data: {
+    success: boolean; // Thành công
+  }; // Ket qua
+}
+
+/** Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app. */
+export interface RestoreScreenBrightnessRequest {
+  data?: Record<string, any>; // Du lieu
+}
+
+export interface RestoreScreenBrightnessResponse {
+  data: {
+    success: boolean; // Thành công
+  }; // Ket qua
+}
+
 // --- Event name constants ---
 
 export type MiniAppEventName =
@@ -683,7 +707,9 @@ export type MiniAppEventName =
   | 'SAVE_IMAGE_TO_GALLERY'
   | 'SAVE_FILE'
   | 'OPEN_IN_APP_DEEPLINK'
-  | 'INIT_REQUEST';
+  | 'INIT_REQUEST'
+  | 'SET_SCREEN_BRIGHTNESS'
+  | 'RESTORE_SCREEN_BRIGHTNESS';
 
 /** Danh sach tat ca events voi metadata */
 export const EVENT_LIST = [
@@ -743,4 +769,6 @@ export const EVENT_LIST = [
   { event: 'SAVE_FILE', method: 'saveFile', description: 'Lưu file vào thư mục', requestType: 'SaveFileRequest', responseType: 'SaveFileResponse' },
   { event: 'OPEN_IN_APP_DEEPLINK', method: 'openInAppDeeplink', description: 'Mở deeplink nội bộ app', requestType: 'OpenInAppDeeplinkRequest', responseType: 'OpenInAppDeeplinkResponse' },
   { event: 'INIT_REQUEST', method: 'initRequest', description: 'Get init event', requestType: 'InitRequestRequest', responseType: 'InitRequestResponse' },
+  { event: 'SET_SCREEN_BRIGHTNESS', method: 'setScreenBrightness', description: 'Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.', requestType: 'SetScreenBrightnessRequest', responseType: 'SetScreenBrightnessResponse' },
+  { event: 'RESTORE_SCREEN_BRIGHTNESS', method: 'restoreScreenBrightness', description: 'Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.', requestType: 'RestoreScreenBrightnessRequest', responseType: 'RestoreScreenBrightnessResponse' },
 ] as const;

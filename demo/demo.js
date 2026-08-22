@@ -98,14 +98,16 @@ function groupEvents(events) {
   const groups = {}
   events.forEach(evt => {
     let prefix
-    if (evt.event.includes("USER_DATA") && evt.event.includes("PERMISSION")) prefix = "UserData Permission"
+    if (evt.group) prefix = evt.group
+    else if (evt.event.includes("USER_DATA") && evt.event.includes("PERMISSION")) prefix = "UserData Permission"
     else if (evt.event.startsWith("EXIT") || evt.event.includes("OPEN")) prefix = "Routing"
     else if ((evt.event.startsWith("REQUEST") && evt.event.includes("PERMISSION")) || evt.event.includes("EXECUTE_LOCAL_AUTHENTICATION")) prefix = "Device Request Permission"
     else if (evt.event.startsWith("CHECK") && evt.event.includes("PERMISSION")) prefix = "Device Check Permission"
     else if (((evt.event.startsWith("SAVE_") || evt.event.startsWith("GET_")) && evt.event.endsWith("VALUE")) || evt.event.includes("STORAGE")) prefix = "Storage"
     // else if (evt.event.includes("LOCATION")) prefix = "Location"
-    else if (evt.event.includes("COLOR") || evt.event.includes("APPEARANCE") || evt.event.includes("THEME")) prefix = "UI"
-    else prefix = "Get data event"
+    else if (evt.event.includes("COLOR") || evt.event.includes("APPEARANCE") || evt.event.includes("THEME") || evt.event.includes("BRIGHTNESS") || evt.event.includes("SCREEN")) prefix = "UI"
+    else if (evt.event.startsWith("GET_") || evt.event.includes("LOCATION") || evt.event.includes("CONTACT")) prefix = "Get data event"
+    else prefix = "Other"
     if (!groups[prefix]) groups[prefix] = []
     groups[prefix].push(evt)
   })
