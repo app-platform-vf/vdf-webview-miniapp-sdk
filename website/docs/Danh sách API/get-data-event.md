@@ -33,7 +33,7 @@ title: Get data event
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { getMultipleUserData, isSuccess } from '@webview-sdk/core'
+import { getMultipleUserData, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await getMultipleUserData({ data: {
       dataNames: ["age", "userName", "fullName", "phoneNumber", "avatar", "gender", "birthday", "idNo"]
@@ -68,33 +68,29 @@ if (WebviewSdk.isSuccess(res)) {
 
 **Request**
 
-*No request parameters*
+*Không có tham số riêng, nhưng `data` là bắt buộc — truyền object rỗng: `{ data: {} }`*
 
 **Response**
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `eventStatus` | `object` | *optional* |  |
-| `errorCode` | `string` | *optional* |  `SDK000` |
-
+*No response data*
 
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { clearPermissionCache, isSuccess } from '@webview-sdk/core'
+import { clearPermissionCache, isSuccess } from 'vdf-webview-miniapp-sdk'
 
-const res = await clearPermissionCache()
+const res = await clearPermissionCache({ data: {} })
 if (isSuccess(res)) {
-  console.log(res.eventStatus)
+  console.log('Thành công')
 }
 ```
 
 **Sử dụng với bundle.js**
 
 ```javascript
-const res = await WebviewSdk.clearPermissionCache()
+const res = await WebviewSdk.clearPermissionCache({ data: {} })
 if (WebviewSdk.isSuccess(res)) {
-  console.log(res.eventStatus)
+  console.log('Thành công')
 }
 ```
 
@@ -125,7 +121,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { getLocalAuthenticationStatus, isSuccess } from '@webview-sdk/core'
+import { getLocalAuthenticationStatus, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await getLocalAuthenticationStatus()
 if (isSuccess(res)) {
@@ -175,7 +171,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { getContacts, isSuccess } from '@webview-sdk/core'
+import { getContacts, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await getContacts({ data: {
       filter: { "contactName": "John" },
@@ -223,7 +219,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { getLocation, isSuccess } from '@webview-sdk/core'
+import { getLocation, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await getLocation()
 if (isSuccess(res)) {
@@ -264,7 +260,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { shareTextContent, isSuccess } from '@webview-sdk/core'
+import { shareTextContent, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await shareTextContent({ data: {
       content: "Check out this amazing product!"
@@ -309,7 +305,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { miniAppToken, isSuccess } from '@webview-sdk/core'
+import { miniAppToken, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await miniAppToken()
 if (isSuccess(res)) {
@@ -345,7 +341,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { expiredSession, isSuccess } from '@webview-sdk/core'
+import { expiredSession, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await expiredSession()
 if (isSuccess(res)) {
@@ -390,7 +386,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { saveImageToGallery, isSuccess } from '@webview-sdk/core'
+import { saveImageToGallery, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await saveImageToGallery({ data: {
       type: "url",
@@ -441,7 +437,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { saveFile, isSuccess } from '@webview-sdk/core'
+import { saveFile, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await saveFile({ data: {
       url: "https://pdfobject.com/pdf/sample.pdf",
@@ -483,7 +479,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { initRequest, isSuccess } from '@webview-sdk/core'
+import { initRequest, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await initRequest()
 if (isSuccess(res)) {
@@ -497,6 +493,95 @@ if (isSuccess(res)) {
 const res = await WebviewSdk.initRequest()
 if (WebviewSdk.isSuccess(res)) {
   console.log('Thành công')
+}
+```
+
+---
+
+
+
+### 12. setScreenBrightness()
+
+**Event Code:** `SET_SCREEN_BRIGHTNESS` - Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.
+
+**Request data**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `value` | `number` | **required** | Độ sáng 0.0–1.0 `0.8` |
+
+
+**Response data**
+
+
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `success` | `boolean` | **required** | Thành công `true` |
+
+
+**Ví dụ sử dụng (npm package)**
+
+```typescript
+import { setScreenBrightness, isSuccess } from 'vdf-webview-miniapp-sdk'
+
+const res = await setScreenBrightness({ data: {
+      value: 0.8
+    } })
+if (isSuccess(res)) {
+  console.log(res.data.success)
+}
+```
+
+**Sử dụng với bundle.js**
+
+```javascript
+const res = await WebviewSdk.setScreenBrightness({ data: {
+      value: 0.8
+    } })
+if (WebviewSdk.isSuccess(res)) {
+  console.log(res.data.success)
+}
+```
+
+---
+
+
+
+### 13. restoreScreenBrightness()
+
+**Event Code:** `RESTORE_SCREEN_BRIGHTNESS` - Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.
+
+**Request**
+
+*No request parameters*
+
+**Response data**
+
+
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `success` | `boolean` | **required** | Thành công `true` |
+
+
+**Ví dụ sử dụng (npm package)**
+
+```typescript
+import { restoreScreenBrightness, isSuccess } from 'vdf-webview-miniapp-sdk'
+
+const res = await restoreScreenBrightness()
+if (isSuccess(res)) {
+  console.log(res.data.success)
+}
+```
+
+**Sử dụng với bundle.js**
+
+```javascript
+const res = await WebviewSdk.restoreScreenBrightness()
+if (WebviewSdk.isSuccess(res)) {
+  console.log(res.data.success)
 }
 ```
 

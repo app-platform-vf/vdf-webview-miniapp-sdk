@@ -31,7 +31,7 @@ title: UserData Permission
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { requestMultipleUserDataPermission, isSuccess } from '@webview-sdk/core'
+import { requestMultipleUserDataPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await requestMultipleUserDataPermission({ data: {
       permissionCodes: ["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION","USER_BIRTH_DATE_PERMISSION","USER_GENDER_PERMISSION","USER_NATIONAL_ID_PERMISSION"],
@@ -85,7 +85,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { checkMultipleUserDataPermission, isSuccess } from '@webview-sdk/core'
+import { checkMultipleUserDataPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await checkMultipleUserDataPermission({ data: {
       permissionCodes: ["USER_AGE_PERMISSION","USER_NAME_PERMISSION","USER_FULL_NAME_PERMISSION","USER_PHONE_NUMBER_PERMISSION","USER_AVATAR_PERMISSION","USER_BIRTH_DATE_PERMISSION","USER_GENDER_PERMISSION","USER_NATIONAL_ID_PERMISSION"]

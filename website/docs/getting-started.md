@@ -7,7 +7,7 @@ title: Getting Started
 
 # Super MiniApp SDK - API Documentation
 
-> Tự động sinh từ events.json — 56 events.
+> Tự động sinh từ events.json — 58 events.
 
 **Demo Links (GitHub Pages):**
 - [Demo Vanilla JS](https://app-platform-vf.github.io/vdf-webview-miniapp-sdk/demo/vanilla/)
@@ -19,33 +19,39 @@ title: Getting Started
 
 ### 1.1 Cài đặt
 
-Có 2 cách tích hợp SDK:
+Package đã publish public trên npm với tên **`vdf-webview-miniapp-sdk`**. Có 3 cách tích hợp:
 
-| Cách | Phù hợp với | File cần tải |
-|------|-------------|------|
-| **npm package** | React, Vue, Angular (có bundler) | `webview-sdk-core-1.0.0.tgz` |
-| **bundle.js** | Vanilla JS, HTML thuần (không cần bundler) | `bundle.js` |
-
-**Tải file:**
-- [webview-sdk-core-1.0.0.tgz](pathname:///files/webview-sdk-core-1.0.0.tgz) — npm package
-- [bundle.js](pathname:///files/bundle.js) — Script file (IIFE)
-- [Tải code demo](pathname:///files/demo.zip)
+| Cách | Phù hợp với | Nguồn |
+|------|-------------|-------|
+| **npm registry** | React, Vue, Angular (có bundler) | `npm install vdf-webview-miniapp-sdk` |
+| **file .tgz (offline)** | Môi trường không ra được npm registry | `vdf-webview-miniapp-sdk-1.0.0.tgz` |
+| **bundle.js** | Vanilla JS, HTML thuần (không cần bundler) | `dist/bundle.js` |
 
 ---
 
-#### Cách 1: npm package (React / Vue / Angular)
+#### Cách 1: npm registry (khuyến nghị — React / Vue / Angular)
 
-**Bước 1:** Copy file `webview-sdk-core-1.0.0.tgz` vào thư mục `core-lib/` trong project
+```bash
+npm install vdf-webview-miniapp-sdk
+```
+
+Package đã kèm sẵn type declaration (`.d.ts`) — không cần cài thêm `@types`.
+
+---
+
+#### Cách 2: file .tgz (offline)
+
+**Bước 1:** Lấy file `vdf-webview-miniapp-sdk-1.0.0.tgz` (sinh bằng `npm pack` từ `packages/core`) và copy vào thư mục `core-lib/` trong project
 ```bash
 mkdir -p core-lib
-cp webview-sdk-core-1.0.0.tgz core-lib/
+cp vdf-webview-miniapp-sdk-1.0.0.tgz core-lib/
 ```
 
 **Bước 2:** Thêm dependency vào `package.json`
 ```json
 {
   "dependencies": {
-    "@webview-sdk/core": "file:core-lib/webview-sdk-core-1.0.0.tgz"
+    "vdf-webview-miniapp-sdk": "file:core-lib/vdf-webview-miniapp-sdk-1.0.0.tgz"
   }
 }
 ```
@@ -57,9 +63,9 @@ npm install
 
 ---
 
-#### Cách 2: bundle.js (Vanilla JS / HTML thuần)
+#### Cách 3: bundle.js (Vanilla JS / HTML thuần)
 
-Không cần npm, không cần bundler — chỉ cần 1 file `bundle.js`.
+Không cần npm, không cần bundler — chỉ cần 1 file `bundle.js` (bản IIFE, build bằng `npm run build:js` ra `dist/bundle.js`).
 
 **Bước 1:** Copy `bundle.js` vào project
 
@@ -76,7 +82,7 @@ app.ready()
 // Gọi API
 var res = await WebviewSdk.getLocation()
 if (WebviewSdk.isSuccess(res)) {
-  console.log(res.data)
+  console.log(res.latitude)
 }
 ```
 
@@ -85,7 +91,7 @@ if (WebviewSdk.isSuccess(res)) {
 ### 1.2 Bắt đầu nhanh
 
 ```typescript
-import { getSharedMiniApp, getLocation, appOpenWebview, isSuccess } from '@webview-sdk/core'
+import { getSharedMiniApp, getLocation, appOpenWebview, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const app = getSharedMiniApp({ debug: true })
 app.ready()
@@ -93,7 +99,7 @@ app.ready()
 // Gọi API qua generated function (type-safe)
 const res = await getLocation()
 if (isSuccess(res)) {
-  console.log(res.data)
+  console.log(res.latitude)
 }
 
 // Gọi API có tham số
@@ -106,7 +112,7 @@ const res2 = await app.invoke('GET_LOCATION')
 #### React
 ```tsx
 import { useEffect } from 'react'
-import { getSharedMiniApp, getLocation, isSuccess } from '@webview-sdk/core'
+import { getSharedMiniApp, getLocation, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const app = getSharedMiniApp({ debug: true })
 
@@ -115,7 +121,7 @@ function App() {
 
   const handleClick = async () => {
     const res = await getLocation()
-    if (isSuccess(res)) console.log(res.data)
+    if (isSuccess(res)) console.log(res.latitude)
   }
 
   return <button onClick={handleClick}>Get Location</button>
@@ -126,14 +132,14 @@ function App() {
 ```vue
 <script setup>
 import { onMounted } from 'vue'
-import { getSharedMiniApp, getLocation, isSuccess } from '@webview-sdk/core'
+import { getSharedMiniApp, getLocation, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const app = getSharedMiniApp({ debug: true })
 onMounted(() => { app.ready() })
 
 async function handleClick() {
   const res = await getLocation()
-  if (isSuccess(res)) console.log(res.data)
+  if (isSuccess(res)) console.log(res.latitude)
 }
 </script>
 
@@ -145,7 +151,7 @@ async function handleClick() {
 #### Angular
 ```typescript
 import { Component } from '@angular/core'
-import { getSharedMiniApp, MiniApp, getLocation, isSuccess } from '@webview-sdk/core'
+import { getSharedMiniApp, MiniApp, getLocation, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 @Component({
   template: `<button (click)="handleClick()">Get Location</button>`
@@ -160,7 +166,7 @@ export class AppComponent {
 
   async handleClick() {
     const res = await getLocation()
-    if (isSuccess(res)) console.log(res.data)
+    if (isSuccess(res)) console.log(res.latitude)
   }
 }
 ```
@@ -174,7 +180,7 @@ export class AppComponent {
 
   async function handleClick() {
     var res = await WebviewSdk.getLocation()
-    if (WebviewSdk.isSuccess(res)) console.log(res.data)
+    if (WebviewSdk.isSuccess(res)) console.log(res.latitude)
   }
 </script>
 
@@ -187,13 +193,13 @@ export class AppComponent {
 
 **npm package:**
 ```ts
-import { getSharedMiniApp } from '@webview-sdk/core'
+import { getSharedMiniApp } from 'vdf-webview-miniapp-sdk'
 
 const app = getSharedMiniApp({
   appId: 'com.example.miniapp',  // ID ứng dụng
   debug: true,                    // Bật log debug
   token: '',                      // Token xác thực
-  timeout: 5000                   // Timeout mặc định (ms)
+  timeout: 5000                   // Timeout mỗi request (ms), mặc định 90000
 })
 ```
 

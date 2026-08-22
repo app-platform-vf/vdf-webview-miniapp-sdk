@@ -24,7 +24,7 @@ title: Storage
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { saveStringValue, isSuccess } from '@webview-sdk/core'
+import { saveStringValue, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await saveStringValue({ data: {
       key: "user_preference",
@@ -70,7 +70,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { saveBooleanValue, isSuccess } from '@webview-sdk/core'
+import { saveBooleanValue, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await saveBooleanValue({ data: {
       key: "notifications_enabled",
@@ -116,7 +116,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { saveIntegerValue, isSuccess } from '@webview-sdk/core'
+import { saveIntegerValue, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await saveIntegerValue({ data: {
       key: "login_count",
@@ -162,7 +162,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { saveLongValue, isSuccess } from '@webview-sdk/core'
+import { saveLongValue, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await saveLongValue({ data: {
       key: "last_sync_timestamp",
@@ -208,7 +208,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { saveFloatValue, isSuccess } from '@webview-sdk/core'
+import { saveFloatValue, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await saveFloatValue({ data: {
       key: "rating",
@@ -257,7 +257,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { getStringValue, isSuccess } from '@webview-sdk/core'
+import { getStringValue, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await getStringValue({ data: {
       key: "user_preference",
@@ -306,7 +306,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { getBooleanValue, isSuccess } from '@webview-sdk/core'
+import { getBooleanValue, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await getBooleanValue({ data: {
       key: "notifications_enabled",
@@ -355,7 +355,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { getIntegerValue, isSuccess } from '@webview-sdk/core'
+import { getIntegerValue, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await getIntegerValue({ data: {
       key: '...',
@@ -404,7 +404,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { getLongValue, isSuccess } from '@webview-sdk/core'
+import { getLongValue, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await getLongValue({ data: {
       key: '...',
@@ -453,7 +453,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { getFloatValue, isSuccess } from '@webview-sdk/core'
+import { getFloatValue, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await getFloatValue({ data: {
       key: '...',
@@ -495,7 +495,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { clearStorage, isSuccess } from '@webview-sdk/core'
+import { clearStorage, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await clearStorage()
 if (isSuccess(res)) {

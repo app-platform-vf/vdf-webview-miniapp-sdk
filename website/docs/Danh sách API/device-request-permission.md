@@ -25,7 +25,7 @@ title: Device Request Permission
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { requestCameraPermission, isSuccess } from '@webview-sdk/core'
+import { requestCameraPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await requestCameraPermission()
 if (isSuccess(res)) {
@@ -70,7 +70,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { requestLocationPermission, isSuccess } from '@webview-sdk/core'
+import { requestLocationPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await requestLocationPermission()
 if (isSuccess(res)) {
@@ -115,7 +115,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { requestPhotosPermission, isSuccess } from '@webview-sdk/core'
+import { requestPhotosPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await requestPhotosPermission()
 if (isSuccess(res)) {
@@ -160,7 +160,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { requestVideosPermission, isSuccess } from '@webview-sdk/core'
+import { requestVideosPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await requestVideosPermission()
 if (isSuccess(res)) {
@@ -205,7 +205,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { requestAudioPermission, isSuccess } from '@webview-sdk/core'
+import { requestAudioPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await requestAudioPermission()
 if (isSuccess(res)) {
@@ -250,7 +250,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { requestRecordAudioPermission, isSuccess } from '@webview-sdk/core'
+import { requestRecordAudioPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await requestRecordAudioPermission()
 if (isSuccess(res)) {
@@ -295,7 +295,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { requestContactsPermission, isSuccess } from '@webview-sdk/core'
+import { requestContactsPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await requestContactsPermission()
 if (isSuccess(res)) {
@@ -340,7 +340,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { requestDocumentPermission, isSuccess } from '@webview-sdk/core'
+import { requestDocumentPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await requestDocumentPermission()
 if (isSuccess(res)) {
@@ -385,7 +385,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { requestPhoneCallPermission, isSuccess } from '@webview-sdk/core'
+import { requestPhoneCallPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await requestPhoneCallPermission()
 if (isSuccess(res)) {
@@ -428,7 +428,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { requestPaymentPermission, isSuccess } from '@webview-sdk/core'
+import { requestPaymentPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await requestPaymentPermission()
 if (isSuccess(res)) {
@@ -471,7 +471,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { requestLoginPermission, isSuccess } from '@webview-sdk/core'
+import { requestLoginPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await requestLoginPermission()
 if (isSuccess(res)) {
@@ -516,7 +516,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { requestLocalAuthenticationPermission, isSuccess } from '@webview-sdk/core'
+import { requestLocalAuthenticationPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await requestLocalAuthenticationPermission()
 if (isSuccess(res)) {
@@ -563,7 +563,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { executeLocalAuthentication, isSuccess } from '@webview-sdk/core'
+import { executeLocalAuthentication, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await executeLocalAuthentication({ data: {
       authOptionsParam: { "sensitiveTransaction": true, "authClassification": ["WEAK", "STRONG", "DEVICE"], "sticky": false, "isShowErrorDialog": true }

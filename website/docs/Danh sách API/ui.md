@@ -30,7 +30,7 @@ title: UI
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { updateMiniAppTheme, isSuccess } from '@webview-sdk/core'
+import { updateMiniAppTheme, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await updateMiniAppTheme({ data: {
       headerColor: "#FFFFFF",

@@ -34,7 +34,7 @@ title: Routing
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { appOpenWebview, isSuccess } from '@webview-sdk/core'
+import { appOpenWebview, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await appOpenWebview({ data: {
       url: "https://example.com",
@@ -93,7 +93,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { appOpenStore, isSuccess } from '@webview-sdk/core'
+import { appOpenStore, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await appOpenStore({ data: {
       fallbackUrlAndroid: "viettelpay://action/c=FECRDT&t=FINANCE4",
@@ -144,7 +144,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { exit, isSuccess } from '@webview-sdk/core'
+import { exit, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await exit({ data: {
       navigationAction: '...'
@@ -187,7 +187,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { openExternalLink, isSuccess } from '@webview-sdk/core'
+import { openExternalLink, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await openExternalLink({ data: {
       uri: "https://google.com"
@@ -235,7 +235,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { openMiniApp, isSuccess } from '@webview-sdk/core'
+import { openMiniApp, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await openMiniApp({ data: {
       route: { "screenName": "home" },
@@ -293,7 +293,7 @@ if (WebviewSdk.isSuccess(res)) {
 **Ví dụ sử dụng (npm package)**
 
 ```typescript
-import { openInAppDeeplink, isSuccess } from '@webview-sdk/core'
+import { openInAppDeeplink, isSuccess } from 'vdf-webview-miniapp-sdk'
 
 const res = await openInAppDeeplink({ data: {
       url: "viettelpay://action/c=FECRDT&t=FINANCE4"
