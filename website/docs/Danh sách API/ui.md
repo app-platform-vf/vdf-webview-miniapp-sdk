@@ -69,3 +69,92 @@ if (WebviewSdk.isSuccess(res)) {
 
 
 
+### 2. setScreenBrightness()
+
+**Event Code:** `SET_SCREEN_BRIGHTNESS` - Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.
+
+**Request data**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `value` | `number` | **required** | Độ sáng 0.0–1.0 `0.8` |
+
+
+**Response data**
+
+
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `success` | `boolean` | **required** | Thành công `true` |
+
+
+**Ví dụ sử dụng (npm package)**
+
+```typescript
+import { setScreenBrightness, isSuccess } from 'vdf-webview-miniapp-sdk'
+
+const res = await setScreenBrightness({ data: {
+      value: 0.8
+    } })
+if (isSuccess(res)) {
+  console.log(res.data.success)
+}
+```
+
+**Sử dụng với bundle.js**
+
+```javascript
+const res = await WebviewSdk.setScreenBrightness({ data: {
+      value: 0.8
+    } })
+if (WebviewSdk.isSuccess(res)) {
+  console.log(res.data.success)
+}
+```
+
+---
+
+
+
+### 3. restoreScreenBrightness()
+
+**Event Code:** `RESTORE_SCREEN_BRIGHTNESS` - Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.
+
+**Request**
+
+*No request parameters*
+
+**Response data**
+
+
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `success` | `boolean` | **required** | Thành công `true` |
+
+
+**Ví dụ sử dụng (npm package)**
+
+```typescript
+import { restoreScreenBrightness, isSuccess } from 'vdf-webview-miniapp-sdk'
+
+const res = await restoreScreenBrightness()
+if (isSuccess(res)) {
+  console.log(res.data.success)
+}
+```
+
+**Sử dụng với bundle.js**
+
+```javascript
+const res = await WebviewSdk.restoreScreenBrightness()
+if (WebviewSdk.isSuccess(res)) {
+  console.log(res.data.success)
+}
+```
+
+---
+
+
+

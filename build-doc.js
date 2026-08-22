@@ -8,6 +8,12 @@ const EVENTS_JSON = "./packages/core/src/events.json"
 // Override qua env DOC_OUTPUT_DIR nếu cần.
 const OUTPUT_DIR = process.env.DOC_OUTPUT_DIR || path.join(__dirname, "website/docs")
 
+// Tên package + tên file .tgz đọc thẳng từ packages/core/package.json để tài liệu không bao giờ
+// lệch tên đã publish (npm pack sinh ra <name>-<version>.tgz).
+const CORE_PKG = JSON.parse(fs.readFileSync(path.join(__dirname, "packages/core/package.json"), "utf8"))
+const PKG = CORE_PKG.name
+const TGZ = `${PKG.replace(/^@/, "").replace(/\//g, "-")}-${CORE_PKG.version}.tgz`
+
 function toCamelCase(str) {
   return str.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase())
 }
@@ -36,6 +42,16 @@ function renderFields(fields, prefix = "") {
   return `| Field | Type | Required | Description |\n|---|---|---|---|\n${rows}`
 }
 
+// Trường thuộc envelope chung (đã mô tả ở base-protocol.md) — không liệt kê lại như dữ liệu
+// riêng của event, tránh hiểu nhầm đó là payload của event.
+const ENVELOPE_KEYS = new Set(["eventStatus", "errorData", "response_id", "request_id", "sender", "event"])
+
+/** Event khai báo `data` bắt buộc nhưng không có trường con -> caller vẫn phải truyền `{ data: {} }`. */
+function needsEmptyData(ev) {
+  const d = ev.request && ev.request.data
+  return !!(d && d.required && (!d.fields || Object.keys(d.fields).length === 0))
+}
+
 function renderResponseFields(response) {
   if (!response || Object.keys(response).length === 0) return '*No response data*'
 
@@ -46,6 +62,7 @@ function renderResponseFields(response) {
 
   const fields = {}
   for (const [key, val] of Object.entries(response)) {
+    if (ENVELOPE_KEYS.has(key)) continue
     if (typeof val === "object" && val !== null) {
       fields[key] = val
       if (val.fields) {
@@ -93,13 +110,15 @@ function renderUsageExample(ev) {
     })
     // stringify: hàm generated tự JSON.stringify bên trong, caller truyền object bình thường
     callArg = `{ data: {\n${fieldLines.join(',\n')}\n    } }`
+  } else if (needsEmptyData(ev)) {
+    callArg = `{ data: {} }`
   }
 
   // --- Xây dựng phần truy cập response ---
   let responseAccess = ''
   const res = ev.response || {}
   const hasDataResponse = res.data && res.data.fields && Object.keys(res.data.fields).length > 0
-  const flatResponseKeys = Object.keys(res).filter(k => k !== 'data')
+  const flatResponseKeys = Object.keys(res).filter(k => k !== 'data' && !ENVELOPE_KEYS.has(k))
 
   if (hasDataResponse) {
     const fieldNames = Object.keys(res.data.fields)
@@ -118,7 +137,7 @@ function renderUsageExample(ev) {
   }
 
   // --- Tổng hợp example ---
-  const importLine = `import { ${fnName}, isSuccess } from '@webview-sdk/core'`
+  const importLine = `import { ${fnName}, isSuccess } from '${PKG}'`
   const callLine = callArg
     ? `const res = await ${fnName}(${callArg})`
     : `const res = await ${fnName}()`
@@ -151,7 +170,9 @@ const categoryOrder = [
 function generateMarkdown(events) {
   const grouped = {}
   events.forEach(ev => {
-    const cat = categorizeEvent(ev.event)
+    // Ưu tiên field `group` trong events.json (R14a group-hint, demo.js đã honor) nếu nó là 1 category
+    // hợp lệ; nếu không thì mới dùng keyword classifier. Vd SET_/RESTORE_SCREEN_BRIGHTNESS group=UI.
+    const cat = (ev.group && categoryOrder.includes(ev.group)) ? ev.group : categorizeEvent(ev.event)
     if (!grouped[cat]) grouped[cat] = []
     grouped[cat].push(ev)
   })
@@ -162,7 +183,7 @@ function generateMarkdown(events) {
   // 1. Getting Started
   let gettingStartedContent = `# Super MiniApp SDK - API Documentation
 
-> Tự động sinh từ events.json — 56 events.
+> Tự động sinh từ events.json — ${events.length} events.
 
 **Demo Links (GitHub Pages):**
 - [Demo Vanilla JS](https://app-platform-vf.github.io/vdf-webview-miniapp-sdk/demo/vanilla/)
@@ -174,33 +195,39 @@ function generateMarkdown(events) {
 
 ### 1.1 Cài đặt
 
-Có 2 cách tích hợp SDK:
+Package đã publish public trên npm với tên **\`${PKG}\`**. Có 3 cách tích hợp:
 
-| Cách | Phù hợp với | File cần tải |
-|------|-------------|------|
-| **npm package** | React, Vue, Angular (có bundler) | \`webview-sdk-core-1.0.0.tgz\` |
-| **bundle.js** | Vanilla JS, HTML thuần (không cần bundler) | \`bundle.js\` |
-
-**Tải file:**
-- [webview-sdk-core-1.0.0.tgz](pathname:///files/webview-sdk-core-1.0.0.tgz) — npm package
-- [bundle.js](pathname:///files/bundle.js) — Script file (IIFE)
-- [Tải code demo](pathname:///files/demo.zip)
+| Cách | Phù hợp với | Nguồn |
+|------|-------------|-------|
+| **npm registry** | React, Vue, Angular (có bundler) | \`npm install ${PKG}\` |
+| **file .tgz (offline)** | Môi trường không ra được npm registry | \`${TGZ}\` |
+| **bundle.js** | Vanilla JS, HTML thuần (không cần bundler) | \`dist/bundle.js\` |
 
 ---
 
-#### Cách 1: npm package (React / Vue / Angular)
+#### Cách 1: npm registry (khuyến nghị — React / Vue / Angular)
 
-**Bước 1:** Copy file \`webview-sdk-core-1.0.0.tgz\` vào thư mục \`core-lib/\` trong project
+\`\`\`bash
+npm install ${PKG}
+\`\`\`
+
+Package đã kèm sẵn type declaration (\`.d.ts\`) — không cần cài thêm \`@types\`.
+
+---
+
+#### Cách 2: file .tgz (offline)
+
+**Bước 1:** Lấy file \`${TGZ}\` (sinh bằng \`npm pack\` từ \`packages/core\`) và copy vào thư mục \`core-lib/\` trong project
 \`\`\`bash
 mkdir -p core-lib
-cp webview-sdk-core-1.0.0.tgz core-lib/
+cp ${TGZ} core-lib/
 \`\`\`
 
 **Bước 2:** Thêm dependency vào \`package.json\`
 \`\`\`json
 {
   "dependencies": {
-    "@webview-sdk/core": "file:core-lib/webview-sdk-core-1.0.0.tgz"
+    "${PKG}": "file:core-lib/${TGZ}"
   }
 }
 \`\`\`
@@ -212,9 +239,9 @@ npm install
 
 ---
 
-#### Cách 2: bundle.js (Vanilla JS / HTML thuần)
+#### Cách 3: bundle.js (Vanilla JS / HTML thuần)
 
-Không cần npm, không cần bundler — chỉ cần 1 file \`bundle.js\`.
+Không cần npm, không cần bundler — chỉ cần 1 file \`bundle.js\` (bản IIFE, build bằng \`npm run build:js\` ra \`dist/bundle.js\`).
 
 **Bước 1:** Copy \`bundle.js\` vào project
 
@@ -231,7 +258,7 @@ app.ready()
 // Gọi API
 var res = await WebviewSdk.getLocation()
 if (WebviewSdk.isSuccess(res)) {
-  console.log(res.data)
+  console.log(res.latitude)
 }
 \`\`\`
 
@@ -240,7 +267,7 @@ if (WebviewSdk.isSuccess(res)) {
 ### 1.2 Bắt đầu nhanh
 
 \`\`\`typescript
-import { getSharedMiniApp, getLocation, appOpenWebview, isSuccess } from '@webview-sdk/core'
+import { getSharedMiniApp, getLocation, appOpenWebview, isSuccess } from '${PKG}'
 
 const app = getSharedMiniApp({ debug: true })
 app.ready()
@@ -248,7 +275,7 @@ app.ready()
 // Gọi API qua generated function (type-safe)
 const res = await getLocation()
 if (isSuccess(res)) {
-  console.log(res.data)
+  console.log(res.latitude)
 }
 
 // Gọi API có tham số
@@ -261,7 +288,7 @@ const res2 = await app.invoke('GET_LOCATION')
 #### React
 \`\`\`tsx
 import { useEffect } from 'react'
-import { getSharedMiniApp, getLocation, isSuccess } from '@webview-sdk/core'
+import { getSharedMiniApp, getLocation, isSuccess } from '${PKG}'
 
 const app = getSharedMiniApp({ debug: true })
 
@@ -270,7 +297,7 @@ function App() {
 
   const handleClick = async () => {
     const res = await getLocation()
-    if (isSuccess(res)) console.log(res.data)
+    if (isSuccess(res)) console.log(res.latitude)
   }
 
   return <button onClick={handleClick}>Get Location</button>
@@ -281,14 +308,14 @@ function App() {
 \`\`\`vue
 <script setup>
 import { onMounted } from 'vue'
-import { getSharedMiniApp, getLocation, isSuccess } from '@webview-sdk/core'
+import { getSharedMiniApp, getLocation, isSuccess } from '${PKG}'
 
 const app = getSharedMiniApp({ debug: true })
 onMounted(() => { app.ready() })
 
 async function handleClick() {
   const res = await getLocation()
-  if (isSuccess(res)) console.log(res.data)
+  if (isSuccess(res)) console.log(res.latitude)
 }
 </script>
 
@@ -300,7 +327,7 @@ async function handleClick() {
 #### Angular
 \`\`\`typescript
 import { Component } from '@angular/core'
-import { getSharedMiniApp, MiniApp, getLocation, isSuccess } from '@webview-sdk/core'
+import { getSharedMiniApp, MiniApp, getLocation, isSuccess } from '${PKG}'
 
 @Component({
   template: \`<button (click)="handleClick()">Get Location</button>\`
@@ -315,7 +342,7 @@ export class AppComponent {
 
   async handleClick() {
     const res = await getLocation()
-    if (isSuccess(res)) console.log(res.data)
+    if (isSuccess(res)) console.log(res.latitude)
   }
 }
 \`\`\`
@@ -329,7 +356,7 @@ export class AppComponent {
 
   async function handleClick() {
     var res = await WebviewSdk.getLocation()
-    if (WebviewSdk.isSuccess(res)) console.log(res.data)
+    if (WebviewSdk.isSuccess(res)) console.log(res.latitude)
   }
 </script>
 
@@ -342,13 +369,13 @@ export class AppComponent {
 
 **npm package:**
 \`\`\`ts
-import { getSharedMiniApp } from '@webview-sdk/core'
+import { getSharedMiniApp } from '${PKG}'
 
 const app = getSharedMiniApp({
   appId: 'com.example.miniapp',  // ID ứng dụng
   debug: true,                    // Bật log debug
   token: '',                      // Token xác thực
-  timeout: 5000                   // Timeout mặc định (ms)
+  timeout: 5000                   // Timeout mỗi request (ms), mặc định 90000
 })
 \`\`\`
 
@@ -480,6 +507,8 @@ Tất cả request và response đều kế thừa các trường chung bên dư
       catContent += `**Request${hasRequest ? ` data${stringifyNote}` : ''}**\n\n`
       if (hasRequest) {
         catContent += renderFields(ev.request.data.fields) + "\n\n"
+      } else if (needsEmptyData(ev)) {
+        catContent += "*Không có tham số riêng, nhưng `data` là bắt buộc — truyền object rỗng: `{ data: {} }`*\n\n"
       } else {
         catContent += "*No request parameters*\n\n"
       }
@@ -544,10 +573,10 @@ function copyAssets() {
   if (!fs.existsSync(STATIC_FILES_DIR)) fs.mkdirSync(STATIC_FILES_DIR, { recursive: true })
 
   // Copy tgz
-  const tgzSrc = path.join(__dirname, "dist/webview-sdk-core-1.0.0.tgz")
-  const tgzDest = path.join(STATIC_FILES_DIR, "webview-sdk-core-1.0.0.tgz")
+  const tgzSrc = path.join(__dirname, "dist", TGZ)
+  const tgzDest = path.join(STATIC_FILES_DIR, TGZ)
   fs.copyFileSync(tgzSrc, tgzDest)
-  console.log(`  -> Copied dist/webview-sdk-core-1.0.0.tgz -> ${tgzDest}`)
+  console.log(`  -> Copied dist/${TGZ} -> ${tgzDest}`)
 
   // Copy bundle.js
   const bundleSrc = path.join(__dirname, "dist/bundle.js")
