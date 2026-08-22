@@ -98,7 +98,8 @@ function groupEvents(events) {
   const groups = {}
   events.forEach(evt => {
     let prefix
-    if (evt.event.includes("USER_DATA") && evt.event.includes("PERMISSION")) prefix = "UserData Permission"
+    if (evt.group) prefix = evt.group
+    else if (evt.event.includes("USER_DATA") && evt.event.includes("PERMISSION")) prefix = "UserData Permission"
     else if (evt.event.startsWith("EXIT") || evt.event.includes("OPEN")) prefix = "Routing"
     else if ((evt.event.startsWith("REQUEST") && evt.event.includes("PERMISSION")) || evt.event.includes("EXECUTE_LOCAL_AUTHENTICATION")) prefix = "Device Request Permission"
     else if (evt.event.startsWith("CHECK") && evt.event.includes("PERMISSION")) prefix = "Device Check Permission"

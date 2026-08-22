@@ -1491,7 +1491,8 @@
             }
           }
         }
-      }
+      },
+      "group": "UI"
     },
     {
       "event": "RESTORE_SCREEN_BRIGHTNESS",
@@ -1518,7 +1519,8 @@
             }
           }
         }
-      }
+      },
+      "group": "UI"
     }
   ]
 }
