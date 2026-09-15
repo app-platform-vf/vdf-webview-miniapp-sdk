@@ -38,8 +38,6 @@ import type {
   RequestContactsPermissionResponse,
   RequestDocumentPermissionRequest,
   RequestDocumentPermissionResponse,
-  RequestPhoneCallPermissionRequest,
-  RequestPhoneCallPermissionResponse,
   RequestPaymentPermissionRequest,
   RequestPaymentPermissionResponse,
   RequestLoginPermissionRequest,
@@ -62,8 +60,6 @@ import type {
   CheckContactsPermissionResponse,
   CheckDocumentPermissionRequest,
   CheckDocumentPermissionResponse,
-  CheckPhoneCallPermissionRequest,
-  CheckPhoneCallPermissionResponse,
   CheckPaymentPermissionRequest,
   CheckPaymentPermissionResponse,
   CheckLoginPermissionRequest,
@@ -141,7 +137,6 @@ export interface MiniAppEventMap {
   'REQUEST_RECORD_AUDIO_PERMISSION': [RequestRecordAudioPermissionRequest, RequestRecordAudioPermissionResponse];
   'REQUEST_CONTACTS_PERMISSION': [RequestContactsPermissionRequest, RequestContactsPermissionResponse];
   'REQUEST_DOCUMENT_PERMISSION': [RequestDocumentPermissionRequest, RequestDocumentPermissionResponse];
-  'REQUEST_PHONE_CALL_PERMISSION': [RequestPhoneCallPermissionRequest, RequestPhoneCallPermissionResponse];
   'REQUEST_PAYMENT_PERMISSION': [RequestPaymentPermissionRequest, RequestPaymentPermissionResponse];
   'REQUEST_LOGIN_PERMISSION': [RequestLoginPermissionRequest, RequestLoginPermissionResponse];
   'REQUEST_LOCAL_AUTHENTICATION_PERMISSION': [RequestLocalAuthenticationPermissionRequest, RequestLocalAuthenticationPermissionResponse];
@@ -153,7 +148,6 @@ export interface MiniAppEventMap {
   'CHECK_RECORD_AUDIO_PERMISSION': [CheckRecordAudioPermissionRequest, CheckRecordAudioPermissionResponse];
   'CHECK_CONTACTS_PERMISSION': [CheckContactsPermissionRequest, CheckContactsPermissionResponse];
   'CHECK_DOCUMENT_PERMISSION': [CheckDocumentPermissionRequest, CheckDocumentPermissionResponse];
-  'CHECK_PHONE_CALL_PERMISSION': [CheckPhoneCallPermissionRequest, CheckPhoneCallPermissionResponse];
   'CHECK_PAYMENT_PERMISSION': [CheckPaymentPermissionRequest, CheckPaymentPermissionResponse];
   'CHECK_LOGIN_PERMISSION': [CheckLoginPermissionRequest, CheckLoginPermissionResponse];
   'CHECK_LOCAL_AUTHENTICATION_PERMISSION': [CheckLocalAuthenticationPermissionRequest, CheckLocalAuthenticationPermissionResponse];
@@ -220,8 +214,6 @@ export const MINIAPP_EVENTS = {
   requestContactsPermission: 'REQUEST_CONTACTS_PERMISSION' as const,
   /** Yêu cầu truy cập tài liệu trên thiết bị */
   requestDocumentPermission: 'REQUEST_DOCUMENT_PERMISSION' as const,
-  /** Yêu cầu thực hiện cuộc gọi trên thiết bị */
-  requestPhoneCallPermission: 'REQUEST_PHONE_CALL_PERMISSION' as const,
   /**  */
   requestPaymentPermission: 'REQUEST_PAYMENT_PERMISSION' as const,
   /**  */
@@ -244,8 +236,6 @@ export const MINIAPP_EVENTS = {
   checkContactsPermission: 'CHECK_CONTACTS_PERMISSION' as const,
   /** Kiểm tra quyền truy cập file tài liệu */
   checkDocumentPermission: 'CHECK_DOCUMENT_PERMISSION' as const,
-  /** Kiểm tra quyền gọi điện */
-  checkPhoneCallPermission: 'CHECK_PHONE_CALL_PERMISSION' as const,
   /**  */
   checkPaymentPermission: 'CHECK_PAYMENT_PERMISSION' as const,
   /**  */

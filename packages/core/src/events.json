@@ -536,25 +536,6 @@
       }
     },
     {
-      "event": "REQUEST_PHONE_CALL_PERMISSION",
-      "description": "Yêu cầu thực hiện cuộc gọi trên thiết bị",
-      "request": {},
-      "response": {
-        "permissionCode": {
-          "meta_data": "string",
-          "required": false
-        },
-        "result": {
-          "meta_data": "string",
-          "required": false
-        },
-        "message": {
-          "meta_data": "string",
-          "required": false
-        }
-      }
-    },
-    {
       "event": "REQUEST_PAYMENT_PERMISSION",
       "description": "",
       "request": {},
@@ -747,25 +728,6 @@
     {
       "event": "CHECK_DOCUMENT_PERMISSION",
       "description": "Kiểm tra quyền truy cập file tài liệu",
-      "request": {},
-      "response": {
-        "permissionCode": {
-          "meta_data": "string",
-          "required": false
-        },
-        "result": {
-          "meta_data": "string",
-          "required": false
-        },
-        "message": {
-          "meta_data": "string",
-          "required": false
-        }
-      }
-    },
-    {
-      "event": "CHECK_PHONE_CALL_PERMISSION",
-      "description": "Kiểm tra quyền gọi điện",
       "request": {},
       "response": {
         "permissionCode": {

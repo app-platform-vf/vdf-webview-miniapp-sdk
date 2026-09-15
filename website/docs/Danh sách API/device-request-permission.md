@@ -365,52 +365,7 @@ if (WebviewSdk.isSuccess(res)) {
 
 
 
-### 9. requestPhoneCallPermission()
-
-**Event Code:** `REQUEST_PHONE_CALL_PERMISSION` - Yêu cầu thực hiện cuộc gọi trên thiết bị
-
-**Request**
-
-*No request parameters*
-
-**Response**
-
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `permissionCode` | `string` | *optional* |  |
-| `result` | `string` | *optional* |  |
-| `message` | `string` | *optional* |  |
-
-
-**Ví dụ sử dụng (npm package)**
-
-```typescript
-import { requestPhoneCallPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
-
-const res = await requestPhoneCallPermission()
-if (isSuccess(res)) {
-  console.log(res.permissionCode)
-  console.log(res.result)
-  console.log(res.message)
-}
-```
-
-**Sử dụng với bundle.js**
-
-```javascript
-const res = await WebviewSdk.requestPhoneCallPermission()
-if (WebviewSdk.isSuccess(res)) {
-  console.log(res.permissionCode)
-  console.log(res.result)
-  console.log(res.message)
-}
-```
-
----
-
-
-
-### 10. requestPaymentPermission()
+### 9. requestPaymentPermission()
 
 **Event Code:** `REQUEST_PAYMENT_PERMISSION` - **Request**
 
@@ -453,7 +408,7 @@ if (WebviewSdk.isSuccess(res)) {
 
 
 
-### 11. requestLoginPermission()
+### 10. requestLoginPermission()
 
 **Event Code:** `REQUEST_LOGIN_PERMISSION` - **Request**
 
@@ -496,7 +451,7 @@ if (WebviewSdk.isSuccess(res)) {
 
 
 
-### 12. requestLocalAuthenticationPermission()
+### 11. requestLocalAuthenticationPermission()
 
 **Event Code:** `REQUEST_LOCAL_AUTHENTICATION_PERMISSION` - Yêu cầu xác thực sinh trắc học (vân tay, Face ID).
 
@@ -541,7 +496,7 @@ if (WebviewSdk.isSuccess(res)) {
 
 
 
-### 13. executeLocalAuthentication()
+### 12. executeLocalAuthentication()
 
 **Event Code:** `EXECUTE_LOCAL_AUTHENTICATION` - Thực hiện xác thực sinh trắc học (vân tay, Face ID).
 

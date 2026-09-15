@@ -41,8 +41,6 @@ import type {
   RequestContactsPermissionResponse,
   RequestDocumentPermissionRequest,
   RequestDocumentPermissionResponse,
-  RequestPhoneCallPermissionRequest,
-  RequestPhoneCallPermissionResponse,
   RequestPaymentPermissionRequest,
   RequestPaymentPermissionResponse,
   RequestLoginPermissionRequest,
@@ -65,8 +63,6 @@ import type {
   CheckContactsPermissionResponse,
   CheckDocumentPermissionRequest,
   CheckDocumentPermissionResponse,
-  CheckPhoneCallPermissionRequest,
-  CheckPhoneCallPermissionResponse,
   CheckPaymentPermissionRequest,
   CheckPaymentPermissionResponse,
   CheckLoginPermissionRequest,
@@ -321,14 +317,6 @@ export async function requestDocumentPermission(): Promise<MiniAppResponse<Reque
 }
 
 /**
- * Yêu cầu thực hiện cuộc gọi trên thiết bị
- * Event: REQUEST_PHONE_CALL_PERMISSION
- */
-export async function requestPhoneCallPermission(): Promise<MiniAppResponse<RequestPhoneCallPermissionResponse>> {
-  return send<RequestPhoneCallPermissionResponse>('REQUEST_PHONE_CALL_PERMISSION', {});
-}
-
-/**
  * 
  * Event: REQUEST_PAYMENT_PERMISSION
  */
@@ -414,14 +402,6 @@ export async function checkContactsPermission(): Promise<MiniAppResponse<CheckCo
  */
 export async function checkDocumentPermission(): Promise<MiniAppResponse<CheckDocumentPermissionResponse>> {
   return send<CheckDocumentPermissionResponse>('CHECK_DOCUMENT_PERMISSION', {});
-}
-
-/**
- * Kiểm tra quyền gọi điện
- * Event: CHECK_PHONE_CALL_PERMISSION
- */
-export async function checkPhoneCallPermission(): Promise<MiniAppResponse<CheckPhoneCallPermissionResponse>> {
-  return send<CheckPhoneCallPermissionResponse>('CHECK_PHONE_CALL_PERMISSION', {});
 }
 
 /**
@@ -758,8 +738,6 @@ export const MiniAppAPI = {
   requestContactsPermission,
   /** Yêu cầu truy cập tài liệu trên thiết bị */
   requestDocumentPermission,
-  /** Yêu cầu thực hiện cuộc gọi trên thiết bị */
-  requestPhoneCallPermission,
   /**  */
   requestPaymentPermission,
   /**  */
@@ -782,8 +760,6 @@ export const MiniAppAPI = {
   checkContactsPermission,
   /** Kiểm tra quyền truy cập file tài liệu */
   checkDocumentPermission,
-  /** Kiểm tra quyền gọi điện */
-  checkPhoneCallPermission,
   /**  */
   checkPaymentPermission,
   /**  */

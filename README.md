@@ -281,7 +281,6 @@ Tat ca ham duoc tu dong sinh tu `events.json`. Import truc tiep tu `@webview-sdk
 | `requestRecordAudioPermission()` | `REQUEST_RECORD_AUDIO_PERMISSION` | Yeu cau ghi am tren thiet bi |
 | `requestContactsPermission()` | `REQUEST_CONTACTS_PERMISSION` | Yeu cau truy cap danh ba tren thiet bi |
 | `requestDocumentPermission()` | `REQUEST_DOCUMENT_PERMISSION` | Yeu cau truy cap tai lieu tren thiet bi |
-| `requestPhoneCallPermission()` | `REQUEST_PHONE_CALL_PERMISSION` | Yeu cau thuc hien cuoc goi tren thiet bi |
 | `requestPaymentPermission()` | `REQUEST_PAYMENT_PERMISSION` | Yeu cau quyen thanh toan |
 | `requestLoginPermission()` | `REQUEST_LOGIN_PERMISSION` | Yeu cau quyen dang nhap |
 | `requestLocalAuthenticationPermission()` | `REQUEST_LOCAL_AUTHENTICATION_PERMISSION` | Yeu cau xac thuc sinh trac hoc (van tay, Face ID) |
@@ -298,7 +297,6 @@ Tat ca ham duoc tu dong sinh tu `events.json`. Import truc tiep tu `@webview-sdk
 | `checkRecordAudioPermission()` | `CHECK_RECORD_AUDIO_PERMISSION` | Kiem tra quyen ghi am tren thiet bi |
 | `checkContactsPermission()` | `CHECK_CONTACTS_PERMISSION` | Kiem tra quyen truy cap danh ba |
 | `checkDocumentPermission()` | `CHECK_DOCUMENT_PERMISSION` | Kiem tra quyen truy cap file tai lieu |
-| `checkPhoneCallPermission()` | `CHECK_PHONE_CALL_PERMISSION` | Kiem tra quyen goi dien |
 | `checkPaymentPermission()` | `CHECK_PAYMENT_PERMISSION` | Kiem tra quyen thanh toan |
 | `checkLoginPermission()` | `CHECK_LOGIN_PERMISSION` | Kiem tra quyen dang nhap |
 | `checkLocalAuthenticationPermission()` | `CHECK_LOCAL_AUTHENTICATION_PERMISSION` | Kiem tra quyen xac thuc sinh trac hoc |

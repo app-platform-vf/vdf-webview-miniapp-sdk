@@ -234,15 +234,6 @@ export interface RequestDocumentPermissionResponse {
   message?: string;
 }
 
-/** Yêu cầu thực hiện cuộc gọi trên thiết bị */
-export interface RequestPhoneCallPermissionRequest {}
-
-export interface RequestPhoneCallPermissionResponse {
-  permissionCode?: string;
-  result?: string;
-  message?: string;
-}
-
 /**  */
 export interface RequestPaymentPermissionRequest {}
 
@@ -337,15 +328,6 @@ export interface CheckContactsPermissionResponse {
 export interface CheckDocumentPermissionRequest {}
 
 export interface CheckDocumentPermissionResponse {
-  permissionCode?: string;
-  result?: string;
-  message?: string;
-}
-
-/** Kiểm tra quyền gọi điện */
-export interface CheckPhoneCallPermissionRequest {}
-
-export interface CheckPhoneCallPermissionResponse {
   permissionCode?: string;
   result?: string;
   message?: string;
@@ -669,7 +651,6 @@ export type MiniAppEventName =
   | 'REQUEST_RECORD_AUDIO_PERMISSION'
   | 'REQUEST_CONTACTS_PERMISSION'
   | 'REQUEST_DOCUMENT_PERMISSION'
-  | 'REQUEST_PHONE_CALL_PERMISSION'
   | 'REQUEST_PAYMENT_PERMISSION'
   | 'REQUEST_LOGIN_PERMISSION'
   | 'REQUEST_LOCAL_AUTHENTICATION_PERMISSION'
@@ -681,7 +662,6 @@ export type MiniAppEventName =
   | 'CHECK_RECORD_AUDIO_PERMISSION'
   | 'CHECK_CONTACTS_PERMISSION'
   | 'CHECK_DOCUMENT_PERMISSION'
-  | 'CHECK_PHONE_CALL_PERMISSION'
   | 'CHECK_PAYMENT_PERMISSION'
   | 'CHECK_LOGIN_PERMISSION'
   | 'CHECK_LOCAL_AUTHENTICATION_PERMISSION'
@@ -730,7 +710,6 @@ export const EVENT_LIST = [
   { event: 'REQUEST_RECORD_AUDIO_PERMISSION', method: 'requestRecordAudioPermission', description: 'Yêu cầu ghi âm trên thiết bị', requestType: 'RequestRecordAudioPermissionRequest', responseType: 'RequestRecordAudioPermissionResponse' },
   { event: 'REQUEST_CONTACTS_PERMISSION', method: 'requestContactsPermission', description: 'Yêu cầu truy cập danh bạ trên thiết bị', requestType: 'RequestContactsPermissionRequest', responseType: 'RequestContactsPermissionResponse' },
   { event: 'REQUEST_DOCUMENT_PERMISSION', method: 'requestDocumentPermission', description: 'Yêu cầu truy cập tài liệu trên thiết bị', requestType: 'RequestDocumentPermissionRequest', responseType: 'RequestDocumentPermissionResponse' },
-  { event: 'REQUEST_PHONE_CALL_PERMISSION', method: 'requestPhoneCallPermission', description: 'Yêu cầu thực hiện cuộc gọi trên thiết bị', requestType: 'RequestPhoneCallPermissionRequest', responseType: 'RequestPhoneCallPermissionResponse' },
   { event: 'REQUEST_PAYMENT_PERMISSION', method: 'requestPaymentPermission', description: '', requestType: 'RequestPaymentPermissionRequest', responseType: 'RequestPaymentPermissionResponse' },
   { event: 'REQUEST_LOGIN_PERMISSION', method: 'requestLoginPermission', description: '', requestType: 'RequestLoginPermissionRequest', responseType: 'RequestLoginPermissionResponse' },
   { event: 'REQUEST_LOCAL_AUTHENTICATION_PERMISSION', method: 'requestLocalAuthenticationPermission', description: 'Yêu cầu xác thực sinh trắc học (vân tay, Face ID).', requestType: 'RequestLocalAuthenticationPermissionRequest', responseType: 'RequestLocalAuthenticationPermissionResponse' },
@@ -742,7 +721,6 @@ export const EVENT_LIST = [
   { event: 'CHECK_RECORD_AUDIO_PERMISSION', method: 'checkRecordAudioPermission', description: 'Kiểm tra quyền ghi âm trên thiết bị', requestType: 'CheckRecordAudioPermissionRequest', responseType: 'CheckRecordAudioPermissionResponse' },
   { event: 'CHECK_CONTACTS_PERMISSION', method: 'checkContactsPermission', description: 'Kiểm tra quyền truy cập danh bạ', requestType: 'CheckContactsPermissionRequest', responseType: 'CheckContactsPermissionResponse' },
   { event: 'CHECK_DOCUMENT_PERMISSION', method: 'checkDocumentPermission', description: 'Kiểm tra quyền truy cập file tài liệu', requestType: 'CheckDocumentPermissionRequest', responseType: 'CheckDocumentPermissionResponse' },
-  { event: 'CHECK_PHONE_CALL_PERMISSION', method: 'checkPhoneCallPermission', description: 'Kiểm tra quyền gọi điện', requestType: 'CheckPhoneCallPermissionRequest', responseType: 'CheckPhoneCallPermissionResponse' },
   { event: 'CHECK_PAYMENT_PERMISSION', method: 'checkPaymentPermission', description: '', requestType: 'CheckPaymentPermissionRequest', responseType: 'CheckPaymentPermissionResponse' },
   { event: 'CHECK_LOGIN_PERMISSION', method: 'checkLoginPermission', description: '', requestType: 'CheckLoginPermissionRequest', responseType: 'CheckLoginPermissionResponse' },
   { event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', method: 'checkLocalAuthenticationPermission', description: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', requestType: 'CheckLocalAuthenticationPermissionRequest', responseType: 'CheckLocalAuthenticationPermissionResponse' },

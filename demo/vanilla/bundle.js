@@ -492,15 +492,6 @@ var WebviewSdk = (function (exports) {
         });
     }
     /**
-     * Yêu cầu thực hiện cuộc gọi trên thiết bị
-     * Event: REQUEST_PHONE_CALL_PERMISSION
-     */
-    function requestPhoneCallPermission() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return send('REQUEST_PHONE_CALL_PERMISSION', {});
-        });
-    }
-    /**
      *
      * Event: REQUEST_PAYMENT_PERMISSION
      */
@@ -597,15 +588,6 @@ var WebviewSdk = (function (exports) {
     function checkDocumentPermission() {
         return __awaiter(this, void 0, void 0, function* () {
             return send('CHECK_DOCUMENT_PERMISSION', {});
-        });
-    }
-    /**
-     * Kiểm tra quyền gọi điện
-     * Event: CHECK_PHONE_CALL_PERMISSION
-     */
-    function checkPhoneCallPermission() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return send('CHECK_PHONE_CALL_PERMISSION', {});
         });
     }
     /**
@@ -887,6 +869,25 @@ var WebviewSdk = (function (exports) {
             return send('INIT_REQUEST', {});
         });
     }
+    /**
+     * Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.
+     * Event: SET_SCREEN_BRIGHTNESS
+     * @param payload.data.value (required) Độ sáng 0.0–1.0 [default: 0.8]
+     */
+    function setScreenBrightness(payload) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return send('SET_SCREEN_BRIGHTNESS', payload);
+        });
+    }
+    /**
+     * Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.
+     * Event: RESTORE_SCREEN_BRIGHTNESS
+     */
+    function restoreScreenBrightness() {
+        return __awaiter(this, arguments, void 0, function* (payload = {}) {
+            return send('RESTORE_SCREEN_BRIGHTNESS', payload);
+        });
+    }
     // ============================================================
     // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
     // ============================================================
@@ -942,8 +943,6 @@ var WebviewSdk = (function (exports) {
         requestContactsPermission,
         /** Yêu cầu truy cập tài liệu trên thiết bị */
         requestDocumentPermission,
-        /** Yêu cầu thực hiện cuộc gọi trên thiết bị */
-        requestPhoneCallPermission,
         /**  */
         requestPaymentPermission,
         /**  */
@@ -966,8 +965,6 @@ var WebviewSdk = (function (exports) {
         checkContactsPermission,
         /** Kiểm tra quyền truy cập file tài liệu */
         checkDocumentPermission,
-        /** Kiểm tra quyền gọi điện */
-        checkPhoneCallPermission,
         /**  */
         checkPaymentPermission,
         /**  */
@@ -1020,6 +1017,10 @@ var WebviewSdk = (function (exports) {
         openInAppDeeplink,
         /** Get init event */
         initRequest,
+        /** Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền. */
+        setScreenBrightness,
+        /** Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app. */
+        restoreScreenBrightness,
         /** Kiem tra response thanh cong */
         isSuccess,
         /** Khoi tao API module */
@@ -1334,7 +1335,6 @@ var WebviewSdk = (function (exports) {
         { event: 'REQUEST_RECORD_AUDIO_PERMISSION', method: 'requestRecordAudioPermission', description: 'Yêu cầu ghi âm trên thiết bị', requestType: 'RequestRecordAudioPermissionRequest', responseType: 'RequestRecordAudioPermissionResponse' },
         { event: 'REQUEST_CONTACTS_PERMISSION', method: 'requestContactsPermission', description: 'Yêu cầu truy cập danh bạ trên thiết bị', requestType: 'RequestContactsPermissionRequest', responseType: 'RequestContactsPermissionResponse' },
         { event: 'REQUEST_DOCUMENT_PERMISSION', method: 'requestDocumentPermission', description: 'Yêu cầu truy cập tài liệu trên thiết bị', requestType: 'RequestDocumentPermissionRequest', responseType: 'RequestDocumentPermissionResponse' },
-        { event: 'REQUEST_PHONE_CALL_PERMISSION', method: 'requestPhoneCallPermission', description: 'Yêu cầu thực hiện cuộc gọi trên thiết bị', requestType: 'RequestPhoneCallPermissionRequest', responseType: 'RequestPhoneCallPermissionResponse' },
         { event: 'REQUEST_PAYMENT_PERMISSION', method: 'requestPaymentPermission', description: '', requestType: 'RequestPaymentPermissionRequest', responseType: 'RequestPaymentPermissionResponse' },
         { event: 'REQUEST_LOGIN_PERMISSION', method: 'requestLoginPermission', description: '', requestType: 'RequestLoginPermissionRequest', responseType: 'RequestLoginPermissionResponse' },
         { event: 'REQUEST_LOCAL_AUTHENTICATION_PERMISSION', method: 'requestLocalAuthenticationPermission', description: 'Yêu cầu xác thực sinh trắc học (vân tay, Face ID).', requestType: 'RequestLocalAuthenticationPermissionRequest', responseType: 'RequestLocalAuthenticationPermissionResponse' },
@@ -1346,7 +1346,6 @@ var WebviewSdk = (function (exports) {
         { event: 'CHECK_RECORD_AUDIO_PERMISSION', method: 'checkRecordAudioPermission', description: 'Kiểm tra quyền ghi âm trên thiết bị', requestType: 'CheckRecordAudioPermissionRequest', responseType: 'CheckRecordAudioPermissionResponse' },
         { event: 'CHECK_CONTACTS_PERMISSION', method: 'checkContactsPermission', description: 'Kiểm tra quyền truy cập danh bạ', requestType: 'CheckContactsPermissionRequest', responseType: 'CheckContactsPermissionResponse' },
         { event: 'CHECK_DOCUMENT_PERMISSION', method: 'checkDocumentPermission', description: 'Kiểm tra quyền truy cập file tài liệu', requestType: 'CheckDocumentPermissionRequest', responseType: 'CheckDocumentPermissionResponse' },
-        { event: 'CHECK_PHONE_CALL_PERMISSION', method: 'checkPhoneCallPermission', description: 'Kiểm tra quyền gọi điện', requestType: 'CheckPhoneCallPermissionRequest', responseType: 'CheckPhoneCallPermissionResponse' },
         { event: 'CHECK_PAYMENT_PERMISSION', method: 'checkPaymentPermission', description: '', requestType: 'CheckPaymentPermissionRequest', responseType: 'CheckPaymentPermissionResponse' },
         { event: 'CHECK_LOGIN_PERMISSION', method: 'checkLoginPermission', description: '', requestType: 'CheckLoginPermissionRequest', responseType: 'CheckLoginPermissionResponse' },
         { event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', method: 'checkLocalAuthenticationPermission', description: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', requestType: 'CheckLocalAuthenticationPermissionRequest', responseType: 'CheckLocalAuthenticationPermissionResponse' },
@@ -1373,6 +1372,8 @@ var WebviewSdk = (function (exports) {
         { event: 'SAVE_FILE', method: 'saveFile', description: 'Lưu file vào thư mục', requestType: 'SaveFileRequest', responseType: 'SaveFileResponse' },
         { event: 'OPEN_IN_APP_DEEPLINK', method: 'openInAppDeeplink', description: 'Mở deeplink nội bộ app', requestType: 'OpenInAppDeeplinkRequest', responseType: 'OpenInAppDeeplinkResponse' },
         { event: 'INIT_REQUEST', method: 'initRequest', description: 'Get init event', requestType: 'InitRequestRequest', responseType: 'InitRequestResponse' },
+        { event: 'SET_SCREEN_BRIGHTNESS', method: 'setScreenBrightness', description: 'Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.', requestType: 'SetScreenBrightnessRequest', responseType: 'SetScreenBrightnessResponse' },
+        { event: 'RESTORE_SCREEN_BRIGHTNESS', method: 'restoreScreenBrightness', description: 'Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.', requestType: 'RestoreScreenBrightnessRequest', responseType: 'RestoreScreenBrightnessResponse' },
     ];
 
     // ============================================================
@@ -1415,8 +1416,6 @@ var WebviewSdk = (function (exports) {
         requestContactsPermission: 'REQUEST_CONTACTS_PERMISSION',
         /** Yêu cầu truy cập tài liệu trên thiết bị */
         requestDocumentPermission: 'REQUEST_DOCUMENT_PERMISSION',
-        /** Yêu cầu thực hiện cuộc gọi trên thiết bị */
-        requestPhoneCallPermission: 'REQUEST_PHONE_CALL_PERMISSION',
         /**  */
         requestPaymentPermission: 'REQUEST_PAYMENT_PERMISSION',
         /**  */
@@ -1439,8 +1438,6 @@ var WebviewSdk = (function (exports) {
         checkContactsPermission: 'CHECK_CONTACTS_PERMISSION',
         /** Kiểm tra quyền truy cập file tài liệu */
         checkDocumentPermission: 'CHECK_DOCUMENT_PERMISSION',
-        /** Kiểm tra quyền gọi điện */
-        checkPhoneCallPermission: 'CHECK_PHONE_CALL_PERMISSION',
         /**  */
         checkPaymentPermission: 'CHECK_PAYMENT_PERMISSION',
         /**  */
@@ -1493,6 +1490,10 @@ var WebviewSdk = (function (exports) {
         openInAppDeeplink: 'OPEN_IN_APP_DEEPLINK',
         /** Get init event */
         initRequest: 'INIT_REQUEST',
+        /** Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền. */
+        setScreenBrightness: 'SET_SCREEN_BRIGHTNESS',
+        /** Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app. */
+        restoreScreenBrightness: 'RESTORE_SCREEN_BRIGHTNESS',
     };
 
     exports.EVENT_LIST = EVENT_LIST;
@@ -1516,7 +1517,6 @@ var WebviewSdk = (function (exports) {
     exports.checkLoginPermission = checkLoginPermission;
     exports.checkMultipleUserDataPermission = checkMultipleUserDataPermission;
     exports.checkPaymentPermission = checkPaymentPermission;
-    exports.checkPhoneCallPermission = checkPhoneCallPermission;
     exports.checkPhotosPermission = checkPhotosPermission;
     exports.checkRecordAudioPermission = checkRecordAudioPermission;
     exports.checkVideosPermission = checkVideosPermission;
@@ -1555,10 +1555,10 @@ var WebviewSdk = (function (exports) {
     exports.requestLoginPermission = requestLoginPermission;
     exports.requestMultipleUserDataPermission = requestMultipleUserDataPermission;
     exports.requestPaymentPermission = requestPaymentPermission;
-    exports.requestPhoneCallPermission = requestPhoneCallPermission;
     exports.requestPhotosPermission = requestPhotosPermission;
     exports.requestRecordAudioPermission = requestRecordAudioPermission;
     exports.requestVideosPermission = requestVideosPermission;
+    exports.restoreScreenBrightness = restoreScreenBrightness;
     exports.retry = retry;
     exports.saveBooleanValue = saveBooleanValue;
     exports.saveFile = saveFile;
@@ -1568,6 +1568,7 @@ var WebviewSdk = (function (exports) {
     exports.saveLongValue = saveLongValue;
     exports.saveStringValue = saveStringValue;
     exports.sendToNative = sendToNative;
+    exports.setScreenBrightness = setScreenBrightness;
     exports.shareTextContent = shareTextContent;
     exports.updateMiniAppTheme = updateMiniAppTheme;
     exports.wireToMiniApp = wireToMiniApp;

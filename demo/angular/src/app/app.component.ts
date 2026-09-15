@@ -20,7 +20,6 @@ import {
   requestRecordAudioPermission,
   requestContactsPermission,
   requestDocumentPermission,
-  requestPhoneCallPermission,
   requestPaymentPermission,
   requestLoginPermission,
   requestLocalAuthenticationPermission,
@@ -32,7 +31,6 @@ import {
   checkRecordAudioPermission,
   checkContactsPermission,
   checkDocumentPermission,
-  checkPhoneCallPermission,
   checkPaymentPermission,
   checkLoginPermission,
   checkLocalAuthenticationPermission,
@@ -178,7 +176,6 @@ export class AppComponent implements AfterViewInit {
     this.fns['requestRecordAudioPermission'] = () => requestRecordAudioPermission();
     this.fns['requestContactsPermission'] = () => requestContactsPermission();
     this.fns['requestDocumentPermission'] = () => requestDocumentPermission();
-    this.fns['requestPhoneCallPermission'] = () => requestPhoneCallPermission();
     this.fns['requestPaymentPermission'] = () => requestPaymentPermission();
     this.fns['requestLoginPermission'] = () => requestLoginPermission();
     this.fns['requestLocalAuthenticationPermission'] = () => requestLocalAuthenticationPermission();
@@ -190,7 +187,6 @@ export class AppComponent implements AfterViewInit {
     this.fns['checkRecordAudioPermission'] = () => checkRecordAudioPermission();
     this.fns['checkContactsPermission'] = () => checkContactsPermission();
     this.fns['checkDocumentPermission'] = () => checkDocumentPermission();
-    this.fns['checkPhoneCallPermission'] = () => checkPhoneCallPermission();
     this.fns['checkPaymentPermission'] = () => checkPaymentPermission();
     this.fns['checkLoginPermission'] = () => checkLoginPermission();
     this.fns['checkLocalAuthenticationPermission'] = () => checkLocalAuthenticationPermission();
@@ -260,7 +256,6 @@ export class AppComponent implements AfterViewInit {
       { name: 'requestRecordAudioPermission', event: 'REQUEST_RECORD_AUDIO_PERMISSION', desc: 'Yêu cầu ghi âm trên thiết bị', hasParams: false, defaultData: null },
       { name: 'requestContactsPermission', event: 'REQUEST_CONTACTS_PERMISSION', desc: 'Yêu cầu truy cập danh bạ trên thiết bị', hasParams: false, defaultData: null },
       { name: 'requestDocumentPermission', event: 'REQUEST_DOCUMENT_PERMISSION', desc: 'Yêu cầu truy cập tài liệu trên thiết bị', hasParams: false, defaultData: null },
-      { name: 'requestPhoneCallPermission', event: 'REQUEST_PHONE_CALL_PERMISSION', desc: 'Yêu cầu thực hiện cuộc gọi trên thiết bị', hasParams: false, defaultData: null },
       { name: 'requestPaymentPermission', event: 'REQUEST_PAYMENT_PERMISSION', desc: '', hasParams: false, defaultData: null },
       { name: 'requestLoginPermission', event: 'REQUEST_LOGIN_PERMISSION', desc: '', hasParams: false, defaultData: null },
       { name: 'requestLocalAuthenticationPermission', event: 'REQUEST_LOCAL_AUTHENTICATION_PERMISSION', desc: 'Yêu cầu xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: null },
@@ -275,7 +270,6 @@ export class AppComponent implements AfterViewInit {
       { name: 'checkRecordAudioPermission', event: 'CHECK_RECORD_AUDIO_PERMISSION', desc: 'Kiểm tra quyền ghi âm trên thiết bị', hasParams: false, defaultData: null },
       { name: 'checkContactsPermission', event: 'CHECK_CONTACTS_PERMISSION', desc: 'Kiểm tra quyền truy cập danh bạ', hasParams: false, defaultData: null },
       { name: 'checkDocumentPermission', event: 'CHECK_DOCUMENT_PERMISSION', desc: 'Kiểm tra quyền truy cập file tài liệu', hasParams: false, defaultData: null },
-      { name: 'checkPhoneCallPermission', event: 'CHECK_PHONE_CALL_PERMISSION', desc: 'Kiểm tra quyền gọi điện', hasParams: false, defaultData: null },
       { name: 'checkPaymentPermission', event: 'CHECK_PAYMENT_PERMISSION', desc: '', hasParams: false, defaultData: null },
       { name: 'checkLoginPermission', event: 'CHECK_LOGIN_PERMISSION', desc: '', hasParams: false, defaultData: null },
       { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: null }

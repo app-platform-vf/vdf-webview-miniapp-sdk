@@ -365,52 +365,7 @@ if (WebviewSdk.isSuccess(res)) {
 
 
 
-### 9. checkPhoneCallPermission()
-
-**Event Code:** `CHECK_PHONE_CALL_PERMISSION` - Kiểm tra quyền gọi điện
-
-**Request**
-
-*No request parameters*
-
-**Response**
-
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `permissionCode` | `string` | *optional* |  |
-| `result` | `string` | *optional* |  |
-| `message` | `string` | *optional* |  |
-
-
-**Ví dụ sử dụng (npm package)**
-
-```typescript
-import { checkPhoneCallPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
-
-const res = await checkPhoneCallPermission()
-if (isSuccess(res)) {
-  console.log(res.permissionCode)
-  console.log(res.result)
-  console.log(res.message)
-}
-```
-
-**Sử dụng với bundle.js**
-
-```javascript
-const res = await WebviewSdk.checkPhoneCallPermission()
-if (WebviewSdk.isSuccess(res)) {
-  console.log(res.permissionCode)
-  console.log(res.result)
-  console.log(res.message)
-}
-```
-
----
-
-
-
-### 10. checkPaymentPermission()
+### 9. checkPaymentPermission()
 
 **Event Code:** `CHECK_PAYMENT_PERMISSION` - **Request**
 
@@ -453,7 +408,7 @@ if (WebviewSdk.isSuccess(res)) {
 
 
 
-### 11. checkLoginPermission()
+### 10. checkLoginPermission()
 
 **Event Code:** `CHECK_LOGIN_PERMISSION` - **Request**
 
@@ -496,7 +451,7 @@ if (WebviewSdk.isSuccess(res)) {
 
 
 
-### 12. checkLocalAuthenticationPermission()
+### 11. checkLocalAuthenticationPermission()
 
 **Event Code:** `CHECK_LOCAL_AUTHENTICATION_PERMISSION` - kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).
 

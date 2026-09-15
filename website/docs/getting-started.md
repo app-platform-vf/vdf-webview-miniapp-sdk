@@ -7,7 +7,7 @@ title: Getting Started
 
 # Super MiniApp SDK - API Documentation
 
-> Tự động sinh từ events.json — 58 events.
+> Tự động sinh từ events.json — 56 events.
 
 **Demo Links (GitHub Pages):**
 - [Demo Vanilla JS](https://app-platform-vf.github.io/vdf-webview-miniapp-sdk/demo/vanilla/)
