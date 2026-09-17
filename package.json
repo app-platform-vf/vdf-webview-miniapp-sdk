@@ -15,7 +15,8 @@
     "build:js": "npm run build:ts && npm run build:bundle",
     "typedoc": "typedoc",
     "pages": "node scripts/build-pages.js",
-    "verify:npm": "node scripts/verify-npm-consumer/verify.mjs"
+    "verify:npm": "node scripts/verify-npm-consumer/verify.mjs",
+    "verify:page": "node scripts/verify-npm-consumer/build-page.mjs"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^29.0.2",

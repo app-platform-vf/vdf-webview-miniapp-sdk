@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!-- Trang tieu thu goi npm. Sinh boi scripts/verify-npm-consumer/build-page.mjs — dung sua tay. -->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Kiem goi npm — OPEN_SMS_COMPOSER</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { margin:0; padding:16px; font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  h1 { font-size:17px; margin:0 0 4px; }
+  .src { font-size:12px; opacity:.75; margin-bottom:16px; word-break:break-all; }
+  .src b { font-weight:600; }
+  label { display:block; font-size:12px; opacity:.75; margin:10px 0 4px; }
+  input { width:100%; box-sizing:border-box; padding:10px; font:inherit;
+          border:1px solid rgba(128,128,128,.45); border-radius:8px; background:transparent; color:inherit; }
+  button { width:100%; margin-top:14px; padding:13px; font:600 15px/1 inherit;
+           border:0; border-radius:8px; background:#0C4D9F; color:#fff; }
+  pre { margin-top:16px; padding:12px; border-radius:8px; background:rgba(128,128,128,.14);
+        white-space:pre-wrap; word-break:break-word; font-size:12px; max-height:52vh; overflow:auto; }
+</style>
+</head>
+<body>
+  <h1>Kiểm gói npm — <code>OPEN_SMS_COMPOSER</code></h1>
+  <div class="src">
+    SDK nạp từ <b>gói đã cài</b> <code>__PKG_NAME__@__PKG_VERSION__</code>,
+    <b>không</b> phải <code>packages/core</code>. Dựng lúc <code>__BUILT_AT__</code>.
+  </div>
+
+  <label for="recipient">Số nhận</label>
+  <input id="recipient" value="+84987654321" inputmode="tel">
+
+  <label for="body">Nội dung</label>
+  <input id="body" value="Xin chao tu mini-app">
+
+  <button id="go">Mở trình soạn tin</button>
+
+  <pre id="log">Chưa có gì.</pre>
+
+  <script src="app.js"></script>
+  <script>
+  (function () {
+    var el = document.getElementById('log');
+    var lines = [];
+    window.__log = function (label, data) {
+      var t = new Date().toLocaleTimeString();
+      lines.unshift('[' + t + '] ' + label + (data === undefined ? '' : '\n' + JSON.stringify(data, null, 2)));
+      el.textContent = lines.join('\n\n');
+    };
+    document.getElementById('go').addEventListener('click', function () {
+      window.__sdk.sendSms(
+        document.getElementById('recipient').value,
+        document.getElementById('body').value
+      );
+    });
+    window.__log('San sang. SDK nap tu goi da cai.');
+  })();
+  </script>
+</body>
+</html>

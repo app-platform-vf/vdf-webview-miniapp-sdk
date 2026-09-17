@@ -13,3 +13,19 @@ all.js
 _site/
 /docs/
 *.tgz
+
+
+
+
+# >>> NTAPP bootstrap (auto-managed, do not edit) >>>
+.agent/skills
+.claude/skills/
+.cursor/skills/
+.claude/hooks
+.claude/settings.json
+.bmm-config.yaml
+*.bak.*
+# <<< NTAPP bootstrap <<<
+
+# Ket qua dung cua bo kiem goi npm — sinh lai bang `npm run verify:page`
+scripts/verify-npm-consumer/dist-page/
