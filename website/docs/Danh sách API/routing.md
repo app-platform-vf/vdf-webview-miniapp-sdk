@@ -320,7 +320,7 @@ if (WebviewSdk.isSuccess(res)) {
 
 ### 7. openSmsComposer()
 
-**Event Code:** `OPEN_SMS_COMPOSER` - Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin.
+**Event Code:** `OPEN_SMS_COMPOSER` - Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. ⚠️ Mở thành công trả về mã SDK852, KHÔNG phải SDK000, nên `isSuccess()` trả false và Promise bị REJECT dù mọi thứ đúng: hãy đọc kết quả trong nhánh `catch`, giá trị nhận được là nguyên response (đọc `data.terminal_state`). Đây là hành vi đã biết và được chấp nhận, không phải lỗi. Trên iOS còn một nhịp thứ hai mang kết cục thật, và nhịp đó KHÔNG đến qua Promise — phải nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`.
 
 **Request data**
 

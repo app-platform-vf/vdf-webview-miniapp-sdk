@@ -212,7 +212,11 @@ function genTypes(config) {
   lines.push("export const EVENT_LIST = [")
   config.events.forEach(evt => {
     const pascal = toPascalCase(evt.event)
-    lines.push(`  { event: '${evt.event}', method: '${toCamelCase(evt.event)}', description: '${evt.description}', requestType: '${pascal}Request', responseType: '${pascal}Response' },`)
+    // description di vao mot chuoi nhay don, nen phai escape. Truoc day no duoc noi
+    // thang: bat ky mo ta nao chua dau nhay don deu ket thuc chuoi som va lam ca tep
+    // sinh ra khong bien dich duoc, voi thong bao loi tro vao dong sinh ra chu khong tro
+    // vao events.json — tuc nguoi sua hop dong khong nhin ra minh vua lam gi.
+    lines.push(`  { event: '${evt.event}', method: '${toCamelCase(evt.event)}', description: ${JSON.stringify(evt.description || "")}, requestType: '${pascal}Request', responseType: '${pascal}Response' },`)
   })
   lines.push("] as const;")
   lines.push("")

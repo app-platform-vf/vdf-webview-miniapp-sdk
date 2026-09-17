@@ -675,7 +675,7 @@ export async function restoreScreenBrightness(payload: RestoreScreenBrightnessRe
 }
 
 /**
- * Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin.
+ * Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. ⚠️ Mở thành công trả về mã SDK852, KHÔNG phải SDK000, nên `isSuccess()` trả false và Promise bị REJECT dù mọi thứ đúng: hãy đọc kết quả trong nhánh `catch`, giá trị nhận được là nguyên response (đọc `data.terminal_state`). Đây là hành vi đã biết và được chấp nhận, không phải lỗi. Trên iOS còn một nhịp thứ hai mang kết cục thật, và nhịp đó KHÔNG đến qua Promise — phải nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`.
  * Event: OPEN_SMS_COMPOSER
  * @param payload.data.recipient (required) Số điện thoại người nhận. Chỉ chữ số, cho phép một dấu cộng ở đầu, tối đa 20 chữ số. [default: "+84987654321"]
  * @param payload.data.body (required) Nội dung tin nhắn. Tối đa 670 đơn vị mã UTF-16 sau khi chuẩn hoá NFC. [default: "Xin chao tu mini-app"]
@@ -828,7 +828,7 @@ export const MiniAppAPI = {
   setScreenBrightness,
   /** Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app. */
   restoreScreenBrightness,
-  /** Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. */
+  /** Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. ⚠️ Mở thành công trả về mã SDK852, KHÔNG phải SDK000, nên `isSuccess()` trả false và Promise bị REJECT dù mọi thứ đúng: hãy đọc kết quả trong nhánh `catch`, giá trị nhận được là nguyên response (đọc `data.terminal_state`). Đây là hành vi đã biết và được chấp nhận, không phải lỗi. Trên iOS còn một nhịp thứ hai mang kết cục thật, và nhịp đó KHÔNG đến qua Promise — phải nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`. */
   openSmsComposer,
   /** Kiem tra response thanh cong */
   isSuccess,
