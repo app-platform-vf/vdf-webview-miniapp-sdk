@@ -115,7 +115,9 @@ import type {
   SetScreenBrightnessRequest,
   SetScreenBrightnessResponse,
   RestoreScreenBrightnessRequest,
-  RestoreScreenBrightnessResponse
+  RestoreScreenBrightnessResponse,
+  OpenSmsComposerRequest,
+  OpenSmsComposerResponse
 } from './types.generated';
 
 /** Map event name -> [RequestType, ResponseType] */
@@ -176,6 +178,7 @@ export interface MiniAppEventMap {
   'INIT_REQUEST': [InitRequestRequest, InitRequestResponse];
   'SET_SCREEN_BRIGHTNESS': [SetScreenBrightnessRequest, SetScreenBrightnessResponse];
   'RESTORE_SCREEN_BRIGHTNESS': [RestoreScreenBrightnessRequest, RestoreScreenBrightnessResponse];
+  'OPEN_SMS_COMPOSER': [OpenSmsComposerRequest, OpenSmsComposerResponse];
 }
 
 /** Danh sach event name constants */
@@ -292,4 +295,6 @@ export const MINIAPP_EVENTS = {
   setScreenBrightness: 'SET_SCREEN_BRIGHTNESS' as const,
   /** Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app. */
   restoreScreenBrightness: 'RESTORE_SCREEN_BRIGHTNESS' as const,
+  /** Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. */
+  openSmsComposer: 'OPEN_SMS_COMPOSER' as const,
 };

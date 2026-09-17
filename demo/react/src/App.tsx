@@ -59,6 +59,7 @@ import {
   initRequest,
   setScreenBrightness,
   restoreScreenBrightness,
+  openSmsComposer,
 } from 'vdf-webview-miniapp-sdk';
 
 const app = getSharedMiniApp({ debug: true });
@@ -78,7 +79,8 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'exit', event: 'EXIT', desc: "Đóng Mini App và điều hướng về màn hình khác.", hasParams: true, defaultData: "{\"data\":{\"navigationAction\":\"...\"}}" },
       { name: 'openExternalLink', event: 'OPEN_EXTERNAL_LINK', desc: "Mở URL bằng browser mặc định của hệ thống.", hasParams: true, defaultData: "{\"data\":{\"uri\":\"https://google.com\"}}" },
       { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: "Mở một Mini App khác từ Mini App hiện tại.", hasParams: true, defaultData: "{\"data\":{\"route\":{\"screenName\":\"home\"},\"miniAppKey\":\"01K5FY191HP42SMMJXHWG545ZZ\",\"additional\":{\"param1\":\"value1\",\"param2\":\"value2\"},\"launchConfig\":{\"mode\":\"present\"},\"themeConfig\":{\"title\":\"My App\",\"headerColor\":\"#EE0033\",\"headerTitle\":\"Videos\",\"textColor\":\"white\",\"leftButton\":\"back\",\"actionButtonThemeType\":\"normal\",\"hideAndroidBottomNavigationBar\":true,\"hideIOSSafeAreaBottom\":true},\"tracking\":{\"campaign\":\"promotion\",\"utmSource\":\"miniapp\"}}}" },
-      { name: 'openInAppDeeplink', event: 'OPEN_IN_APP_DEEPLINK', desc: "Mở deeplink nội bộ app", hasParams: true, defaultData: "{\"data\":{\"url\":\"viettelpay://action/c=FECRDT&t=FINANCE4\"}}" }
+      { name: 'openInAppDeeplink', event: 'OPEN_IN_APP_DEEPLINK', desc: "Mở deeplink nội bộ app", hasParams: true, defaultData: "{\"data\":{\"url\":\"viettelpay://action/c=FECRDT&t=FINANCE4\"}}" },
+      { name: 'openSmsComposer', event: 'OPEN_SMS_COMPOSER', desc: "Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin.", hasParams: true, defaultData: "{\"data\":{\"recipient\":\"+84987654321\",\"body\":\"Xin chao tu mini-app\"}}" }
   ] },
   { title: "UserData Permission", events: [
       { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: "Yêu cầu nhiều quyền user data cùng một lúc.", hasParams: true, defaultData: "{\"data\":{\"permissionCodes\":[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\",\"USER_BIRTH_DATE_PERMISSION\",\"USER_GENDER_PERMISSION\",\"USER_NATIONAL_ID_PERMISSION\"],\"useSameReason\":true}}" },
@@ -255,6 +257,7 @@ export default function App() {
     'initRequest': () => initRequest(),
     'setScreenBrightness': () => setScreenBrightness(getInputFor('setScreenBrightness') || {"data":{"value":0.8}}),
     'restoreScreenBrightness': () => restoreScreenBrightness(getInputFor('restoreScreenBrightness') || {"data":{}}),
+    'openSmsComposer': () => openSmsComposer(getInputFor('openSmsComposer') || {"data":{"recipient":"+84987654321","body":"Xin chao tu mini-app"}}),
     'invoke': () => app.invoke(getInputFor('invoke')?.event || 'GET_LOCATION', getInputFor('invoke')),
   };
 

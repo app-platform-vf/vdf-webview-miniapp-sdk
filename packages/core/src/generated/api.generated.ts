@@ -118,7 +118,9 @@ import type {
   SetScreenBrightnessRequest,
   SetScreenBrightnessResponse,
   RestoreScreenBrightnessRequest,
-  RestoreScreenBrightnessResponse
+  RestoreScreenBrightnessResponse,
+  OpenSmsComposerRequest,
+  OpenSmsComposerResponse
 } from './types.generated';
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */
@@ -672,6 +674,16 @@ export async function restoreScreenBrightness(payload: RestoreScreenBrightnessRe
   return send<RestoreScreenBrightnessResponse>('RESTORE_SCREEN_BRIGHTNESS', payload);
 }
 
+/**
+ * Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin.
+ * Event: OPEN_SMS_COMPOSER
+ * @param payload.data.recipient (required) Số điện thoại người nhận. Chỉ chữ số, cho phép một dấu cộng ở đầu, tối đa 20 chữ số. [default: "+84987654321"]
+ * @param payload.data.body (required) Nội dung tin nhắn. Tối đa 670 đơn vị mã UTF-16 sau khi chuẩn hoá NFC. [default: "Xin chao tu mini-app"]
+ */
+export async function openSmsComposer(payload: OpenSmsComposerRequest): Promise<MiniAppResponse<OpenSmsComposerResponse>> {
+  return send<OpenSmsComposerResponse>('OPEN_SMS_COMPOSER', payload);
+}
+
 // ============================================================
 // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
 // ============================================================
@@ -816,6 +828,8 @@ export const MiniAppAPI = {
   setScreenBrightness,
   /** Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app. */
   restoreScreenBrightness,
+  /** Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. */
+  openSmsComposer,
   /** Kiem tra response thanh cong */
   isSuccess,
   /** Khoi tao API module */

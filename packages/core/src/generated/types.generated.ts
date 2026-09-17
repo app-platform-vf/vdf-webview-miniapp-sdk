@@ -631,6 +631,20 @@ export interface RestoreScreenBrightnessResponse {
   }; // Ket qua
 }
 
+/** Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. */
+export interface OpenSmsComposerRequest {
+  data: {
+    recipient: string; // Số điện thoại người nhận. Chỉ chữ số, cho phép một dấu cộng ở đầu, tối đa 20 chữ số.
+    body: string; // Nội dung tin nhắn. Tối đa 670 đơn vị mã UTF-16 sau khi chuẩn hoá NFC.
+  }; // Du lieu
+}
+
+export interface OpenSmsComposerResponse {
+  data?: {
+    terminal_state?: string; // Trạng thái của lượt giao việc. Android trả đúng một lần `HANDED_OFF` kèm mã SDK852 rồi dừng — hệ điều hành không báo lại người dùng gửi hay huỷ. iOS trả HAI lần: `HANDED_OFF` (SDK852) lúc màn soạn tin mở, rồi `SENT` (SDK000) / `CANCELLED` (SDK850) / `SEND_FAILED` (SDK851). Nhịp thứ hai KHÔNG đến qua Promise — nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`.
+  }; // Ket qua
+}
+
 // --- Event name constants ---
 
 export type MiniAppEventName =
@@ -689,7 +703,8 @@ export type MiniAppEventName =
   | 'OPEN_IN_APP_DEEPLINK'
   | 'INIT_REQUEST'
   | 'SET_SCREEN_BRIGHTNESS'
-  | 'RESTORE_SCREEN_BRIGHTNESS';
+  | 'RESTORE_SCREEN_BRIGHTNESS'
+  | 'OPEN_SMS_COMPOSER';
 
 /** Danh sach tat ca events voi metadata */
 export const EVENT_LIST = [
@@ -749,4 +764,5 @@ export const EVENT_LIST = [
   { event: 'INIT_REQUEST', method: 'initRequest', description: 'Get init event', requestType: 'InitRequestRequest', responseType: 'InitRequestResponse' },
   { event: 'SET_SCREEN_BRIGHTNESS', method: 'setScreenBrightness', description: 'Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.', requestType: 'SetScreenBrightnessRequest', responseType: 'SetScreenBrightnessResponse' },
   { event: 'RESTORE_SCREEN_BRIGHTNESS', method: 'restoreScreenBrightness', description: 'Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.', requestType: 'RestoreScreenBrightnessRequest', responseType: 'RestoreScreenBrightnessResponse' },
+  { event: 'OPEN_SMS_COMPOSER', method: 'openSmsComposer', description: 'Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin.', requestType: 'OpenSmsComposerRequest', responseType: 'OpenSmsComposerResponse' },
 ] as const;

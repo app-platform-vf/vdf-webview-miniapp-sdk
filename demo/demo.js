@@ -832,6 +832,32 @@ ${CSS_SHARED}
 ${groupsData.join(",\n")}
     ];
 
+    // Nghe MOI thong diep native day len, khong chi cai Promise bat duoc.
+    //
+    // Promise cua mot lan goi resolve hoac reject DUNG MOT LAN roi bi xoa khoi
+    // RequestManager. Nhip thu hai cua cung mot request_id se roi vao nhanh
+    // "khong con request nao dang cho" va bi bo di trong im lang. Nhung
+    // MiniApp.handleMessage van phat moi thong diep len eventBus, nen cho nay
+    // van nhin thay.
+    //
+    // Co that hai nhip: OPEN_SMS_COMPOSER tren iOS tra HANDED_OFF luc man soan
+    // tin mo, roi SENT / CANCELLED / SEND_FAILED khi nguoi dung xong viec.
+    // Khong lang nghe o day thi ket cuc that khong bao gio hien ra tren demo.
+    //
+    // Luu y khi doc log: nhip dau se xuat hien HAI dong — mot tu Promise
+    // (OK/ERR) va mot tu day nay (<-). Do la hai duong khac nhau cung nhin mot
+    // thong diep, khong phai native gui hai lan.
+    var nameByEvent = {};
+    groups.forEach(function(g) {
+      g.events.forEach(function(e) { nameByEvent[e.event] = e.name; });
+    });
+    Object.keys(nameByEvent).forEach(function(evName) {
+      app.on(evName, function(msg) {
+        logFor(nameByEvent[evName], '<- ' + evName, msg);
+        renderPopup();
+      });
+    });
+
     function lsKey(name) { return 'webview_sdk_input_' + name; }
 
     function getInputFor(name) {

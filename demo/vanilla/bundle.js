@@ -888,6 +888,17 @@ var WebviewSdk = (function (exports) {
             return send('RESTORE_SCREEN_BRIGHTNESS', payload);
         });
     }
+    /**
+     * Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin.
+     * Event: OPEN_SMS_COMPOSER
+     * @param payload.data.recipient (required) Số điện thoại người nhận. Chỉ chữ số, cho phép một dấu cộng ở đầu, tối đa 20 chữ số. [default: "+84987654321"]
+     * @param payload.data.body (required) Nội dung tin nhắn. Tối đa 670 đơn vị mã UTF-16 sau khi chuẩn hoá NFC. [default: "Xin chao tu mini-app"]
+     */
+    function openSmsComposer(payload) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return send('OPEN_SMS_COMPOSER', payload);
+        });
+    }
     // ============================================================
     // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
     // ============================================================
@@ -1021,6 +1032,8 @@ var WebviewSdk = (function (exports) {
         setScreenBrightness,
         /** Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app. */
         restoreScreenBrightness,
+        /** Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. */
+        openSmsComposer,
         /** Kiem tra response thanh cong */
         isSuccess,
         /** Khoi tao API module */
@@ -1374,6 +1387,7 @@ var WebviewSdk = (function (exports) {
         { event: 'INIT_REQUEST', method: 'initRequest', description: 'Get init event', requestType: 'InitRequestRequest', responseType: 'InitRequestResponse' },
         { event: 'SET_SCREEN_BRIGHTNESS', method: 'setScreenBrightness', description: 'Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.', requestType: 'SetScreenBrightnessRequest', responseType: 'SetScreenBrightnessResponse' },
         { event: 'RESTORE_SCREEN_BRIGHTNESS', method: 'restoreScreenBrightness', description: 'Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.', requestType: 'RestoreScreenBrightnessRequest', responseType: 'RestoreScreenBrightnessResponse' },
+        { event: 'OPEN_SMS_COMPOSER', method: 'openSmsComposer', description: 'Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin.', requestType: 'OpenSmsComposerRequest', responseType: 'OpenSmsComposerResponse' },
     ];
 
     // ============================================================
@@ -1494,6 +1508,8 @@ var WebviewSdk = (function (exports) {
         setScreenBrightness: 'SET_SCREEN_BRIGHTNESS',
         /** Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app. */
         restoreScreenBrightness: 'RESTORE_SCREEN_BRIGHTNESS',
+        /** Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. */
+        openSmsComposer: 'OPEN_SMS_COMPOSER',
     };
 
     exports.EVENT_LIST = EVENT_LIST;
@@ -1545,6 +1561,7 @@ var WebviewSdk = (function (exports) {
     exports.openExternalLink = openExternalLink;
     exports.openInAppDeeplink = openInAppDeeplink;
     exports.openMiniApp = openMiniApp;
+    exports.openSmsComposer = openSmsComposer;
     exports.parseNativeMessage = parseNativeMessage;
     exports.requestAudioPermission = requestAudioPermission;
     exports.requestCameraPermission = requestCameraPermission;

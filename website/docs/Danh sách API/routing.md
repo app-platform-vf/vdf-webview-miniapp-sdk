@@ -318,3 +318,54 @@ if (WebviewSdk.isSuccess(res)) {
 
 
 
+### 7. openSmsComposer()
+
+**Event Code:** `OPEN_SMS_COMPOSER` - Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin.
+
+**Request data**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `recipient` | `string` | **required** | Số điện thoại người nhận. Chỉ chữ số, cho phép một dấu cộng ở đầu, tối đa 20 chữ số. `+84987654321` |
+| `body` | `string` | **required** | Nội dung tin nhắn. Tối đa 670 đơn vị mã UTF-16 sau khi chuẩn hoá NFC. `Xin chao tu mini-app` |
+
+
+**Response data**
+
+
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `terminal_state` | `string` | *optional* | Trạng thái của lượt giao việc. Android trả đúng một lần `HANDED_OFF` kèm mã SDK852 rồi dừng — hệ điều hành không báo lại người dùng gửi hay huỷ. iOS trả HAI lần: `HANDED_OFF` (SDK852) lúc màn soạn tin mở, rồi `SENT` (SDK000) / `CANCELLED` (SDK850) / `SEND_FAILED` (SDK851). Nhịp thứ hai KHÔNG đến qua Promise — nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`. `HANDED_OFF` |
+
+
+**Ví dụ sử dụng (npm package)**
+
+```typescript
+import { openSmsComposer, isSuccess } from 'vdf-webview-miniapp-sdk'
+
+const res = await openSmsComposer({ data: {
+      recipient: "+84987654321",
+      body: "Xin chao tu mini-app"
+    } })
+if (isSuccess(res)) {
+  console.log(res.data.terminal_state)
+}
+```
+
+**Sử dụng với bundle.js**
+
+```javascript
+const res = await WebviewSdk.openSmsComposer({ data: {
+      recipient: "+84987654321",
+      body: "Xin chao tu mini-app"
+    } })
+if (WebviewSdk.isSuccess(res)) {
+  console.log(res.data.terminal_state)
+}
+```
+
+---
+
+
+
