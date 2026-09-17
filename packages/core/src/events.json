@@ -1483,6 +1483,47 @@
         }
       },
       "group": "UI"
+    },
+    {
+      "event": "OPEN_SMS_COMPOSER",
+      "description": "Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": true,
+          "description": "Du lieu",
+          "fields": {
+            "recipient": {
+              "type": "string",
+              "required": true,
+              "description": "Số điện thoại người nhận. Chỉ chữ số, cho phép một dấu cộng ở đầu, tối đa 20 chữ số.",
+              "default": "+84987654321"
+            },
+            "body": {
+              "type": "string",
+              "required": true,
+              "description": "Nội dung tin nhắn. Tối đa 670 đơn vị mã UTF-16 sau khi chuẩn hoá NFC.",
+              "default": "Xin chao tu mini-app"
+            }
+          }
+        }
+      },
+      "response": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "description": "Ket qua",
+          "fields": {
+            "terminal_state": {
+              "type": "string",
+              "required": false,
+              "description": "Trạng thái của lượt giao việc. Android trả đúng một lần `HANDED_OFF` kèm mã SDK852 rồi dừng — hệ điều hành không báo lại người dùng gửi hay huỷ. iOS trả HAI lần: `HANDED_OFF` (SDK852) lúc màn soạn tin mở, rồi `SENT` (SDK000) / `CANCELLED` (SDK850) / `SEND_FAILED` (SDK851). Nhịp thứ hai KHÔNG đến qua Promise — nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`.",
+              "default": "HANDED_OFF"
+            }
+          }
+        }
+      },
+      "group": "Handoff"
     }
   ]
 }
