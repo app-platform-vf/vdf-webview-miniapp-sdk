@@ -76,6 +76,24 @@ for (const s of spas) {
   }
 }
 
+// ── 3b. Demo tiêu thụ GÓI npm (resilient) -> /demo/npm-consumer/ ──────────────
+//
+// Khác bản chất với 4 demo ở trên, và đó là cả lý do nó tồn tại:
+//   4 demo trên  <- bundle từ packages/core (MÃ NGUỒN trong repo này)
+//   trang này    <- npm pack -> npm install -> bundle từ node_modules (GÓI ĐÃ CÀI)
+// Bundle từ mã nguồn không bao giờ phát hiện được lỗi đóng gói. build-page.mjs còn
+// tự dừng nếu chỗ cài đặt phân giải ngược về packages/core.
+try {
+  run("node scripts/verify-npm-consumer/build-page.mjs");
+  const consumerOut = path.join(ROOT, "scripts", "verify-npm-consumer", "dist-page");
+  if (!fs.existsSync(path.join(consumerOut, "index.html"))) throw new Error("không có index.html sau build");
+  cp(consumerOut, path.join(SITE, "demo", "npm-consumer"));
+  built.push({ name: "npm-consumer", label: "Tiêu thụ GÓI npm (định tuyến event + soạn tin)" });
+  console.log("✅ demo npm-consumer build OK");
+} catch (e) {
+  console.warn(`⚠️  demo npm-consumer build FAIL (bỏ qua, không chặn deploy): ${e.message}`);
+}
+
 // ── 4. Landing pages ──────────────────────────────────────────────────────────
 const demoCards = built.map(b =>
   `<li><a href="${REPO_BASE}/demo/${b.name}/">${b.label}</a></li>`).join("\n      ");
@@ -85,6 +103,10 @@ const demoIndex = `<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8">
 <style>body{font-family:system-ui;max-width:760px;margin:40px auto;padding:0 16px;line-height:1.6}a{color:#0b57d0}</style></head>
 <body><h1>Demos — vdf-webview-miniapp-sdk</h1>
 <p>Cùng một bộ test bridge event, dựng bằng các công nghệ khác nhau. Bản <b>vanilla</b> chạy được trong WebView thật (có vConsole).</p>
+<p><b>npm-consumer</b> khác bản chất với bốn bản kia: bốn bản trên bundle từ mã nguồn trong repo này, còn nó
+<code>npm pack</code> rồi <code>npm install</code> rồi bundle từ <code>node_modules</code> — tức là từ <b>gói đã cài</b>.
+Bundle từ mã nguồn không bao giờ phát hiện được lỗi đóng gói. Nó cũng là trang duy nhất đo nhánh <b>định tuyến event</b>
+(<code>SDK100</code> cho event lạ, app chủ tự trả lời cho event nó nhận).</p>
 <ul>
       ${demoCards}
 </ul>
