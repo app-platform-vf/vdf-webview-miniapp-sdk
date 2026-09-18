@@ -1056,42 +1056,55 @@ ${fnEntries.join(",\n")},
 }
 
 // ==================================================================
-// Main
+// Xuat ra ngoai — de nguoi khac dung lai BO SINH ma khong chay phan ghi tep
+// ==================================================================
+//
+// Trang tieu thu goi npm (scripts/verify-npm-consumer/build-page.mjs) goi
+// genVanillaHTML de co DUNG danh sach ham nhu demo/vanilla. Chep tay danh sach
+// do sang mot tep thu hai la cach chac chan nhat de hai trang lech nhau sau vai
+// thang: them mot event vao events.json thi chi mot ben duoc cap nhat, va khong
+// gi bao cho ai biet.
+module.exports = { genVanillaHTML, genReactApp, genVueApp, genAngularComponent, EVENTS_FILE, CSS_SHARED }
+
+// ==================================================================
+// Main — chi chay khi go `node demo/demo.js`, khong chay khi bi require()
 // ==================================================================
 
-console.log("Reading events.json...")
-const config = JSON.parse(fs.readFileSync(EVENTS_FILE, "utf-8"))
-console.log(`Found ${config.events.length} events\n`)
+if (require.main === module) {
+  console.log("Reading events.json...")
+  const config = JSON.parse(fs.readFileSync(EVENTS_FILE, "utf-8"))
+  console.log(`Found ${config.events.length} events\n`)
 
-// Angular
-const angular = genAngularComponent(config.events)
-fs.writeFileSync(path.join(__dirname, "angular/src/app/app.component.ts"), angular.ts)
-fs.writeFileSync(path.join(__dirname, "angular/src/app/app.component.html"), angular.html)
-fs.writeFileSync(path.join(__dirname, "angular/src/app/app.component.scss"), angular.scss)
-console.log("Generated: angular/src/app/app.component.ts")
-console.log("Generated: angular/src/app/app.component.html")
-console.log("Generated: angular/src/app/app.component.scss")
+  // Angular
+  const angular = genAngularComponent(config.events)
+  fs.writeFileSync(path.join(__dirname, "angular/src/app/app.component.ts"), angular.ts)
+  fs.writeFileSync(path.join(__dirname, "angular/src/app/app.component.html"), angular.html)
+  fs.writeFileSync(path.join(__dirname, "angular/src/app/app.component.scss"), angular.scss)
+  console.log("Generated: angular/src/app/app.component.ts")
+  console.log("Generated: angular/src/app/app.component.html")
+  console.log("Generated: angular/src/app/app.component.scss")
 
-// React
-const react = genReactApp(config.events)
-fs.writeFileSync(path.join(__dirname, "react/src/App.tsx"), react)
-fs.writeFileSync(path.join(__dirname, "react/src/App.css"), CSS_SHARED)
-console.log("Generated: react/src/App.tsx")
-console.log("Generated: react/src/App.css")
+  // React
+  const react = genReactApp(config.events)
+  fs.writeFileSync(path.join(__dirname, "react/src/App.tsx"), react)
+  fs.writeFileSync(path.join(__dirname, "react/src/App.css"), CSS_SHARED)
+  console.log("Generated: react/src/App.tsx")
+  console.log("Generated: react/src/App.css")
 
-// Vue
-const vue = genVueApp(config.events)
-fs.writeFileSync(path.join(__dirname, "vue/src/App.vue"), vue)
-console.log("Generated: vue/src/App.vue")
+  // Vue
+  const vue = genVueApp(config.events)
+  fs.writeFileSync(path.join(__dirname, "vue/src/App.vue"), vue)
+  console.log("Generated: vue/src/App.vue")
 
-// Vanilla HTML (standalone — uses dist/bundle.js directly)
-const vanilla = genVanillaHTML(config.events)
-const vanillaDir = path.join(__dirname, "vanilla")
-if (!fs.existsSync(vanillaDir)) fs.mkdirSync(vanillaDir, { recursive: true })
-fs.writeFileSync(path.join(vanillaDir, "index.html"), vanilla)
-// Copy bundle.js alongside index.html
-fs.copyFileSync(path.join(__dirname, "../dist/bundle.js"), path.join(vanillaDir, "bundle.js"))
-console.log("Generated: vanilla/index.html")
-console.log("Copied:    vanilla/bundle.js")
+  // Vanilla HTML (standalone — uses dist/bundle.js directly)
+  const vanilla = genVanillaHTML(config.events)
+  const vanillaDir = path.join(__dirname, "vanilla")
+  if (!fs.existsSync(vanillaDir)) fs.mkdirSync(vanillaDir, { recursive: true })
+  fs.writeFileSync(path.join(vanillaDir, "index.html"), vanilla)
+  // Copy bundle.js alongside index.html
+  fs.copyFileSync(path.join(__dirname, "../dist/bundle.js"), path.join(vanillaDir, "bundle.js"))
+  console.log("Generated: vanilla/index.html")
+  console.log("Copied:    vanilla/bundle.js")
 
-console.log("\nDone! All demos generated from events.json (Angular, React, Vue, Vanilla HTML)")
+  console.log("\nDone! All demos generated from events.json (Angular, React, Vue, Vanilla HTML)")
+}

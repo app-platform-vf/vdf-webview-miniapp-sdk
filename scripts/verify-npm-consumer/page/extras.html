@@ -1,0 +1,101 @@
+<!-- Manh ghep RIENG cua trang tieu thu goi npm.
+     build-page.mjs chen tep nay vao ngay truoc </body> cua trang do demo/demo.js sinh ra.
+     Dat sau khoi script chinh la co y: renderApp() da chay xong nen #app da co noi dung. -->
+<style>
+.npm-banner { margin: 8px 0 4px; padding: 10px 12px; border-radius: 8px; font-size: 12px; line-height: 1.55;
+              background: #eef4ff; border: 1px solid #c7d9f7; color: #1a3d73; }
+.npm-banner code { background: rgba(0,0,0,.06); padding: 1px 4px; border-radius: 4px; }
+.npm-banner b { font-weight: 600; }
+</style>
+<script>
+(function () {
+  'use strict';
+
+  var host = document.getElementById('app');
+  if (!host) return;
+
+  // ── 1. Bang cho biet SDK tren trang nay nap tu dau ──────────────────────────
+  //
+  // Day la ca ly do trang ton tai, nen no phai nhin thay duoc ngay tren man hinh
+  // chu khong chi nam trong ghi chu cua ma nguon: bon trang demo kia bundle tu
+  // packages/core, trang nay bundle tu node_modules sau khi pack va cai.
+  var banner = document.createElement('div');
+  banner.className = 'npm-banner';
+  banner.innerHTML =
+    'SDK nap tu <b>GOI DA CAI</b> <code>__PKG_NAME__@__PKG_VERSION__</code>, '
+    + 'khong phai tu <code>packages/core</code>. Dung luc <code>__BUILT_AT__</code>.<br>'
+    + 'Danh sach ham ben duoi sinh tu cung mot bo sinh voi trang <b>vanilla</b> '
+    + '(<code>demo/demo.js</code> doc <code>events.json</code>), nen hai trang luon liet ke y het nhau. '
+    + 'Khac biet duy nhat la nguon nap SDK — va do la thu bundle tu ma nguon khong bao gio do duoc: '
+    + 'loi <b>dong goi</b>.';
+  var h1 = host.querySelector('h1');
+  if (h1) h1.insertAdjacentElement('afterend', banner);
+  else host.insertBefore(banner, host.firstChild);
+
+  // ── 2. Hai phep do DINH TUYEN ───────────────────────────────────────────────
+  //
+  // Hai nut nay khong phai ham cua SDK nen khong co trong events.json, vi vay
+  // chung khong the den tu bo sinh. Chung do mot nhanh khac: event roi vao dau
+  // khi KHONG hang nao trong bang dinh tuyen nhan no.
+  var shared = WebviewSdk.getSharedMiniApp({ debug: true });
+
+  var HOST_HANDLED_EVENT = 'HOST_APP_PING';   // event app chu demo tu nhan va tu tra loi
+  var UNKNOWN_EVENT = 'KHONG_CO_THAT';        // event co y khong ton tai o bat ky dau
+
+  var logLines = [];
+
+  function codeOf(envelope) {
+    return (envelope && envelope.eventStatus && envelope.eventStatus.errorCode) || '(khong co eventStatus)';
+  }
+
+  function log(label, data) {
+    var t = new Date().toLocaleTimeString();
+    logLines.unshift('[' + t + '] ' + label + (data === undefined ? '' : '\n' + JSON.stringify(data, null, 2)));
+    var box = document.getElementById('probe-log');
+    if (box) box.textContent = logLines.join('\n\n');
+  }
+
+  // Promise cua SDK reject voi MOI ma khac SDK000, nen duong thanh cong va duong
+  // loi deu di qua day. Ta doc MA tra ve, khong doc chuyen no roi vao nhanh nao.
+  function probe(eventName, expectation) {
+    log('-> sendRaw ' + eventName + ' (ky vong ' + expectation + ')');
+    shared.sendRaw({ event: eventName }).then(function (res) {
+      log('Promise resolve — ma ' + codeOf(res), res);
+    }).catch(function (err) {
+      log('Promise REJECT — ma ' + codeOf(err), err);
+    });
+  }
+
+  var section = document.createElement('section');
+  section.innerHTML =
+    '<h3 class="section-title">Dinh tuyen event (chi co o trang nay)</h3>'
+    + '<div class="btn-group">'
+    + '  <button class="btn" id="probe-unknown">Event la — cho SDK100</button>'
+    + '  <button class="btn" id="probe-hostping">App chu xu ly — cho SDK000</button>'
+    + '  <button class="btn" id="probe-clear" style="margin-left:auto">Clear Log</button>'
+    + '</div>'
+    + '<pre class="popup-log" id="probe-log" style="margin-top:8px">Chua co gi.</pre>';
+
+  // Chen truoc o dem 50px o cuoi trang, de khong bi day xuong duoi khoang trong.
+  var spacer = host.lastElementChild;
+  if (spacer) host.insertBefore(section, spacer);
+  else host.appendChild(section);
+
+  document.getElementById('probe-unknown').addEventListener('click', function () {
+    // Truoc dot sua dinh tuyen, cho nay KHONG tra ve gi ca va trang treo den het
+    // han cho. Do la ca ly do SDK100 ra doi.
+    probe(UNKNOWN_EVENT, 'SDK100');
+  });
+
+  document.getElementById('probe-hostping').addEventListener('click', function () {
+    // Nhan SDK100 o day nghia la app chu chua cai ban intercept tra ve tri gia:
+    // truoc dot sua do, app chu xu ly dung thi VAN an them mot SDK100.
+    probe(HOST_HANDLED_EVENT, 'SDK000 tu app chu');
+  });
+
+  document.getElementById('probe-clear').addEventListener('click', function () {
+    logLines = [];
+    document.getElementById('probe-log').textContent = 'Chua co gi.';
+  });
+})();
+</script>

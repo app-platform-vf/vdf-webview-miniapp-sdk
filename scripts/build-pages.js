@@ -78,7 +78,8 @@ for (const s of spas) {
 
 // ── 3b. Demo tiêu thụ GÓI npm (resilient) -> /demo/npm-consumer/ ──────────────
 //
-// Khác bản chất với 4 demo ở trên, và đó là cả lý do nó tồn tại:
+// Giống hệt bản vanilla — cùng bộ sinh (demo/demo.js đọc events.json), cùng danh
+// sách hàm, cùng giao diện. Khác đúng MỘT chỗ, và đó là cả lý do nó tồn tại:
 //   4 demo trên  <- bundle từ packages/core (MÃ NGUỒN trong repo này)
 //   trang này    <- npm pack -> npm install -> bundle từ node_modules (GÓI ĐÃ CÀI)
 // Bundle từ mã nguồn không bao giờ phát hiện được lỗi đóng gói. build-page.mjs còn
@@ -88,7 +89,7 @@ try {
   const consumerOut = path.join(ROOT, "scripts", "verify-npm-consumer", "dist-page");
   if (!fs.existsSync(path.join(consumerOut, "index.html"))) throw new Error("không có index.html sau build");
   cp(consumerOut, path.join(SITE, "demo", "npm-consumer"));
-  built.push({ name: "npm-consumer", label: "Tiêu thụ GÓI npm (định tuyến event + soạn tin)" });
+  built.push({ name: "npm-consumer", label: "Tiêu thụ GÓI npm (đủ hàm như vanilla, nạp từ gói đã cài)" });
   console.log("✅ demo npm-consumer build OK");
 } catch (e) {
   console.warn(`⚠️  demo npm-consumer build FAIL (bỏ qua, không chặn deploy): ${e.message}`);
@@ -103,9 +104,11 @@ const demoIndex = `<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8">
 <style>body{font-family:system-ui;max-width:760px;margin:40px auto;padding:0 16px;line-height:1.6}a{color:#0b57d0}</style></head>
 <body><h1>Demos — vdf-webview-miniapp-sdk</h1>
 <p>Cùng một bộ test bridge event, dựng bằng các công nghệ khác nhau. Bản <b>vanilla</b> chạy được trong WebView thật (có vConsole).</p>
-<p><b>npm-consumer</b> khác bản chất với bốn bản kia: bốn bản trên bundle từ mã nguồn trong repo này, còn nó
-<code>npm pack</code> rồi <code>npm install</code> rồi bundle từ <code>node_modules</code> — tức là từ <b>gói đã cài</b>.
-Bundle từ mã nguồn không bao giờ phát hiện được lỗi đóng gói. Nó cũng là trang duy nhất đo nhánh <b>định tuyến event</b>
+<p><b>npm-consumer</b> nhìn giống hệt bản <b>vanilla</b> — cùng bộ sinh, cùng danh sách hàm, cùng giao diện — và khác đúng
+một chỗ: bốn bản trên bundle từ mã nguồn trong repo này, còn nó <code>npm pack</code> rồi <code>npm install</code> rồi
+bundle từ <code>node_modules</code>, tức là từ <b>gói đã cài</b>. Giống nhau ở mọi chỗ khác chính là điều làm nó dùng được:
+bấm cùng một nút trên hai trang, lệch nhau thì lệch đó đến từ khâu <b>đóng gói</b>, không đến từ chỗ nào khác.
+Nó cũng là trang duy nhất đo nhánh <b>định tuyến event</b>
 (<code>SDK100</code> cho event lạ, app chủ tự trả lời cho event nó nhận).</p>
 <ul>
       ${demoCards}
