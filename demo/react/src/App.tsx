@@ -70,81 +70,82 @@ interface EventInfo {
   desc: string;
   hasParams: boolean;
   defaultData: string | null;
+  responseSample: string | null;
 }
 
 const groups: { title: string; events: EventInfo[] }[] = [
   { title: "Routing", events: [
-      { name: 'appOpenWebview', event: 'APP_OPEN_WEBVIEW', desc: "Mở một WebView mới với URL và cấu hình tùy chỉnh.", hasParams: true, defaultData: "{\"data\":{\"url\":\"https://example.com\",\"serviceName\":\"Tên dịch vụ\",\"isPaymentConfirm\":false,\"resourceType\":\"HTML\",\"returnUrl\":\"https://example.com/return\",\"cancelUrl\":\"https://example.com/cancel\"}}" },
-      { name: 'appOpenStore', event: 'APP_OPEN_STORE', desc: "Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.", hasParams: true, defaultData: "{\"data\":{\"fallbackUrlAndroid\":\"viettelpay://action/c=FECRDT&t=FINANCE4\",\"fallbackUrlIos\":\"viettelpay://action/c=FECRDT&t=FINANCE4\",\"needToExitMiniApp\":true,\"package\":\"null\",\"appId\":\"null\"}}" },
-      { name: 'exit', event: 'EXIT', desc: "Đóng Mini App và điều hướng về màn hình khác.", hasParams: true, defaultData: "{\"data\":{\"navigationAction\":\"...\"}}" },
-      { name: 'openExternalLink', event: 'OPEN_EXTERNAL_LINK', desc: "Mở URL bằng browser mặc định của hệ thống.", hasParams: true, defaultData: "{\"data\":{\"uri\":\"https://google.com\"}}" },
-      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: "Mở một Mini App khác từ Mini App hiện tại.", hasParams: true, defaultData: "{\"data\":{\"route\":{\"screenName\":\"home\"},\"miniAppKey\":\"01K5FY191HP42SMMJXHWG545ZZ\",\"additional\":{\"param1\":\"value1\",\"param2\":\"value2\"},\"launchConfig\":{\"mode\":\"present\"},\"themeConfig\":{\"title\":\"My App\",\"headerColor\":\"#EE0033\",\"headerTitle\":\"Videos\",\"textColor\":\"white\",\"leftButton\":\"back\",\"actionButtonThemeType\":\"normal\",\"hideAndroidBottomNavigationBar\":true,\"hideIOSSafeAreaBottom\":true},\"tracking\":{\"campaign\":\"promotion\",\"utmSource\":\"miniapp\"}}}" },
-      { name: 'openInAppDeeplink', event: 'OPEN_IN_APP_DEEPLINK', desc: "Mở deeplink nội bộ app", hasParams: true, defaultData: "{\"data\":{\"url\":\"viettelpay://action/c=FECRDT&t=FINANCE4\"}}" },
-      { name: 'openSmsComposer', event: 'OPEN_SMS_COMPOSER', desc: "Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. ⚠️ Mở thành công trả về mã SDK852, KHÔNG phải SDK000, nên `isSuccess()` trả false và Promise bị REJECT dù mọi thứ đúng: hãy đọc kết quả trong nhánh `catch`, giá trị nhận được là nguyên response (đọc `data.terminal_state`). Đây là hành vi đã biết và được chấp nhận, không phải lỗi. Trên iOS còn một nhịp thứ hai mang kết cục thật, và nhịp đó KHÔNG đến qua Promise — phải nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`.", hasParams: true, defaultData: "{\"data\":{\"recipient\":\"+84987654321\",\"body\":\"Xin chao tu mini-app\"}}" }
+      { name: 'appOpenWebview', event: 'APP_OPEN_WEBVIEW', desc: "Mở một WebView mới với URL và cấu hình tùy chỉnh.", hasParams: true, defaultData: "{\"data\":{\"url\":\"https://example.com\",\"serviceName\":\"Tên dịch vụ\",\"isPaymentConfirm\":false,\"resourceType\":\"HTML\",\"returnUrl\":\"https://example.com/return\",\"cancelUrl\":\"https://example.com/cancel\"}}", responseSample: "{\"data\":{\"url\":\"https://example.com/return?status=success\",\"type\":\"RETURN\"}}" },
+      { name: 'appOpenStore', event: 'APP_OPEN_STORE', desc: "Mở ứng dụng từ App Store/Google Play hoặc launch app đã cài.", hasParams: true, defaultData: "{\"data\":{\"fallbackUrlAndroid\":\"viettelpay://action/c=FECRDT&t=FINANCE4\",\"fallbackUrlIos\":\"viettelpay://action/c=FECRDT&t=FINANCE4\",\"needToExitMiniApp\":true,\"package\":\"null\",\"appId\":\"null\"}}", responseSample: null },
+      { name: 'exit', event: 'EXIT', desc: "Đóng Mini App và điều hướng về màn hình khác.", hasParams: true, defaultData: "{\"data\":{\"navigationAction\":\"...\"}}", responseSample: null },
+      { name: 'openExternalLink', event: 'OPEN_EXTERNAL_LINK', desc: "Mở URL bằng browser mặc định của hệ thống.", hasParams: true, defaultData: "{\"data\":{\"uri\":\"https://google.com\"}}", responseSample: null },
+      { name: 'openMiniApp', event: 'OPEN_MINI_APP', desc: "Mở một Mini App khác từ Mini App hiện tại.", hasParams: true, defaultData: "{\"data\":{\"route\":{\"screenName\":\"home\"},\"miniAppKey\":\"01K5FY191HP42SMMJXHWG545ZZ\",\"additional\":{\"param1\":\"value1\",\"param2\":\"value2\"},\"launchConfig\":{\"mode\":\"present\"},\"themeConfig\":{\"title\":\"My App\",\"headerColor\":\"#EE0033\",\"headerTitle\":\"Videos\",\"textColor\":\"white\",\"leftButton\":\"back\",\"actionButtonThemeType\":\"normal\",\"hideAndroidBottomNavigationBar\":true,\"hideIOSSafeAreaBottom\":true},\"tracking\":{\"campaign\":\"promotion\",\"utmSource\":\"miniapp\"}}}", responseSample: null },
+      { name: 'openInAppDeeplink', event: 'OPEN_IN_APP_DEEPLINK', desc: "Mở deeplink nội bộ app", hasParams: true, defaultData: "{\"data\":{\"url\":\"viettelpay://action/c=FECRDT&t=FINANCE4\"}}", responseSample: "{\"data\":{\"success\":true}}" },
+      { name: 'openSmsComposer', event: 'OPEN_SMS_COMPOSER', desc: "Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. ⚠️ Mở thành công trả về mã SDK852, KHÔNG phải SDK000, nên `isSuccess()` trả false và Promise bị REJECT dù mọi thứ đúng: hãy đọc kết quả trong nhánh `catch`, giá trị nhận được là nguyên response (đọc `data.terminal_state`). Đây là hành vi đã biết và được chấp nhận, không phải lỗi. Trên iOS còn một nhịp thứ hai mang kết cục thật, và nhịp đó KHÔNG đến qua Promise — phải nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`.", hasParams: true, defaultData: "{\"data\":{\"recipient\":\"+84987654321\",\"body\":\"Xin chao tu mini-app\"}}", responseSample: "{\"data\":{\"terminal_state\":\"HANDED_OFF\"}}" }
   ] },
   { title: "UserData Permission", events: [
-      { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: "Yêu cầu nhiều quyền user data cùng một lúc.", hasParams: true, defaultData: "{\"data\":{\"permissionCodes\":[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\",\"USER_BIRTH_DATE_PERMISSION\",\"USER_GENDER_PERMISSION\",\"USER_NATIONAL_ID_PERMISSION\"],\"useSameReason\":true}}" },
-      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: "Kiểm tra trạng thái nhiều quyền user data cùng lúc.", hasParams: true, defaultData: "{\"data\":{\"permissionCodes\":[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\",\"USER_BIRTH_DATE_PERMISSION\",\"USER_GENDER_PERMISSION\",\"USER_NATIONAL_ID_PERMISSION\"]}}" }
+      { name: 'requestMultipleUserDataPermission', event: 'REQUEST_MULTIPLE_USER_DATA_PERMISSION', desc: "Yêu cầu nhiều quyền user data cùng một lúc.", hasParams: true, defaultData: "{\"data\":{\"permissionCodes\":[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\",\"USER_BIRTH_DATE_PERMISSION\",\"USER_GENDER_PERMISSION\",\"USER_NATIONAL_ID_PERMISSION\"],\"useSameReason\":true}}", responseSample: "{\"data\":[]}" },
+      { name: 'checkMultipleUserDataPermission', event: 'CHECK_MULTIPLE_USER_DATA_PERMISSION', desc: "Kiểm tra trạng thái nhiều quyền user data cùng lúc.", hasParams: true, defaultData: "{\"data\":{\"permissionCodes\":[\"USER_AGE_PERMISSION\",\"USER_NAME_PERMISSION\",\"USER_FULL_NAME_PERMISSION\",\"USER_PHONE_NUMBER_PERMISSION\",\"USER_AVATAR_PERMISSION\",\"USER_BIRTH_DATE_PERMISSION\",\"USER_GENDER_PERMISSION\",\"USER_NATIONAL_ID_PERMISSION\"]}}", responseSample: "{\"data\":[]}" }
   ] },
   { title: "Get data event", events: [
-      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: "Lấy nhiều trường dữ liệu người dùng từ host app.", hasParams: true, defaultData: "{\"data\":{\"dataNames\":[\"age\",\"userName\",\"fullName\",\"phoneNumber\",\"avatar\",\"gender\",\"birthday\",\"idNo\"]}}" },
-      { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: " lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).", hasParams: false, defaultData: null },
-      { name: 'getContacts', event: 'GET_CONTACTS', desc: "Lấy danh sách contacts từ danh bạ hệ thống. ", hasParams: true, defaultData: "{\"data\":{\"filter\":{\"contactName\":\"John\"},\"pager\":{\"pageNumber\":1,\"limitRow\":100}}}" },
-      { name: 'getLocation', event: 'GET_LOCATION', desc: "Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.", hasParams: false, defaultData: null }
+      { name: 'getMultipleUserData', event: 'GET_MULTIPLE_USER_DATA', desc: "Lấy nhiều trường dữ liệu người dùng từ host app.", hasParams: true, defaultData: "{\"data\":{\"dataNames\":[\"age\",\"userName\",\"fullName\",\"phoneNumber\",\"avatar\",\"gender\",\"birthday\",\"idNo\"]}}", responseSample: "{\"age\":\"...\",\"userName\":\"...\",\"fullName\":\"...\",\"phoneNumber\":\"...\",\"avatar\":\"...\",\"gender\":\"...\",\"birthday\":\"...\",\"idNo\":\"...\"}" },
+      { name: 'getLocalAuthenticationStatus', event: 'GET_LOCAL_AUTHENTICATION_STATUS', desc: " lấy trạng thái xác thực sinh trắc học (vân tay, Face ID).", hasParams: false, defaultData: null, responseSample: "{\"isHardwareSupportStrongBiometric\":true,\"isHardwareSupportBiometric\":true,\"isDeviceSecure\":true,\"canAuthenticateWithDeviceCredential\":true,\"canAuthenticateWithBiometrics\":true,\"canAuthenticateWithStrongBiometrics\":true}" },
+      { name: 'getContacts', event: 'GET_CONTACTS', desc: "Lấy danh sách contacts từ danh bạ hệ thống. ", hasParams: true, defaultData: "{\"data\":{\"filter\":{\"contactName\":\"John\"},\"pager\":{\"pageNumber\":1,\"limitRow\":100}}}", responseSample: "{\"data\":{\"contactList\":[{\"contactName\":\"John Doe\",\"contactNumber\":\"0901234567\",\"contactAvt\":\"base64_image_string\"}],\"countContacts\":1}}" },
+      { name: 'getLocation', event: 'GET_LOCATION', desc: "Lấy vị trí GPS hiện tại của thiết bị. Phải có quyền LOCATION_PERMISSION trước khi sử dụng API này.", hasParams: false, defaultData: null, responseSample: "{\"latitude\":\"21.0285\",\"longgitude\":\"105.8542\"}" }
   ] },
   { title: "Other", events: [
-      { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: "Xóa tất cả quyền đã cache ở local.", hasParams: true, defaultData: "{\"data\":{}}" },
-      { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: "Mở dialog chia sẻ nội dung text.", hasParams: true, defaultData: "{\"data\":{\"content\":\"Check out this amazing product!\"}}" },
-      { name: 'miniAppToken', event: 'MINI_APP_TOKEN', desc: "Get mini app token", hasParams: false, defaultData: null },
-      { name: 'expiredSession', event: 'EXPIRED_SESSION', desc: "Session expiration event, Delegate cho host app xử lý", hasParams: false, defaultData: null },
-      { name: 'saveImageToGallery', event: 'SAVE_IMAGE_TO_GALLERY', desc: "Lưu ảnh vào bộ sưu tập", hasParams: true, defaultData: "{\"data\":{\"type\":\"url\",\"data\":\"https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhat--Dem-Sai-G.jpg\"}}" },
-      { name: 'saveFile', event: 'SAVE_FILE', desc: "Lưu file vào thư mục", hasParams: true, defaultData: "{\"data\":{\"url\":\"https://pdfobject.com/pdf/sample.pdf\",\"fileName\":\"test_file\"}}" },
-      { name: 'initRequest', event: 'INIT_REQUEST', desc: "Get init event", hasParams: false, defaultData: null }
+      { name: 'clearPermissionCache', event: 'CLEAR_PERMISSION_CACHE', desc: "Xóa tất cả quyền đã cache ở local.", hasParams: true, defaultData: "{\"data\":{}}", responseSample: "{\"eventStatus\":{\"errorCode\":\"SDK000\"}}" },
+      { name: 'shareTextContent', event: 'SHARE_TEXT_CONTENT', desc: "Mở dialog chia sẻ nội dung text.", hasParams: true, defaultData: "{\"data\":{\"content\":\"Check out this amazing product!\"}}", responseSample: null },
+      { name: 'miniAppToken', event: 'MINI_APP_TOKEN', desc: "Get mini app token", hasParams: false, defaultData: null, responseSample: "{\"data\":{\"miniAppToken\":\"...\"}}" },
+      { name: 'expiredSession', event: 'EXPIRED_SESSION', desc: "Session expiration event, Delegate cho host app xử lý", hasParams: false, defaultData: null, responseSample: null },
+      { name: 'saveImageToGallery', event: 'SAVE_IMAGE_TO_GALLERY', desc: "Lưu ảnh vào bộ sưu tập", hasParams: true, defaultData: "{\"data\":{\"type\":\"url\",\"data\":\"https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhat--Dem-Sai-G.jpg\"}}", responseSample: "{\"data\":{\"success\":true}}" },
+      { name: 'saveFile', event: 'SAVE_FILE', desc: "Lưu file vào thư mục", hasParams: true, defaultData: "{\"data\":{\"url\":\"https://pdfobject.com/pdf/sample.pdf\",\"fileName\":\"test_file\"}}", responseSample: "{\"data\":{\"success\":true}}" },
+      { name: 'initRequest', event: 'INIT_REQUEST', desc: "Get init event", hasParams: false, defaultData: null, responseSample: null }
   ] },
   { title: "Device Request Permission", events: [
-      { name: 'requestCameraPermission', event: 'REQUEST_CAMERA_PERMISSION', desc: "Yêu cầu mở camera", hasParams: false, defaultData: null },
-      { name: 'requestLocationPermission', event: 'REQUEST_LOCATION_PERMISSION', desc: "Yêu cầu vị trí", hasParams: false, defaultData: null },
-      { name: 'requestPhotosPermission', event: 'REQUEST_PHOTOS_PERMISSION', desc: "Yêu cầu truy cập ảnh trên thiết bị", hasParams: false, defaultData: null },
-      { name: 'requestVideosPermission', event: 'REQUEST_VIDEOS_PERMISSION', desc: "Yêu cầu truy cập video trên thiết bị", hasParams: false, defaultData: null },
-      { name: 'requestAudioPermission', event: 'REQUEST_AUDIO_PERMISSION', desc: "Yêu cầu truy cập audio trên thiết bị", hasParams: false, defaultData: null },
-      { name: 'requestRecordAudioPermission', event: 'REQUEST_RECORD_AUDIO_PERMISSION', desc: "Yêu cầu ghi âm trên thiết bị", hasParams: false, defaultData: null },
-      { name: 'requestContactsPermission', event: 'REQUEST_CONTACTS_PERMISSION', desc: "Yêu cầu truy cập danh bạ trên thiết bị", hasParams: false, defaultData: null },
-      { name: 'requestDocumentPermission', event: 'REQUEST_DOCUMENT_PERMISSION', desc: "Yêu cầu truy cập tài liệu trên thiết bị", hasParams: false, defaultData: null },
-      { name: 'requestPaymentPermission', event: 'REQUEST_PAYMENT_PERMISSION', desc: "", hasParams: false, defaultData: null },
-      { name: 'requestLoginPermission', event: 'REQUEST_LOGIN_PERMISSION', desc: "", hasParams: false, defaultData: null },
-      { name: 'requestLocalAuthenticationPermission', event: 'REQUEST_LOCAL_AUTHENTICATION_PERMISSION', desc: "Yêu cầu xác thực sinh trắc học (vân tay, Face ID).", hasParams: false, defaultData: null },
-      { name: 'executeLocalAuthentication', event: 'EXECUTE_LOCAL_AUTHENTICATION', desc: "Thực hiện xác thực sinh trắc học (vân tay, Face ID).", hasParams: true, defaultData: "{\"data\":{\"authOptionsParam\":{\"sensitiveTransaction\":true,\"authClassification\":[\"WEAK\",\"STRONG\",\"DEVICE\"],\"sticky\":false,\"isShowErrorDialog\":true}}}" }
+      { name: 'requestCameraPermission', event: 'REQUEST_CAMERA_PERMISSION', desc: "Yêu cầu mở camera", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'requestLocationPermission', event: 'REQUEST_LOCATION_PERMISSION', desc: "Yêu cầu vị trí", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'requestPhotosPermission', event: 'REQUEST_PHOTOS_PERMISSION', desc: "Yêu cầu truy cập ảnh trên thiết bị", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'requestVideosPermission', event: 'REQUEST_VIDEOS_PERMISSION', desc: "Yêu cầu truy cập video trên thiết bị", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'requestAudioPermission', event: 'REQUEST_AUDIO_PERMISSION', desc: "Yêu cầu truy cập audio trên thiết bị", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'requestRecordAudioPermission', event: 'REQUEST_RECORD_AUDIO_PERMISSION', desc: "Yêu cầu ghi âm trên thiết bị", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'requestContactsPermission', event: 'REQUEST_CONTACTS_PERMISSION', desc: "Yêu cầu truy cập danh bạ trên thiết bị", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'requestDocumentPermission', event: 'REQUEST_DOCUMENT_PERMISSION', desc: "Yêu cầu truy cập tài liệu trên thiết bị", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'requestPaymentPermission', event: 'REQUEST_PAYMENT_PERMISSION', desc: "", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'requestLoginPermission', event: 'REQUEST_LOGIN_PERMISSION', desc: "", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'requestLocalAuthenticationPermission', event: 'REQUEST_LOCAL_AUTHENTICATION_PERMISSION', desc: "Yêu cầu xác thực sinh trắc học (vân tay, Face ID).", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'executeLocalAuthentication', event: 'EXECUTE_LOCAL_AUTHENTICATION', desc: "Thực hiện xác thực sinh trắc học (vân tay, Face ID).", hasParams: true, defaultData: "{\"data\":{\"authOptionsParam\":{\"sensitiveTransaction\":true,\"authClassification\":[\"WEAK\",\"STRONG\",\"DEVICE\"],\"sticky\":false,\"isShowErrorDialog\":true}}}", responseSample: "{\"result\":\"...\",\"description\":\"...\"}" }
   ] },
   { title: "Device Check Permission", events: [
-      { name: 'checkCameraPermission', event: 'CHECK_CAMERA_PERMISSION', desc: "Kiểm tra quyền camera", hasParams: false, defaultData: null },
-      { name: 'checkLocationPermission', event: 'CHECK_LOCATION_PERMISSION', desc: "Kiểm tra quyền vị trí", hasParams: false, defaultData: null },
-      { name: 'checkPhotosPermission', event: 'CHECK_PHOTOS_PERMISSION', desc: "Kiểm tra quyền truy cập ảnh", hasParams: false, defaultData: null },
-      { name: 'checkVideosPermission', event: 'CHECK_VIDEOS_PERMISSION', desc: "Kiểm tra quyền truy cập video", hasParams: false, defaultData: null },
-      { name: 'checkAudioPermission', event: 'CHECK_AUDIO_PERMISSION', desc: "Kiểm tra quyền truy cập file audio", hasParams: false, defaultData: null },
-      { name: 'checkRecordAudioPermission', event: 'CHECK_RECORD_AUDIO_PERMISSION', desc: "Kiểm tra quyền ghi âm trên thiết bị", hasParams: false, defaultData: null },
-      { name: 'checkContactsPermission', event: 'CHECK_CONTACTS_PERMISSION', desc: "Kiểm tra quyền truy cập danh bạ", hasParams: false, defaultData: null },
-      { name: 'checkDocumentPermission', event: 'CHECK_DOCUMENT_PERMISSION', desc: "Kiểm tra quyền truy cập file tài liệu", hasParams: false, defaultData: null },
-      { name: 'checkPaymentPermission', event: 'CHECK_PAYMENT_PERMISSION', desc: "", hasParams: false, defaultData: null },
-      { name: 'checkLoginPermission', event: 'CHECK_LOGIN_PERMISSION', desc: "", hasParams: false, defaultData: null },
-      { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: "kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).", hasParams: false, defaultData: null }
+      { name: 'checkCameraPermission', event: 'CHECK_CAMERA_PERMISSION', desc: "Kiểm tra quyền camera", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'checkLocationPermission', event: 'CHECK_LOCATION_PERMISSION', desc: "Kiểm tra quyền vị trí", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'checkPhotosPermission', event: 'CHECK_PHOTOS_PERMISSION', desc: "Kiểm tra quyền truy cập ảnh", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'checkVideosPermission', event: 'CHECK_VIDEOS_PERMISSION', desc: "Kiểm tra quyền truy cập video", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'checkAudioPermission', event: 'CHECK_AUDIO_PERMISSION', desc: "Kiểm tra quyền truy cập file audio", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'checkRecordAudioPermission', event: 'CHECK_RECORD_AUDIO_PERMISSION', desc: "Kiểm tra quyền ghi âm trên thiết bị", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'checkContactsPermission', event: 'CHECK_CONTACTS_PERMISSION', desc: "Kiểm tra quyền truy cập danh bạ", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'checkDocumentPermission', event: 'CHECK_DOCUMENT_PERMISSION', desc: "Kiểm tra quyền truy cập file tài liệu", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'checkPaymentPermission', event: 'CHECK_PAYMENT_PERMISSION', desc: "", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'checkLoginPermission', event: 'CHECK_LOGIN_PERMISSION', desc: "", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: "kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).", hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" }
   ] },
   { title: "Storage", events: [
-      { name: 'saveStringValue', event: 'SAVE_STRING_VALUE', desc: "Lưu giá trị kiểu string.", hasParams: true, defaultData: "{\"data\":{\"key\":\"user_preference\",\"value\":\"dark_mode\"}}" },
-      { name: 'saveBooleanValue', event: 'SAVE_BOOLEAN_VALUE', desc: "Lưu giá trị kiểu boolean.", hasParams: true, defaultData: "{\"data\":{\"key\":\"notifications_enabled\",\"value\":true}}" },
-      { name: 'saveIntegerValue', event: 'SAVE_INTEGER_VALUE', desc: "Lưu giá trị kiểu int.", hasParams: true, defaultData: "{\"data\":{\"key\":\"login_count\",\"value\":5}}" },
-      { name: 'saveLongValue', event: 'SAVE_LONG_VALUE', desc: "Lưu giá trị kiểu long.", hasParams: true, defaultData: "{\"data\":{\"key\":\"last_sync_timestamp\",\"value\":1234567890}}" },
-      { name: 'saveFloatValue', event: 'SAVE_FLOAT_VALUE', desc: "Lưu giá trị kiểu float.", hasParams: true, defaultData: "{\"data\":{\"key\":\"rating\",\"value\":4.5}}" },
-      { name: 'getStringValue', event: 'GET_STRING_VALUE', desc: "Lấy giá trị kiểu string.", hasParams: true, defaultData: "{\"data\":{\"key\":\"user_preference\",\"defaultValue\":\"light_mode\"}}" },
-      { name: 'getBooleanValue', event: 'GET_BOOLEAN_VALUE', desc: "Lấy giá trị kiểu boolean.", hasParams: true, defaultData: "{\"data\":{\"key\":\"notifications_enabled\",\"defaultValue\":false}}" },
-      { name: 'getIntegerValue', event: 'GET_INTEGER_VALUE', desc: "Lấy giá trị kiểu int.", hasParams: true, defaultData: "{\"data\":{\"key\":\"...\",\"defaultValue\":0}}" },
-      { name: 'getLongValue', event: 'GET_LONG_VALUE', desc: "Lấy giá trị kiểu long.", hasParams: true, defaultData: "{\"data\":{\"key\":\"...\",\"defaultValue\":0}}" },
-      { name: 'getFloatValue', event: 'GET_FLOAT_VALUE', desc: "Lấy giá trị kiểu float.", hasParams: true, defaultData: "{\"data\":{\"key\":\"...\",\"defaultValue\":\"...\"}}" },
-      { name: 'clearStorage', event: 'CLEAR_STORAGE', desc: "Lấy giá trị kiểu float.", hasParams: false, defaultData: null }
+      { name: 'saveStringValue', event: 'SAVE_STRING_VALUE', desc: "Lưu giá trị kiểu string.", hasParams: true, defaultData: "{\"data\":{\"key\":\"user_preference\",\"value\":\"dark_mode\"}}", responseSample: null },
+      { name: 'saveBooleanValue', event: 'SAVE_BOOLEAN_VALUE', desc: "Lưu giá trị kiểu boolean.", hasParams: true, defaultData: "{\"data\":{\"key\":\"notifications_enabled\",\"value\":true}}", responseSample: null },
+      { name: 'saveIntegerValue', event: 'SAVE_INTEGER_VALUE', desc: "Lưu giá trị kiểu int.", hasParams: true, defaultData: "{\"data\":{\"key\":\"login_count\",\"value\":5}}", responseSample: null },
+      { name: 'saveLongValue', event: 'SAVE_LONG_VALUE', desc: "Lưu giá trị kiểu long.", hasParams: true, defaultData: "{\"data\":{\"key\":\"last_sync_timestamp\",\"value\":1234567890}}", responseSample: null },
+      { name: 'saveFloatValue', event: 'SAVE_FLOAT_VALUE', desc: "Lưu giá trị kiểu float.", hasParams: true, defaultData: "{\"data\":{\"key\":\"rating\",\"value\":4.5}}", responseSample: null },
+      { name: 'getStringValue', event: 'GET_STRING_VALUE', desc: "Lấy giá trị kiểu string.", hasParams: true, defaultData: "{\"data\":{\"key\":\"user_preference\",\"defaultValue\":\"light_mode\"}}", responseSample: "{\"value\":\"...\"}" },
+      { name: 'getBooleanValue', event: 'GET_BOOLEAN_VALUE', desc: "Lấy giá trị kiểu boolean.", hasParams: true, defaultData: "{\"data\":{\"key\":\"notifications_enabled\",\"defaultValue\":false}}", responseSample: "{\"value\":true}" },
+      { name: 'getIntegerValue', event: 'GET_INTEGER_VALUE', desc: "Lấy giá trị kiểu int.", hasParams: true, defaultData: "{\"data\":{\"key\":\"...\",\"defaultValue\":0}}", responseSample: "{\"value\":0}" },
+      { name: 'getLongValue', event: 'GET_LONG_VALUE', desc: "Lấy giá trị kiểu long.", hasParams: true, defaultData: "{\"data\":{\"key\":\"...\",\"defaultValue\":0}}", responseSample: "{\"value\":0}" },
+      { name: 'getFloatValue', event: 'GET_FLOAT_VALUE', desc: "Lấy giá trị kiểu float.", hasParams: true, defaultData: "{\"data\":{\"key\":\"...\",\"defaultValue\":\"...\"}}", responseSample: "{\"value\":\"...\"}" },
+      { name: 'clearStorage', event: 'CLEAR_STORAGE', desc: "Lấy giá trị kiểu float.", hasParams: false, defaultData: null, responseSample: null }
   ] },
   { title: "UI", events: [
-      { name: 'updateMiniAppTheme', event: 'UPDATE_MINI_APP_THEME', desc: "Update mini app theme", hasParams: true, defaultData: "{\"data\":{\"headerColor\":\"#FFFFFF\",\"headerTitle\":\"Mini App\",\"textColor\":\"#EE0033\",\"leftButton\":\"back\",\"actionButtonThemeType\":\"light\",\"hideAndroidBottomNavigationBar\":false,\"hideIOSSafeAreaBottom\":false,\"toolbarMode\":\"normal\"}}" },
-      { name: 'setScreenBrightness', event: 'SET_SCREEN_BRIGHTNESS', desc: "Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.", hasParams: true, defaultData: "{\"data\":{\"value\":0.8}}" },
-      { name: 'restoreScreenBrightness', event: 'RESTORE_SCREEN_BRIGHTNESS', desc: "Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.", hasParams: true, defaultData: "{\"data\":{}}" }
+      { name: 'updateMiniAppTheme', event: 'UPDATE_MINI_APP_THEME', desc: "Update mini app theme", hasParams: true, defaultData: "{\"data\":{\"headerColor\":\"#FFFFFF\",\"headerTitle\":\"Mini App\",\"textColor\":\"#EE0033\",\"leftButton\":\"back\",\"actionButtonThemeType\":\"light\",\"hideAndroidBottomNavigationBar\":false,\"hideIOSSafeAreaBottom\":false,\"toolbarMode\":\"normal\"}}", responseSample: null },
+      { name: 'setScreenBrightness', event: 'SET_SCREEN_BRIGHTNESS', desc: "Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.", hasParams: true, defaultData: "{\"data\":{\"value\":0.8}}", responseSample: "{\"data\":{\"success\":true}}" },
+      { name: 'restoreScreenBrightness', event: 'RESTORE_SCREEN_BRIGHTNESS', desc: "Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.", hasParams: true, defaultData: "{\"data\":{}}", responseSample: "{\"data\":{\"success\":true}}" }
   ] }
 ];
 
@@ -182,10 +183,75 @@ function setupLongPress(el: HTMLElement, onLongPress: () => void, duration = 600
   el.addEventListener('touchmove', cancel);
 }
 
+
+function genRequestId(): string {
+  return 'req_' + Date.now() + '_' + Math.random().toString(36).slice(8);
+}
+function buildRawSnippet(eventName: string, payload: any, responseSample: string | null): string {
+  const requestId = genRequestId();
+  const request: Record<string, any> = { event: eventName, sender: '', request_id: '' };
+  if (payload && typeof payload === 'object') {
+    Object.keys(payload).forEach(k => { request[k] = payload[k]; });
+  }
+  request['sender'] = 'MINIAPP_WEBVIEW';
+  request['request_id'] = requestId;
+  request['requestId'] = requestId;
+  request['timestamp'] = Date.now();
+
+  const response: Record<string, any> = {
+    event: request['event'],
+    sender: 'MINIAPP_SDK',
+    response_id: 'res_...',
+    request_id: requestId,
+  };
+  if (responseSample) {
+    const data = JSON.parse(responseSample);
+    Object.keys(data).forEach(k => { response[k] = data[k]; });
+  }
+  response['eventStatus'] = { errorCode: 'SDK000', errorMessageVN: 'Thanh cong', errorMessageEN: 'Success', realMsg: '' };
+  const resLines = JSON.stringify(response, null, 2).split('\n').map(l => '  // ' + l).join('\n');
+  return [
+    '// ---- ' + request['event'] + ' — goi truc tiep, KHONG dung web SDK ----',
+    '// request_id va timestamp do phia mini app tu sinh moi lan goi.',
+    '// Host co cap token thi them truong "token" cung cap voi "event".',
+    '',
+    '// 1) JSON gui xuong native',
+    'var json = JSON.stringify(' + JSON.stringify(request, null, 2) + ');',
+    '',
+    '// 2) Gui di — chon theo nen tang dang chay',
+    'if (window.AndroidWebview) {',
+    '  window.AndroidWebview.miniappWebviewToSdk(json);',
+    '} else if (window.webkit && window.webkit.messageHandlers.miniappWebviewToSdk) {',
+    '  window.webkit.messageHandlers.miniappWebviewToSdk.postMessage(json);',
+    '} else if (window.miniappSdkToWebview) {',
+    '  window.miniappSdkToWebview(json); // web: loopback de tu test',
+    '}',
+    '',
+    '// 3) Nhan ve — native goi ham nay, tu khop theo request_id',
+    'window.miniappSdkToWebview = function (raw) {',
+    '  var res = typeof raw === "string" ? JSON.parse(raw) : raw;',
+    '  // res =',
+    resLines,
+    '};'
+  ].join('\n');
+}
+function copyText(text: string): void {
+  if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text); return; }
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch (e) { /* webview cu khong ho tro */ }
+  document.body.removeChild(ta);
+}
+
 export default function App() {
   const [inputs, setInputs] = useState<Record<string, string>>({});
   const [eventLogs, setEventLogs] = useState<Record<string, string[]>>({});
   const [popup, setPopup] = useState<EventInfo | null>(null);
+  const [rawText, setRawText] = useState<string | null>(null);
   const inputsRef = useRef(inputs);
   const smartTapReady = useRef(new WeakSet<HTMLTextAreaElement>());
   inputsRef.current = inputs;
@@ -297,6 +363,25 @@ export default function App() {
     setEventLogs(p => ({ ...p, [name]: [] }));
   }, []);
 
+  const openPopup = useCallback((evt: EventInfo | null) => {
+    setPopup(prev => (prev && evt && prev.name === evt.name ? null : evt));
+    setRawText(null);
+  }, []);
+
+  const payloadFor = useCallback((evt: EventInfo): any => {
+    const typed = getInputFor(evt.name);
+    if (typed) return typed;
+    if (evt.defaultData) { try { return JSON.parse(evt.defaultData); } catch { /* input hong thi coi nhu rong */ } }
+    return {};
+  }, [getInputFor]);
+
+  // Tinh snippet TRUOC khi setState. Dat buildRawSnippet vao trong updater thi
+  // no chay hai lan duoi StrictMode va sinh hai request_id khac nhau.
+  const toggleRaw = useCallback((evt: EventInfo) => {
+    if (rawText) { setRawText(null); return; }
+    setRawText(buildRawSnippet(evt.event, payloadFor(evt), evt.responseSample));
+  }, [rawText, payloadFor]);
+
   const quickRun = useCallback((evt: EventInfo) => {
     const saved = localStorage.getItem(lsKey(evt.name));
     if (saved) { try { setInputs(p => ({ ...p, [evt.name]: JSON.stringify(JSON.parse(saved), null, 2) })); } catch { setInputs(p => ({ ...p, [evt.name]: saved })); } }
@@ -327,7 +412,7 @@ export default function App() {
           <div className="btn-group">
             {g.events.map(evt => (
               <div key={evt.name} className="evt-wrap">
-                <button ref={el => btnRef(el, evt)} className="btn" onClick={() => setPopup(popup?.name === evt.name ? null : evt)} title={evt.desc}>{evt.name}</button>
+                <button ref={el => btnRef(el, evt)} className="btn" onClick={() => openPopup(evt)} title={evt.desc}>{evt.name}</button>
               </div>
             ))}
           </div>
@@ -338,13 +423,13 @@ export default function App() {
       <section>
         <h3 className="section-title">Generic invoke()</h3>
         <div className="btn-group">
-          <button className="btn" onClick={() => setPopup({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: null })}>invoke(input)</button>
+          <button className="btn" onClick={() => openPopup({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: null, responseSample: null })}>invoke(input)</button>
         </div>
       </section>
       <div style={{ padding: '50px' }}></div>
 
       {/* Overlay */}
-      {popup && <div className="popup-overlay" onClick={() => setPopup(null)} />}
+      {popup && <div className="popup-overlay" onClick={() => openPopup(null)} />}
 
       {/* Popup (bottom sheet) */}
       {popup && (
@@ -353,6 +438,7 @@ export default function App() {
           {popup.desc && <div className="popup-desc">{popup.desc}</div>}
           <div className="popup-actions">
             <button className="btn btn-run" onClick={() => runEvent(popup)}>Run</button>
+            <button className="btn btn-raw" onClick={() => toggleRaw(popup)}>Raw JSON</button>
             {popup.hasParams && <button className="btn btn-fill" onClick={() => fillInput(popup)}>Fill Input</button>}
             {popup.hasParams && <button className="btn btn-save" onClick={() => saveInput(popup)}>Save</button>}
             {popup.hasParams && <button className="btn btn-delete" onClick={() => deleteInput(popup)}>Delete</button>}
@@ -368,6 +454,13 @@ export default function App() {
               className="input-area"
             />
           )}
+          {rawText && (
+            <div className="raw-head">
+              <span>Khong dung SDK — copy doan nay</span>
+              <button className="btn" onClick={() => copyText(rawText)}>Copy</button>
+            </div>
+          )}
+          {rawText && <pre className="popup-raw">{rawText}</pre>}
           <pre className="popup-log">{getLogsStr(popup.name)}</pre>
         </div>
       )}

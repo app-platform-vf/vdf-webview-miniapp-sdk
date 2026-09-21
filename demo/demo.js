@@ -45,6 +45,13 @@ h1 { font-size: 20px; }
 .popup-log { margin-top: 8px; padding: 8px 10px; background-color: #1e1e1e; color: #d4d4d4; font-family: 'Consolas','Monaco','Courier New',monospace; font-size: 11px; line-height: 1.5; border-radius: 6px; max-height: 200px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; }
 .popup-log::-webkit-scrollbar { width: 6px; }
 .popup-log::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+.btn-raw { background: #607D8B; color: #fff; border-color: #607D8B; }
+.btn-raw:hover { background: #4d626b; }
+.raw-head { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.raw-head span { font-size: 11px; color: #888; }
+.popup-raw { margin-top: 6px; padding: 8px 10px; background-color: #0d1b2a; color: #9fd0ff; font-family: 'Consolas','Monaco','Courier New',monospace; font-size: 11px; line-height: 1.5; border-radius: 6px; max-height: 260px; overflow: auto; white-space: pre; }
+.popup-raw::-webkit-scrollbar { width: 6px; height: 6px; }
+.popup-raw::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
 `
 
 // ==================================================================
@@ -83,6 +90,87 @@ function setupLongPress(el: HTMLElement, onLongPress: () => void, duration = 600
   el.addEventListener('touchstart', start, { passive: true });
   el.addEventListener('touchend', cancel);
   el.addEventListener('touchmove', cancel);
+}
+`
+
+// ==================================================================
+// Raw bridge snippet — cho ben tich hop KHONG dung web SDK
+// ==================================================================
+//
+// Dung chung cho Angular / React / Vue. Ban vanilla co mot ban sao ES5 nam
+// trong genVanillaHTML, giong cach SMART_TAP_UTILS_TS dang lam.
+//
+// Thu tu khoa cua request duoc dung lai dung nhu MiniApp.sendRaw: event,
+// sender, request_id truoc, roi den cac khoa cua payload, cuoi cung la
+// requestId, timestamp. Payload mang khoa event thi khoa do thang, y het luc
+// chay that. Truong token bi bo qua vi demo khong cau hinh token.
+//
+// Envelope cua response (MiniAppResponseBase) duoc dung o day chu khong nhung
+// san theo tung event: 57 event dung chung mot envelope, nhung san la chep no
+// 57 lan vao moi tep sinh ra. Moi event chi mang phan du lieu rieng.
+
+const RAW_SNIPPET_UTILS_TS = `
+function genRequestId(): string {
+  return 'req_' + Date.now() + '_' + Math.random().toString(36).slice(8);
+}
+function buildRawSnippet(eventName: string, payload: any, responseSample: string | null): string {
+  const requestId = genRequestId();
+  const request: Record<string, any> = { event: eventName, sender: '', request_id: '' };
+  if (payload && typeof payload === 'object') {
+    Object.keys(payload).forEach(k => { request[k] = payload[k]; });
+  }
+  request['sender'] = 'MINIAPP_WEBVIEW';
+  request['request_id'] = requestId;
+  request['requestId'] = requestId;
+  request['timestamp'] = Date.now();
+
+  const response: Record<string, any> = {
+    event: request['event'],
+    sender: 'MINIAPP_SDK',
+    response_id: 'res_...',
+    request_id: requestId,
+  };
+  if (responseSample) {
+    const data = JSON.parse(responseSample);
+    Object.keys(data).forEach(k => { response[k] = data[k]; });
+  }
+  response['eventStatus'] = { errorCode: 'SDK000', errorMessageVN: 'Thanh cong', errorMessageEN: 'Success', realMsg: '' };
+  const resLines = JSON.stringify(response, null, 2).split('\\n').map(l => '  // ' + l).join('\\n');
+  return [
+    '// ---- ' + request['event'] + ' — goi truc tiep, KHONG dung web SDK ----',
+    '// request_id va timestamp do phia mini app tu sinh moi lan goi.',
+    '// Host co cap token thi them truong "token" cung cap voi "event".',
+    '',
+    '// 1) JSON gui xuong native',
+    'var json = JSON.stringify(' + JSON.stringify(request, null, 2) + ');',
+    '',
+    '// 2) Gui di — chon theo nen tang dang chay',
+    'if (window.AndroidWebview) {',
+    '  window.AndroidWebview.miniappWebviewToSdk(json);',
+    '} else if (window.webkit && window.webkit.messageHandlers.miniappWebviewToSdk) {',
+    '  window.webkit.messageHandlers.miniappWebviewToSdk.postMessage(json);',
+    '} else if (window.miniappSdkToWebview) {',
+    '  window.miniappSdkToWebview(json); // web: loopback de tu test',
+    '}',
+    '',
+    '// 3) Nhan ve — native goi ham nay, tu khop theo request_id',
+    'window.miniappSdkToWebview = function (raw) {',
+    '  var res = typeof raw === "string" ? JSON.parse(raw) : raw;',
+    '  // res =',
+    resLines,
+    '};'
+  ].join('\\n');
+}
+function copyText(text: string): void {
+  if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text); return; }
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch (e) { /* webview cu khong ho tro */ }
+  document.body.removeChild(ta);
 }
 `
 
@@ -166,6 +254,14 @@ function hasRequestFields(evt) {
   return Object.keys(evt.request || {}).length > 0
 }
 
+// Phan du lieu rieng cua response, khong kem envelope — envelope do
+// buildRawSnippet dung luc chay. Tra ve null khi event khong khai bao response;
+// luc do doan code chi khoe phan envelope.
+function buildResponseSample(responseDef) {
+  const data = buildSampleData(responseDef)
+  return data ? JSON.stringify(data) : null
+}
+
 // ==================================================================
 // Build event registry — shared data for all frameworks
 // ==================================================================
@@ -175,7 +271,8 @@ function buildEventRegistry(events) {
     const camel = toCamelCase(evt.event)
     const hasParams = hasRequestFields(evt)
     const sample = hasParams ? buildSampleData(evt.request) : null
-    return { event: evt.event, camel, description: evt.description || '', hasParams, sample }
+    const responseSample = buildResponseSample(evt.response)
+    return { event: evt.event, camel, description: evt.description || '', hasParams, sample, responseSample }
   })
 }
 
@@ -191,7 +288,7 @@ function genAngularComponent(events) {
   // Build events array for popup
   const evtEntries = registry.map(r => {
     const defaultData = r.sample ? JSON.stringify(r.sample) : 'null'
-    return `    { name: '${r.camel}', event: '${r.event}', desc: '${(r.description).replace(/'/g, "\\'")}', hasParams: ${r.hasParams}, defaultData: ${r.hasParams ? `'${defaultData.replace(/'/g, "\\'")}'` : 'null'} }`
+    return `    { name: '${r.camel}', event: '${r.event}', desc: '${(r.description).replace(/'/g, "\\'")}', hasParams: ${r.hasParams}, defaultData: ${r.hasParams ? `'${defaultData.replace(/'/g, "\\'")}'` : 'null'}, responseSample: ${JSON.stringify(r.responseSample)} }`
   })
 
   const ts = `// AUTO-GENERATED by demo/demo.js from packages/core/src/events.json — DO NOT EDIT (chay: npm run demo)
@@ -208,9 +305,11 @@ interface EventInfo {
   desc: string;
   hasParams: boolean;
   defaultData: string | null;
+  responseSample: string | null;
 }
 
 ${SMART_TAP_UTILS_TS}
+${RAW_SNIPPET_UTILS_TS}
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -221,6 +320,7 @@ export class AppComponent implements AfterViewInit {
   inputs: Record<string, string> = {};
   eventLogs: Record<string, string[]> = {};
   popup: EventInfo | null = null;
+  rawText: string | null = null;
   private app: MiniApp;
   private smartTapReady = new WeakSet<HTMLTextAreaElement>();
 
@@ -283,7 +383,7 @@ ${Object.entries(groups).map(([group, evts]) => {
     const items = evts.map(evt => {
       const r = registry.find(x => x.event === evt.event)
       const defaultData = r.sample ? JSON.stringify(r.sample) : 'null'
-      return `      { name: '${r.camel}', event: '${r.event}', desc: '${(r.description).replace(/'/g, "\\'")}', hasParams: ${r.hasParams}, defaultData: ${r.hasParams ? `'${defaultData.replace(/'/g, "\\'")}'` : 'null'} }`
+      return `      { name: '${r.camel}', event: '${r.event}', desc: '${(r.description).replace(/'/g, "\\'")}', hasParams: ${r.hasParams}, defaultData: ${r.hasParams ? `'${defaultData.replace(/'/g, "\\'")}'` : 'null'}, responseSample: ${JSON.stringify(r.responseSample)} }`
     })
     return `    { title: '${group}', events: [\n${items.join(",\n")}\n    ] }`
   }).join(",\n")}
@@ -330,6 +430,26 @@ ${Object.entries(groups).map(([group, evts]) => {
 
   showPopup(evt: EventInfo): void {
     this.popup = this.popup?.name === evt.name ? null : evt;
+    this.rawText = null;
+  }
+
+  showInvoke(): void {
+    this.showPopup({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: null, responseSample: null });
+  }
+
+  private payloadFor(evt: EventInfo): any {
+    const typed = this.getInputFor_(evt.name);
+    if (typed) return typed;
+    if (evt.defaultData) { try { return JSON.parse(evt.defaultData); } catch { /* input hong thi coi nhu rong */ } }
+    return {};
+  }
+
+  toggleRaw(evt: EventInfo): void {
+    this.rawText = this.rawText ? null : buildRawSnippet(evt.event, this.payloadFor(evt), evt.responseSample);
+  }
+
+  copyRaw(): void {
+    copyText(this.rawText || '');
   }
 }
 `
@@ -352,13 +472,13 @@ ${Object.entries(groups).map(([group, evts]) => {
     <section>
         <h3 class="section-title">Generic invoke()</h3>
         <div class="btn-group">
-            <button class="btn" (click)="showPopup({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: null })">invoke(input)</button>
+            <button class="btn" (click)="showInvoke()">invoke(input)</button>
         </div>
     </section>
     <div style="padding: 50px"></div>
 
     <!-- Overlay -->
-    <div class="popup-overlay" *ngIf="popup" (click)="popup = null"></div>
+    <div class="popup-overlay" *ngIf="popup" (click)="popup = null; rawText = null"></div>
 
     <!-- Popup (bottom sheet) -->
     <div class="popup-custom" *ngIf="popup">
@@ -366,6 +486,7 @@ ${Object.entries(groups).map(([group, evts]) => {
         <div class="popup-desc" *ngIf="popup.desc">{{ popup.desc }}</div>
         <div class="popup-actions">
             <button class="btn btn-run" (click)="runEvent(popup)">Run</button>
+            <button class="btn btn-raw" (click)="toggleRaw(popup)">Raw JSON</button>
             <button class="btn btn-fill" *ngIf="popup.hasParams" (click)="fillInput(popup)">Fill Input</button>
             <button class="btn btn-save" *ngIf="popup.hasParams" (click)="saveInput(popup)">Save</button>
             <button class="btn btn-delete" *ngIf="popup.hasParams" (click)="deleteInput(popup)">Delete</button>
@@ -379,6 +500,11 @@ ${Object.entries(groups).map(([group, evts]) => {
             (focus)="onInputFocus($event)"
             placeholder='{"key":"value"}'
         ></textarea>
+        <div class="raw-head" *ngIf="rawText">
+            <span>Khong dung SDK — copy doan nay</span>
+            <button class="btn" (click)="copyRaw()">Copy</button>
+        </div>
+        <pre class="popup-raw" *ngIf="rawText">{{ rawText }}</pre>
         <pre class="popup-log">{{ getLogsStr(popup.name) }}</pre>
     </div>
 </div>
@@ -413,7 +539,7 @@ function genReactApp(events) {
     const items = evts.map(evt => {
       const r = registry.find(x => x.event === evt.event)
       const defaultData = r.sample ? JSON.stringify(JSON.stringify(r.sample)) : 'null'
-      return `      { name: '${r.camel}', event: '${r.event}', desc: ${JSON.stringify(r.description)}, hasParams: ${r.hasParams}, defaultData: ${r.hasParams ? defaultData : 'null'} }`
+      return `      { name: '${r.camel}', event: '${r.event}', desc: ${JSON.stringify(r.description)}, hasParams: ${r.hasParams}, defaultData: ${r.hasParams ? defaultData : 'null'}, responseSample: ${JSON.stringify(r.responseSample)} }`
     })
     return `  { title: ${JSON.stringify(group)}, events: [\n${items.join(",\n")}\n  ] }`
   })
@@ -434,6 +560,7 @@ interface EventInfo {
   desc: string;
   hasParams: boolean;
   defaultData: string | null;
+  responseSample: string | null;
 }
 
 const groups: { title: string; events: EventInfo[] }[] = [
@@ -441,10 +568,12 @@ ${groupsData.join(",\n")}
 ];
 
 ${SMART_TAP_UTILS_TS}
+${RAW_SNIPPET_UTILS_TS}
 export default function App() {
   const [inputs, setInputs] = useState<Record<string, string>>({});
   const [eventLogs, setEventLogs] = useState<Record<string, string[]>>({});
   const [popup, setPopup] = useState<EventInfo | null>(null);
+  const [rawText, setRawText] = useState<string | null>(null);
   const inputsRef = useRef(inputs);
   const smartTapReady = useRef(new WeakSet<HTMLTextAreaElement>());
   inputsRef.current = inputs;
@@ -500,6 +629,25 @@ ${fnEntries.join(",\n")},
     setEventLogs(p => ({ ...p, [name]: [] }));
   }, []);
 
+  const openPopup = useCallback((evt: EventInfo | null) => {
+    setPopup(prev => (prev && evt && prev.name === evt.name ? null : evt));
+    setRawText(null);
+  }, []);
+
+  const payloadFor = useCallback((evt: EventInfo): any => {
+    const typed = getInputFor(evt.name);
+    if (typed) return typed;
+    if (evt.defaultData) { try { return JSON.parse(evt.defaultData); } catch { /* input hong thi coi nhu rong */ } }
+    return {};
+  }, [getInputFor]);
+
+  // Tinh snippet TRUOC khi setState. Dat buildRawSnippet vao trong updater thi
+  // no chay hai lan duoi StrictMode va sinh hai request_id khac nhau.
+  const toggleRaw = useCallback((evt: EventInfo) => {
+    if (rawText) { setRawText(null); return; }
+    setRawText(buildRawSnippet(evt.event, payloadFor(evt), evt.responseSample));
+  }, [rawText, payloadFor]);
+
   const quickRun = useCallback((evt: EventInfo) => {
     const saved = localStorage.getItem(lsKey(evt.name));
     if (saved) { try { setInputs(p => ({ ...p, [evt.name]: JSON.stringify(JSON.parse(saved), null, 2) })); } catch { setInputs(p => ({ ...p, [evt.name]: saved })); } }
@@ -530,7 +678,7 @@ ${fnEntries.join(",\n")},
           <div className="btn-group">
             {g.events.map(evt => (
               <div key={evt.name} className="evt-wrap">
-                <button ref={el => btnRef(el, evt)} className="btn" onClick={() => setPopup(popup?.name === evt.name ? null : evt)} title={evt.desc}>{evt.name}</button>
+                <button ref={el => btnRef(el, evt)} className="btn" onClick={() => openPopup(evt)} title={evt.desc}>{evt.name}</button>
               </div>
             ))}
           </div>
@@ -541,13 +689,13 @@ ${fnEntries.join(",\n")},
       <section>
         <h3 className="section-title">Generic invoke()</h3>
         <div className="btn-group">
-          <button className="btn" onClick={() => setPopup({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: null })}>invoke(input)</button>
+          <button className="btn" onClick={() => openPopup({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: null, responseSample: null })}>invoke(input)</button>
         </div>
       </section>
       <div style={{ padding: '50px' }}></div>
 
       {/* Overlay */}
-      {popup && <div className="popup-overlay" onClick={() => setPopup(null)} />}
+      {popup && <div className="popup-overlay" onClick={() => openPopup(null)} />}
 
       {/* Popup (bottom sheet) */}
       {popup && (
@@ -556,6 +704,7 @@ ${fnEntries.join(",\n")},
           {popup.desc && <div className="popup-desc">{popup.desc}</div>}
           <div className="popup-actions">
             <button className="btn btn-run" onClick={() => runEvent(popup)}>Run</button>
+            <button className="btn btn-raw" onClick={() => toggleRaw(popup)}>Raw JSON</button>
             {popup.hasParams && <button className="btn btn-fill" onClick={() => fillInput(popup)}>Fill Input</button>}
             {popup.hasParams && <button className="btn btn-save" onClick={() => saveInput(popup)}>Save</button>}
             {popup.hasParams && <button className="btn btn-delete" onClick={() => deleteInput(popup)}>Delete</button>}
@@ -571,6 +720,13 @@ ${fnEntries.join(",\n")},
               className="input-area"
             />
           )}
+          {rawText && (
+            <div className="raw-head">
+              <span>Khong dung SDK — copy doan nay</span>
+              <button className="btn" onClick={() => copyText(rawText)}>Copy</button>
+            </div>
+          )}
+          {rawText && <pre className="popup-raw">{rawText}</pre>}
           <pre className="popup-log">{getLogsStr(popup.name)}</pre>
         </div>
       )}
@@ -604,7 +760,7 @@ function genVueApp(events) {
       const r = registry.find(x => x.event === evt.event)
       const defaultData = r.sample ? JSON.stringify(r.sample).replace(/\\/g, '\\\\').replace(/'/g, "\\'") : ''
       const desc = r.description.replace(/'/g, "\\'")
-      return `      { name: '${r.camel}', event: '${r.event}', desc: '${desc}', hasParams: ${r.hasParams}, defaultData: '${defaultData}' }`
+      return `      { name: '${r.camel}', event: '${r.event}', desc: '${desc}', hasParams: ${r.hasParams}, defaultData: '${defaultData}', responseSample: ${JSON.stringify(r.responseSample)} }`
     })
     return `  { title: '${group}', events: [\n${items.join(",\n")}\n  ] }`
   })
@@ -621,9 +777,11 @@ const app = getSharedMiniApp({ debug: true });
 const inputs = ref<Record<string, string>>({});
 const eventLogs = ref<Record<string, string[]>>({});
 const popup = ref<any>(null);
+const rawText = ref<string | null>(null);
 const smartTapReady = new WeakSet<HTMLTextAreaElement>();
 
 ${SMART_TAP_UTILS_TS}
+${RAW_SNIPPET_UTILS_TS}
 
 onMounted(() => { app.ready(); });
 
@@ -646,6 +804,7 @@ interface EventInfo {
   desc: string;
   hasParams: boolean;
   defaultData: string;
+  responseSample: string | null;
 }
 
 const groups: { title: string; events: EventInfo[] }[] = [
@@ -703,6 +862,31 @@ function quickRun(evt: EventInfo) {
 
 function showPopup(evt: EventInfo) {
   popup.value = popup.value?.name === evt.name ? null : evt;
+  rawText.value = null;
+}
+
+function closePopup() {
+  popup.value = null;
+  rawText.value = null;
+}
+
+function showInvoke() {
+  showPopup({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: '', responseSample: null });
+}
+
+function payloadFor(evt: EventInfo): any {
+  const typed = getInputFor(evt.name);
+  if (typed) return typed;
+  if (evt.defaultData) { try { return JSON.parse(evt.defaultData); } catch { /* input hong thi coi nhu rong */ } }
+  return {};
+}
+
+function toggleRaw(evt: EventInfo) {
+  rawText.value = rawText.value ? null : buildRawSnippet(evt.event, payloadFor(evt), evt.responseSample);
+}
+
+function copyRaw() {
+  copyText(rawText.value || '');
 }
 
 function setupBtnRef(el: HTMLElement | null, evt: EventInfo) {
@@ -733,13 +917,13 @@ function onInputFocus(e: FocusEvent) {
     <section>
       <h3 class="section-title">Generic invoke()</h3>
       <div class="btn-group">
-        <button class="btn" @click="showPopup({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: '' })">invoke(input)</button>
+        <button class="btn" @click="showInvoke()">invoke(input)</button>
       </div>
     </section>
     <div style="padding: 50px"></div>
 
     <!-- Overlay -->
-    <div v-if="popup" class="popup-overlay" @click="popup = null"></div>
+    <div v-if="popup" class="popup-overlay" @click="closePopup()"></div>
 
     <!-- Popup (bottom sheet) -->
     <div v-if="popup" class="popup-custom">
@@ -747,6 +931,7 @@ function onInputFocus(e: FocusEvent) {
       <div v-if="popup.desc" class="popup-desc">{{ popup.desc }}</div>
       <div class="popup-actions">
         <button class="btn btn-run" @click="runEvent(popup)">Run</button>
+        <button class="btn btn-raw" @click="toggleRaw(popup)">Raw JSON</button>
         <button v-if="popup.hasParams" class="btn btn-fill" @click="fillInput(popup)">Fill Input</button>
         <button v-if="popup.hasParams" class="btn btn-save" @click="saveInput(popup)">Save</button>
         <button v-if="popup.hasParams" class="btn btn-delete" @click="deleteInput(popup)">Delete</button>
@@ -760,6 +945,11 @@ function onInputFocus(e: FocusEvent) {
         @focus="onInputFocus"
         placeholder='{"key":"value"}'
       ></textarea>
+      <div v-if="rawText" class="raw-head">
+        <span>Khong dung SDK — copy doan nay</span>
+        <button class="btn" @click="copyRaw()">Copy</button>
+      </div>
+      <pre v-if="rawText" class="popup-raw">{{ rawText }}</pre>
       <pre class="popup-log">{{ getLogsStr(popup.name) }}</pre>
     </div>
   </div>
@@ -784,7 +974,7 @@ function genVanillaHTML(events) {
     const items = evts.map(evt => {
       const r = registry.find(x => x.event === evt.event)
       const defaultData = r.sample ? JSON.stringify(r.sample) : 'null'
-      return `      { name: ${JSON.stringify(r.camel)}, event: ${JSON.stringify(r.event)}, desc: ${JSON.stringify(r.description)}, hasParams: ${r.hasParams}, defaultData: ${r.hasParams ? JSON.stringify(defaultData) : 'null'} }`
+      return `      { name: ${JSON.stringify(r.camel)}, event: ${JSON.stringify(r.event)}, desc: ${JSON.stringify(r.description)}, hasParams: ${r.hasParams}, defaultData: ${r.hasParams ? JSON.stringify(defaultData) : 'null'}, responseSample: ${JSON.stringify(r.responseSample)} }`
     })
     return `  { title: ${JSON.stringify(group)}, events: [\n${items.join(",\n")}\n  ] }`
   })
@@ -827,6 +1017,7 @@ ${CSS_SHARED}
     var inputs = {};
     var eventLogs = {};
     var currentPopup = null;
+    var rawText = null;
 
     var groups = [
 ${groupsData.join(",\n")}
@@ -957,6 +1148,85 @@ ${fnEntries.join(",\n")},
       });
     }
 
+    // ---- Raw bridge snippet (ban ES5 cua RAW_SNIPPET_UTILS_TS trong demo.js) ----
+
+    function genRequestId() {
+      return 'req_' + Date.now() + '_' + Math.random().toString(36).slice(8);
+    }
+
+    function buildRawSnippet(eventName, payload, responseSample) {
+      var requestId = genRequestId();
+      var request = { event: eventName, sender: '', request_id: '' };
+      if (payload && typeof payload === 'object') {
+        Object.keys(payload).forEach(function(k) { request[k] = payload[k]; });
+      }
+      request['sender'] = 'MINIAPP_WEBVIEW';
+      request['request_id'] = requestId;
+      request['requestId'] = requestId;
+      request['timestamp'] = Date.now();
+
+      var response = {
+        event: request['event'],
+        sender: 'MINIAPP_SDK',
+        response_id: 'res_...',
+        request_id: requestId
+      };
+      if (responseSample) {
+        var data = JSON.parse(responseSample);
+        Object.keys(data).forEach(function(k) { response[k] = data[k]; });
+      }
+      response['eventStatus'] = { errorCode: 'SDK000', errorMessageVN: 'Thanh cong', errorMessageEN: 'Success', realMsg: '' };
+      var resLines = JSON.stringify(response, null, 2).split('\\n').map(function(l) { return '  // ' + l; }).join('\\n');
+      return [
+        '// ---- ' + request['event'] + ' — goi truc tiep, KHONG dung web SDK ----',
+        '// request_id va timestamp do phia mini app tu sinh moi lan goi.',
+        '// Host co cap token thi them truong "token" cung cap voi "event".',
+        '',
+        '// 1) JSON gui xuong native',
+        'var json = JSON.stringify(' + JSON.stringify(request, null, 2) + ');',
+        '',
+        '// 2) Gui di — chon theo nen tang dang chay',
+        'if (window.AndroidWebview) {',
+        '  window.AndroidWebview.miniappWebviewToSdk(json);',
+        '} else if (window.webkit && window.webkit.messageHandlers.miniappWebviewToSdk) {',
+        '  window.webkit.messageHandlers.miniappWebviewToSdk.postMessage(json);',
+        '} else if (window.miniappSdkToWebview) {',
+        '  window.miniappSdkToWebview(json); // web: loopback de tu test',
+        '}',
+        '',
+        '// 3) Nhan ve — native goi ham nay, tu khop theo request_id',
+        'window.miniappSdkToWebview = function (raw) {',
+        '  var res = typeof raw === "string" ? JSON.parse(raw) : raw;',
+        '  // res =',
+        resLines,
+        '};'
+      ].join('\\n');
+    }
+
+    function copyText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text); return; }
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) { /* webview cu khong ho tro */ }
+      document.body.removeChild(ta);
+    }
+
+    function payloadFor(evt) {
+      var typed = getInputFor(evt.name);
+      if (typed) return typed;
+      if (evt.defaultData) { try { return JSON.parse(evt.defaultData); } catch (e) { /* input hong thi coi nhu rong */ } }
+      return {};
+    }
+
+    function toggleRaw(evt) {
+      rawText = rawText ? null : buildRawSnippet(evt.event, payloadFor(evt), evt.responseSample);
+      renderPopup();
+    }
+
     // ---- Rendering ----
 
     function escapeHtml(s) {
@@ -983,7 +1253,7 @@ ${fnEntries.join(",\n")},
 
       // Bind buttons
       var allEvts = groups.reduce(function(a, g) { return a.concat(g.events); }, []);
-      allEvts.push({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: null });
+      allEvts.push({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: null, responseSample: null });
 
       document.querySelectorAll('.btn[data-evt]').forEach(function(btn) {
         var evtName = btn.getAttribute('data-evt');
@@ -991,6 +1261,7 @@ ${fnEntries.join(",\n")},
         if (!evt) return;
         btn.addEventListener('click', function() {
           currentPopup = currentPopup && currentPopup.name === evt.name ? null : evt;
+          rawText = null;
           renderPopup();
         });
         setupLongPress(btn, function() { quickRun(evt); });
@@ -1010,7 +1281,7 @@ ${fnEntries.join(",\n")},
       // Overlay
       var overlay = document.createElement('div');
       overlay.className = 'popup-overlay';
-      overlay.addEventListener('click', function() { currentPopup = null; renderPopup(); });
+      overlay.addEventListener('click', function() { currentPopup = null; rawText = null; renderPopup(); });
       document.body.appendChild(overlay);
 
       // Popup
@@ -1020,6 +1291,7 @@ ${fnEntries.join(",\n")},
       if (evt.desc) h += '<div class="popup-desc">' + escapeHtml(evt.desc) + '</div>';
       h += '<div class="popup-actions">';
       h += '<button class="btn btn-run" id="popup-run">Run</button>';
+      h += '<button class="btn btn-raw" id="popup-raw-btn">Raw JSON</button>';
       if (evt.hasParams) {
         h += '<button class="btn btn-fill" id="popup-fill">Fill Input</button>';
         h += '<button class="btn btn-save" id="popup-save">Save</button>';
@@ -1030,12 +1302,20 @@ ${fnEntries.join(",\n")},
       if (evt.hasParams) {
         h += '<textarea class="input-area" id="popup-input" rows="15" placeholder="' + escapeHtml('{"key":"value"}') + '">' + escapeHtml(inputs[evt.name] || '') + '</textarea>';
       }
+      if (rawText) {
+        h += '<div class="raw-head"><span>Khong dung SDK — copy doan nay</span><button class="btn" id="popup-raw-copy">Copy</button></div>';
+        h += '<pre class="popup-raw" id="popup-raw">' + escapeHtml(rawText) + '</pre>';
+      }
       h += '<pre class="popup-log" id="popup-log">' + escapeHtml(getLogsStr(evt.name)) + '</pre>';
       popup.innerHTML = h;
       document.body.appendChild(popup);
 
       // Bind popup buttons
       document.getElementById('popup-run').addEventListener('click', function() { runEvent(evt); });
+      document.getElementById('popup-raw-btn').addEventListener('click', function() { toggleRaw(evt); });
+      if (rawText) {
+        document.getElementById('popup-raw-copy').addEventListener('click', function() { copyText(rawText); });
+      }
       if (evt.hasParams) {
         var ta = document.getElementById('popup-input');
         ta.addEventListener('input', function() { inputs[evt.name] = ta.value; });

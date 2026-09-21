@@ -25,3 +25,10 @@ h1 { font-size: 20px; }
 .popup-log { margin-top: 8px; padding: 8px 10px; background-color: #1e1e1e; color: #d4d4d4; font-family: 'Consolas','Monaco','Courier New',monospace; font-size: 11px; line-height: 1.5; border-radius: 6px; max-height: 200px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; }
 .popup-log::-webkit-scrollbar { width: 6px; }
 .popup-log::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+.btn-raw { background: #607D8B; color: #fff; border-color: #607D8B; }
+.btn-raw:hover { background: #4d626b; }
+.raw-head { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.raw-head span { font-size: 11px; color: #888; }
+.popup-raw { margin-top: 6px; padding: 8px 10px; background-color: #0d1b2a; color: #9fd0ff; font-family: 'Consolas','Monaco','Courier New',monospace; font-size: 11px; line-height: 1.5; border-radius: 6px; max-height: 260px; overflow: auto; white-space: pre; }
+.popup-raw::-webkit-scrollbar { width: 6px; height: 6px; }
+.popup-raw::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }

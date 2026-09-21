@@ -16,13 +16,13 @@
     <section>
         <h3 class="section-title">Generic invoke()</h3>
         <div class="btn-group">
-            <button class="btn" (click)="showPopup({ name: 'invoke', event: 'INVOKE', desc: '', hasParams: true, defaultData: null })">invoke(input)</button>
+            <button class="btn" (click)="showInvoke()">invoke(input)</button>
         </div>
     </section>
     <div style="padding: 50px"></div>
 
     <!-- Overlay -->
-    <div class="popup-overlay" *ngIf="popup" (click)="popup = null"></div>
+    <div class="popup-overlay" *ngIf="popup" (click)="popup = null; rawText = null"></div>
 
     <!-- Popup (bottom sheet) -->
     <div class="popup-custom" *ngIf="popup">
@@ -30,6 +30,7 @@
         <div class="popup-desc" *ngIf="popup.desc">{{ popup.desc }}</div>
         <div class="popup-actions">
             <button class="btn btn-run" (click)="runEvent(popup)">Run</button>
+            <button class="btn btn-raw" (click)="toggleRaw(popup)">Raw JSON</button>
             <button class="btn btn-fill" *ngIf="popup.hasParams" (click)="fillInput(popup)">Fill Input</button>
             <button class="btn btn-save" *ngIf="popup.hasParams" (click)="saveInput(popup)">Save</button>
             <button class="btn btn-delete" *ngIf="popup.hasParams" (click)="deleteInput(popup)">Delete</button>
@@ -43,6 +44,11 @@
             (focus)="onInputFocus($event)"
             placeholder='{"key":"value"}'
         ></textarea>
+        <div class="raw-head" *ngIf="rawText">
+            <span>Khong dung SDK — copy doan nay</span>
+            <button class="btn" (click)="copyRaw()">Copy</button>
+        </div>
+        <pre class="popup-raw" *ngIf="rawText">{{ rawText }}</pre>
         <pre class="popup-log">{{ getLogsStr(popup.name) }}</pre>
     </div>
 </div>
