@@ -13,6 +13,8 @@
  * - Hai giá trị VISIBLE_* mang NGHĨA YẾU: 'không thấy bằng chứng bị che', không phải 'chắc chắn không bị che'. Overlay của app chủ và cửa sổ của hệ điều hành không nền tảng nào báo được.
  * - Android: app chủ add() một Fragment đè lên mà không hide() cái cũ thì KHÔNG tín hiệu nào phát. Đây là giới hạn đã đăng ký của nền tảng, không phải việc còn nợ.
  * - Đối xứng về GIÁ TRỊ và HÀNH VI, không đối xứng về hình dạng lời gọi: tên hàm và cách gắn bộ lắng nghe theo thói quen của từng nền tảng.
+ * - BACKGROUNDED KHÔNG đối xứng về THỜI ĐIỂM. iOS phát ngay trong handler didEnterBackground, đồng bộ. Android đi qua ProcessLifecycleOwner của AndroidX, thứ trì hoãn ON_STOP khoảng 700 ms bằng một lần đặt hẹn — đó là cách nó phân biệt 'đổi Activity' với 'thật sự xuống nền'. Chênh lệch này đã được cân nhắc và CHẤP NHẬN ngày 2026-09-24: bỏ độ trễ đi thì mỗi lần xoay màn sinh ra một lần xuống nền giả, và giá đó đắt hơn. App chủ KHÔNG được coi BACKGROUNDED là mốc thời gian chính xác trên Android; thứ đối xứng là THỨ TỰ và GIÁ TRỊ, không phải độ trễ.
+ * - Hệ quả của điều trên: trên Android, tín hiệu BACKGROUNDED rời SDK khi ngăn xếp đã về vòng lặp thông điệp, KHÔNG còn trong thân callback vòng đời. Phép kiểm tĩnh của AC1 quét mã nguồn SDK nên nó KHÔNG nhìn thấy điều này — lần đặt hẹn nằm trong thư viện AndroidX, không nằm trong mã SDK. Đây là chỗ phép kiểm đó xanh vì cấu tạo, không phải vì đã đo.
  *
  * Sáu danh mục cũ Ở LẠI, KHÔNG gỡ tên nào — bản Android đang công khai nên gỡ là phá tương thích. Sau đợt này có BẢY danh mục cùng mô tả một khái niệm; cái giá đó đã được nhận tường minh.
  * Phế thải ở đây là CẢNH BÁO LÚC BIÊN DỊCH, không phải gỡ. Hành vi không đổi.
