@@ -287,17 +287,37 @@ var WebviewSdk = (function (exports) {
         return ((_a = response.eventStatus) === null || _a === void 0 ? void 0 : _a.errorCode) === 'SDK000' || response.errorCode === 'SDK000';
     }
     let _sendRaw = null;
+    let _emitRaw = null;
     /**
      * Khoi tao module API voi ham gui message
      * Goi 1 lan khi setup MiniApp SDK
+     *
+     * emitFn la duong MOT CHIEU, danh cho event khong co `response` trong hop dong.
+     * Khong truyen no thi cac ham mot chieu se nem loi thay vi treo im lang.
      */
-    function initMiniAppAPI(sendFn) {
+    function initMiniAppAPI(sendFn, emitFn) {
         _sendRaw = sendFn;
+        _emitRaw = emitFn || null;
     }
     function send(event, payload) {
         if (!_sendRaw)
             throw new Error('MiniApp API chua duoc khoi tao. Goi wireToMiniApp() truoc.');
         return _sendRaw(Object.assign({ event, sender: '', request_id: '' }, payload));
+    }
+    /**
+     * Gui mot event MOT CHIEU: khong tao yeu cau dang cho, khong co gi de doi.
+     *
+     * Vi sao khong dung chung `send`: `send` di qua `sendRaw`, va `sendRaw` dang ky
+     * mot yeu cau dang cho kem han cho. Mot event khong co `response` thi khong
+     * bao gio co ai tra loi, nen no se treo het han roi bi tu choi — o MOI lan goi.
+     * Build van xanh, kieu van xanh; chi luc chay moi hong.
+     */
+    function emitOneWay(event, payload) {
+        if (!_emitRaw) {
+            throw new Error(`MiniApp API chua co duong mot chieu. Event '${event}' khong co response trong hop dong ` +
+                'nen no phai di bang emit. Goi wireToMiniApp() (da noi san), hoac initMiniAppAPI(send, emit).');
+        }
+        _emitRaw(event, payload);
     }
     // ============================================================
     // API Functions - Tu dong sinh tu events.json
@@ -899,6 +919,18 @@ var WebviewSdk = (function (exports) {
             return send('OPEN_SMS_COMPOSER', payload);
         });
     }
+    /**
+     * Báo cho app chủ biết trang mini-app vừa chuyển sang page nào. ⚠️ MỘT CHIỀU: entry này KHÔNG khai `response`, nên native không trả lời gì và hàm sinh ra trả về `void` — không có gì để `await`. SDK không đọc, không biến đổi, không gác quyền và không ghi bản ghi nào: event đi thẳng lên app chủ qua điểm mở rộng `intercept`, nên app chủ PHẢI `return true` ở đó. App chủ không nhận thì trang ăn một SDK100 mỗi lần chuyển trang.
+     * Event: SET_CURRENT_PAGE
+     * @param payload.data.pageId (required) Định danh page do chính mini-app đặt, bền qua các lần render [default: "home"]
+     * @param payload.data.pageName (required) Tên page để người đọc hiểu được, dùng cho nhật ký và phân tích [default: "Trang chủ"]
+     *
+     * @note MOT CHIEU — entry nay KHONG khai `response` trong hop dong, nen native
+     *       khong tra loi gi. Ham tra ve `void`, khong co gi de `await`.
+     */
+    function setCurrentPage(payload) {
+        emitOneWay('SET_CURRENT_PAGE', payload);
+    }
     // ============================================================
     // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
     // ============================================================
@@ -914,7 +946,7 @@ var WebviewSdk = (function (exports) {
                 const data = typeof raw === 'object' && raw !== null ? raw : { data: raw };
                 return Object.assign(Object.assign({ event: msg.event || '', sender: 'MINIAPP_SDK', response_id: '', request_id: msg.request_id || '' }, data), { eventStatus: { errorCode: 'SDK000', errorMessageVN: 'Thanh cong', errorMessageEN: 'Success', realMsg: '' }, errorData: '', message: '' });
             });
-        });
+        }, app.emit ? (event, payload) => app.emit(event, payload) : undefined);
     }
     // ============================================================
     // Export tat ca API duoi dang object de dung: MiniAppAPI.getUserInfo()
@@ -1034,6 +1066,8 @@ var WebviewSdk = (function (exports) {
         restoreScreenBrightness,
         /** Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. ⚠️ Mở thành công trả về mã SDK852, KHÔNG phải SDK000, nên `isSuccess()` trả false và Promise bị REJECT dù mọi thứ đúng: hãy đọc kết quả trong nhánh `catch`, giá trị nhận được là nguyên response (đọc `data.terminal_state`). Đây là hành vi đã biết và được chấp nhận, không phải lỗi. Trên iOS còn một nhịp thứ hai mang kết cục thật, và nhịp đó KHÔNG đến qua Promise — phải nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`. */
         openSmsComposer,
+        /** Báo cho app chủ biết trang mini-app vừa chuyển sang page nào. ⚠️ MỘT CHIỀU: entry này KHÔNG khai `response`, nên native không trả lời gì và hàm sinh ra trả về `void` — không có gì để `await`. SDK không đọc, không biến đổi, không gác quyền và không ghi bản ghi nào: event đi thẳng lên app chủ qua điểm mở rộng `intercept`, nên app chủ PHẢI `return true` ở đó. App chủ không nhận thì trang ăn một SDK100 mỗi lần chuyển trang. */
+        setCurrentPage,
         /** Kiem tra response thanh cong */
         isSuccess,
         /** Khoi tao API module */
@@ -1388,6 +1422,7 @@ var WebviewSdk = (function (exports) {
         { event: 'SET_SCREEN_BRIGHTNESS', method: 'setScreenBrightness', description: "Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.", requestType: 'SetScreenBrightnessRequest', responseType: 'SetScreenBrightnessResponse' },
         { event: 'RESTORE_SCREEN_BRIGHTNESS', method: 'restoreScreenBrightness', description: "Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.", requestType: 'RestoreScreenBrightnessRequest', responseType: 'RestoreScreenBrightnessResponse' },
         { event: 'OPEN_SMS_COMPOSER', method: 'openSmsComposer', description: "Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. ⚠️ Mở thành công trả về mã SDK852, KHÔNG phải SDK000, nên `isSuccess()` trả false và Promise bị REJECT dù mọi thứ đúng: hãy đọc kết quả trong nhánh `catch`, giá trị nhận được là nguyên response (đọc `data.terminal_state`). Đây là hành vi đã biết và được chấp nhận, không phải lỗi. Trên iOS còn một nhịp thứ hai mang kết cục thật, và nhịp đó KHÔNG đến qua Promise — phải nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`.", requestType: 'OpenSmsComposerRequest', responseType: 'OpenSmsComposerResponse' },
+        { event: 'SET_CURRENT_PAGE', method: 'setCurrentPage', description: "Báo cho app chủ biết trang mini-app vừa chuyển sang page nào. ⚠️ MỘT CHIỀU: entry này KHÔNG khai `response`, nên native không trả lời gì và hàm sinh ra trả về `void` — không có gì để `await`. SDK không đọc, không biến đổi, không gác quyền và không ghi bản ghi nào: event đi thẳng lên app chủ qua điểm mở rộng `intercept`, nên app chủ PHẢI `return true` ở đó. App chủ không nhận thì trang ăn một SDK100 mỗi lần chuyển trang.", requestType: 'SetCurrentPageRequest', responseType: 'SetCurrentPageResponse' },
     ];
 
     // ============================================================
@@ -1510,6 +1545,8 @@ var WebviewSdk = (function (exports) {
         restoreScreenBrightness: 'RESTORE_SCREEN_BRIGHTNESS',
         /** Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. ⚠️ Mở thành công trả về mã SDK852, KHÔNG phải SDK000, nên `isSuccess()` trả false và Promise bị REJECT dù mọi thứ đúng: hãy đọc kết quả trong nhánh `catch`, giá trị nhận được là nguyên response (đọc `data.terminal_state`). Đây là hành vi đã biết và được chấp nhận, không phải lỗi. Trên iOS còn một nhịp thứ hai mang kết cục thật, và nhịp đó KHÔNG đến qua Promise — phải nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`. */
         openSmsComposer: 'OPEN_SMS_COMPOSER',
+        /** Báo cho app chủ biết trang mini-app vừa chuyển sang page nào. ⚠️ MỘT CHIỀU: entry này KHÔNG khai `response`, nên native không trả lời gì và hàm sinh ra trả về `void` — không có gì để `await`. SDK không đọc, không biến đổi, không gác quyền và không ghi bản ghi nào: event đi thẳng lên app chủ qua điểm mở rộng `intercept`, nên app chủ PHẢI `return true` ở đó. App chủ không nhận thì trang ăn một SDK100 mỗi lần chuyển trang. */
+        setCurrentPage: 'SET_CURRENT_PAGE',
     };
 
     exports.EVENT_LIST = EVENT_LIST;
@@ -1585,6 +1622,7 @@ var WebviewSdk = (function (exports) {
     exports.saveLongValue = saveLongValue;
     exports.saveStringValue = saveStringValue;
     exports.sendToNative = sendToNative;
+    exports.setCurrentPage = setCurrentPage;
     exports.setScreenBrightness = setScreenBrightness;
     exports.shareTextContent = shareTextContent;
     exports.updateMiniAppTheme = updateMiniAppTheme;

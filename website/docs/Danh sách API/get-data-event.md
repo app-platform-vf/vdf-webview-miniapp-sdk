@@ -500,3 +500,49 @@ if (WebviewSdk.isSuccess(res)) {
 
 
 
+### 12. setCurrentPage()
+
+**Event Code:** `SET_CURRENT_PAGE` - Báo cho app chủ biết trang mini-app vừa chuyển sang page nào. ⚠️ MỘT CHIỀU: entry này KHÔNG khai `response`, nên native không trả lời gì và hàm sinh ra trả về `void` — không có gì để `await`. SDK không đọc, không biến đổi, không gác quyền và không ghi bản ghi nào: event đi thẳng lên app chủ qua điểm mở rộng `intercept`, nên app chủ PHẢI `return true` ở đó. App chủ không nhận thì trang ăn một SDK100 mỗi lần chuyển trang.
+
+**Request data**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `pageId` | `string` | **required** | Định danh page do chính mini-app đặt, bền qua các lần render `home` |
+| `pageName` | `string` | **required** | Tên page để người đọc hiểu được, dùng cho nhật ký và phân tích `Trang chủ` |
+
+
+**Response**
+
+*No response data*
+
+**Ví dụ sử dụng (npm package)**
+
+```typescript
+import { setCurrentPage, isSuccess } from 'vdf-webview-miniapp-sdk'
+
+const res = await setCurrentPage({ data: {
+      pageId: "home",
+      pageName: "Trang chủ"
+    } })
+if (isSuccess(res)) {
+  console.log('Thành công')
+}
+```
+
+**Sử dụng với bundle.js**
+
+```javascript
+const res = await WebviewSdk.setCurrentPage({ data: {
+      pageId: "home",
+      pageName: "Trang chủ"
+    } })
+if (WebviewSdk.isSuccess(res)) {
+  console.log('Thành công')
+}
+```
+
+---
+
+
+

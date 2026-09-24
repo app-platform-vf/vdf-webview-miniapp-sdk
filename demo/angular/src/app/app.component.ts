@@ -60,6 +60,7 @@ import {
   setScreenBrightness,
   restoreScreenBrightness,
   openSmsComposer,
+  setCurrentPage,
 } from 'vdf-webview-miniapp-sdk';
 
 interface EventInfo {
@@ -283,6 +284,7 @@ export class AppComponent implements AfterViewInit {
     this.fns['setScreenBrightness'] = () => setScreenBrightness(this.getInputFor_('setScreenBrightness') || {"data":{"value":0.8}});
     this.fns['restoreScreenBrightness'] = () => restoreScreenBrightness(this.getInputFor_('restoreScreenBrightness') || {"data":{}});
     this.fns['openSmsComposer'] = () => openSmsComposer(this.getInputFor_('openSmsComposer') || {"data":{"recipient":"+84987654321","body":"Xin chao tu mini-app"}});
+    this.fns['setCurrentPage'] = () => setCurrentPage(this.getInputFor_('setCurrentPage') || {"data":{"pageId":"home","pageName":"Trang chủ"}});
     this.fns['invoke'] = () => this.app.invoke(this.getInputFor_('invoke')?.event || 'GET_LOCATION', this.getInputFor_('invoke'));
   }
 
@@ -314,7 +316,8 @@ export class AppComponent implements AfterViewInit {
       { name: 'expiredSession', event: 'EXPIRED_SESSION', desc: 'Session expiration event, Delegate cho host app xử lý', hasParams: false, defaultData: null, responseSample: null },
       { name: 'saveImageToGallery', event: 'SAVE_IMAGE_TO_GALLERY', desc: 'Lưu ảnh vào bộ sưu tập', hasParams: true, defaultData: '{"data":{"type":"url","data":"https://media-cdn-v2.laodong.vn/storage/newsportal/2023/8/26/1233821/Giai-Nhat--Dem-Sai-G.jpg"}}', responseSample: "{\"data\":{\"success\":true}}" },
       { name: 'saveFile', event: 'SAVE_FILE', desc: 'Lưu file vào thư mục', hasParams: true, defaultData: '{"data":{"url":"https://pdfobject.com/pdf/sample.pdf","fileName":"test_file"}}', responseSample: "{\"data\":{\"success\":true}}" },
-      { name: 'initRequest', event: 'INIT_REQUEST', desc: 'Get init event', hasParams: false, defaultData: null, responseSample: null }
+      { name: 'initRequest', event: 'INIT_REQUEST', desc: 'Get init event', hasParams: false, defaultData: null, responseSample: null },
+      { name: 'setCurrentPage', event: 'SET_CURRENT_PAGE', desc: 'Báo cho app chủ biết trang mini-app vừa chuyển sang page nào. ⚠️ MỘT CHIỀU: entry này KHÔNG khai `response`, nên native không trả lời gì và hàm sinh ra trả về `void` — không có gì để `await`. SDK không đọc, không biến đổi, không gác quyền và không ghi bản ghi nào: event đi thẳng lên app chủ qua điểm mở rộng `intercept`, nên app chủ PHẢI `return true` ở đó. App chủ không nhận thì trang ăn một SDK100 mỗi lần chuyển trang.', hasParams: true, defaultData: '{"data":{"pageId":"home","pageName":"Trang chủ"}}', responseSample: null }
     ] },
     { title: 'Device Request Permission', events: [
       { name: 'requestCameraPermission', event: 'REQUEST_CAMERA_PERMISSION', desc: 'Yêu cầu mở camera', hasParams: false, defaultData: null, responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
@@ -374,8 +377,11 @@ export class AppComponent implements AfterViewInit {
     if (!fn) return;
     try {
       this.logFor(evt.name, `> ${evt.name}...`);
-      const res = await fn();
-      this.logFor(evt.name, `OK ${evt.name}`, res);
+      // Promise.resolve boc lai vi ham MOT CHIEU tra ve void: entry khong khai
+      // response trong hop dong thi khong co gi de doi, va goi thang .then tren
+      // mot gia tri undefined la TypeError lam ca trang demo dung lai.
+      const res = await Promise.resolve(fn() as any);
+      this.logFor(evt.name, res === undefined ? `OK ${evt.name} — MOT CHIEU, khong co tra loi` : `OK ${evt.name}`, res);
     } catch (err) {
       this.logFor(evt.name, `ERR ${evt.name}`, err);
     }

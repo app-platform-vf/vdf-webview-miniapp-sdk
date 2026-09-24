@@ -7,7 +7,7 @@ title: Getting Started
 
 # Super MiniApp SDK - API Documentation
 
-> Tự động sinh từ events.json — 57 events.
+> Tự động sinh từ events.json — 58 events.
 
 **Demo Links (GitHub Pages):**
 - [Demo Vanilla JS](https://app-platform-vf.github.io/vdf-webview-miniapp-sdk/demo/vanilla/)
@@ -24,7 +24,7 @@ Package đã publish public trên npm với tên **`vdf-webview-miniapp-sdk`**. 
 | Cách | Phù hợp với | Nguồn |
 |------|-------------|-------|
 | **npm registry** | React, Vue, Angular (có bundler) | `npm install vdf-webview-miniapp-sdk` |
-| **file .tgz (offline)** | Môi trường không ra được npm registry | `vdf-webview-miniapp-sdk-1.0.0.tgz` |
+| **file .tgz (offline)** | Môi trường không ra được npm registry | `vdf-webview-miniapp-sdk-2.0.0.tgz` |
 | **bundle.js** | Vanilla JS, HTML thuần (không cần bundler) | `dist/bundle.js` |
 
 ---
@@ -41,17 +41,17 @@ Package đã kèm sẵn type declaration (`.d.ts`) — không cần cài thêm `
 
 #### Cách 2: file .tgz (offline)
 
-**Bước 1:** Lấy file `vdf-webview-miniapp-sdk-1.0.0.tgz` (sinh bằng `npm pack` từ `packages/core`) và copy vào thư mục `core-lib/` trong project
+**Bước 1:** Lấy file `vdf-webview-miniapp-sdk-2.0.0.tgz` (sinh bằng `npm pack` từ `packages/core`) và copy vào thư mục `core-lib/` trong project
 ```bash
 mkdir -p core-lib
-cp vdf-webview-miniapp-sdk-1.0.0.tgz core-lib/
+cp vdf-webview-miniapp-sdk-2.0.0.tgz core-lib/
 ```
 
 **Bước 2:** Thêm dependency vào `package.json`
 ```json
 {
   "dependencies": {
-    "vdf-webview-miniapp-sdk": "file:core-lib/vdf-webview-miniapp-sdk-1.0.0.tgz"
+    "vdf-webview-miniapp-sdk": "file:core-lib/vdf-webview-miniapp-sdk-2.0.0.tgz"
   }
 }
 ```

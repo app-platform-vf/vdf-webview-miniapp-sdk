@@ -117,7 +117,9 @@ import type {
   RestoreScreenBrightnessRequest,
   RestoreScreenBrightnessResponse,
   OpenSmsComposerRequest,
-  OpenSmsComposerResponse
+  OpenSmsComposerResponse,
+  SetCurrentPageRequest,
+  SetCurrentPageResponse
 } from './types.generated';
 
 /** Map event name -> [RequestType, ResponseType] */
@@ -179,6 +181,7 @@ export interface MiniAppEventMap {
   'SET_SCREEN_BRIGHTNESS': [SetScreenBrightnessRequest, SetScreenBrightnessResponse];
   'RESTORE_SCREEN_BRIGHTNESS': [RestoreScreenBrightnessRequest, RestoreScreenBrightnessResponse];
   'OPEN_SMS_COMPOSER': [OpenSmsComposerRequest, OpenSmsComposerResponse];
+  'SET_CURRENT_PAGE': [SetCurrentPageRequest, SetCurrentPageResponse];
 }
 
 /** Danh sach event name constants */
@@ -297,4 +300,6 @@ export const MINIAPP_EVENTS = {
   restoreScreenBrightness: 'RESTORE_SCREEN_BRIGHTNESS' as const,
   /** Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. ⚠️ Mở thành công trả về mã SDK852, KHÔNG phải SDK000, nên `isSuccess()` trả false và Promise bị REJECT dù mọi thứ đúng: hãy đọc kết quả trong nhánh `catch`, giá trị nhận được là nguyên response (đọc `data.terminal_state`). Đây là hành vi đã biết và được chấp nhận, không phải lỗi. Trên iOS còn một nhịp thứ hai mang kết cục thật, và nhịp đó KHÔNG đến qua Promise — phải nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`. */
   openSmsComposer: 'OPEN_SMS_COMPOSER' as const,
+  /** Báo cho app chủ biết trang mini-app vừa chuyển sang page nào. ⚠️ MỘT CHIỀU: entry này KHÔNG khai `response`, nên native không trả lời gì và hàm sinh ra trả về `void` — không có gì để `await`. SDK không đọc, không biến đổi, không gác quyền và không ghi bản ghi nào: event đi thẳng lên app chủ qua điểm mở rộng `intercept`, nên app chủ PHẢI `return true` ở đó. App chủ không nhận thì trang ăn một SDK100 mỗi lần chuyển trang. */
+  setCurrentPage: 'SET_CURRENT_PAGE' as const,
 };

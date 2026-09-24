@@ -78,6 +78,22 @@ function genInlineType(fields, indent) {
 }
 
 /**
+ * Mot entry la MOT CHIEU khi no khong khai `response` trong hop dong.
+ *
+ * Day la dau hieu DUY NHAT, va no doc theo su VANG MAT cua mot khoa — nen no im
+ * lang theo dung nghia den: go nham khoa `response` cua mot entry hai chieu se
+ * bien no thanh mot chieu ma khong loi nao bao. Vi vay ham genAll in ra danh sach
+ * event mot chieu moi lan sinh: cai gia cua mot dau hieu doc-theo-vang-mat la no
+ * phai duoc NOI RA, khong duoc de im.
+ *
+ * `"response": {}` KHAC `khong co response`: cai dau la "co tra loi, khong truong
+ * nao", cai sau la "khong tra loi". Hai thu do ra hai kieu API khac han nhau.
+ */
+function isOneWay(evt) {
+  return !Object.prototype.hasOwnProperty.call(evt, "response")
+}
+
+/**
  * Gen interface tu section definition (request hoac response).
  * Moi truong co meta_data dinh nghia kieu.
  *
@@ -257,15 +273,21 @@ function genApi(config) {
 
   // SendRaw function type — accepts MiniAppRequestBase directly
   lines.push("type SendRawFn = (message: MiniAppRequestBase) => Promise<any>;")
+  lines.push("type EmitRawFn = (event: string, payload: Record<string, any>) => void;")
   lines.push("")
   lines.push("let _sendRaw: SendRawFn | null = null;")
+  lines.push("let _emitRaw: EmitRawFn | null = null;")
   lines.push("")
   lines.push("/**")
   lines.push(" * Khoi tao module API voi ham gui message")
   lines.push(" * Goi 1 lan khi setup MiniApp SDK")
+  lines.push(" *")
+  lines.push(" * emitFn la duong MOT CHIEU, danh cho event khong co `response` trong hop dong.")
+  lines.push(" * Khong truyen no thi cac ham mot chieu se nem loi thay vi treo im lang.")
   lines.push(" */")
-  lines.push("export function initMiniAppAPI(sendFn: SendRawFn): void {")
+  lines.push("export function initMiniAppAPI(sendFn: SendRawFn, emitFn?: EmitRawFn): void {")
   lines.push("  _sendRaw = sendFn;")
+  lines.push("  _emitRaw = emitFn || null;")
   lines.push("}")
   lines.push("")
 
@@ -273,6 +295,26 @@ function genApi(config) {
   lines.push("function send<TRes>(event: string, payload: Record<string, any>): Promise<MiniAppResponse<TRes>> {")
   lines.push("  if (!_sendRaw) throw new Error('MiniApp API chua duoc khoi tao. Goi wireToMiniApp() truoc.');")
   lines.push("  return _sendRaw({ event, sender: '', request_id: '', ...payload }) as Promise<MiniAppResponse<TRes>>;")
+  lines.push("}")
+  lines.push("")
+
+  // Internal emit helper — duong MOT CHIEU
+  lines.push("/**")
+  lines.push(" * Gui mot event MOT CHIEU: khong tao yeu cau dang cho, khong co gi de doi.")
+  lines.push(" *")
+  lines.push(" * Vi sao khong dung chung `send`: `send` di qua `sendRaw`, va `sendRaw` dang ky")
+  lines.push(" * mot yeu cau dang cho kem han cho. Mot event khong co `response` thi khong")
+  lines.push(" * bao gio co ai tra loi, nen no se treo het han roi bi tu choi — o MOI lan goi.")
+  lines.push(" * Build van xanh, kieu van xanh; chi luc chay moi hong.")
+  lines.push(" */")
+  lines.push("function emitOneWay(event: string, payload: Record<string, any>): void {")
+  lines.push("  if (!_emitRaw) {")
+  lines.push("    throw new Error(")
+  lines.push("      `MiniApp API chua co duong mot chieu. Event '${event}' khong co response trong hop dong ` +")
+  lines.push("      'nen no phai di bang emit. Goi wireToMiniApp() (da noi san), hoac initMiniAppAPI(send, emit).'")
+  lines.push("    );")
+  lines.push("  }")
+  lines.push("  _emitRaw(event, payload);")
   lines.push("}")
   lines.push("")
 
@@ -293,6 +335,7 @@ function genApi(config) {
     const resEntries = Object.entries(evt.response || {})
     const hasReqFields = reqEntries.length > 0
     const hasRequired = reqEntries.some(([_, d]) => d.required !== false)
+    const oneWay = isOneWay(evt)
 
     // Collect stringify fields
     const reqStringify = reqEntries.filter(([_, d]) => d.meta_data === "stringify").map(([n]) => n)
@@ -322,14 +365,36 @@ function genApi(config) {
     resStringify.forEach(f => {
       lines.push(` * @note response.${f} duoc JSON.parse() tu string`)
     })
+    if (oneWay) {
+      lines.push(" *")
+      lines.push(" * @note MOT CHIEU — entry nay KHONG khai `response` trong hop dong, nen native")
+      lines.push(" *       khong tra loi gi. Ham tra ve `void`, khong co gi de `await`.")
+    }
     lines.push(" */")
 
     // Function signature
+    const signatureReturn = oneWay ? "void" : `Promise<MiniAppResponse<${returnType}>>`
+    const asyncKeyword = oneWay ? "" : "async "
     if (hasReqFields) {
       const optional = hasRequired ? "" : " = {} as any"
-      lines.push(`export async function ${camel}(payload: ${paramType}${optional}): Promise<MiniAppResponse<${returnType}>> {`)
+      lines.push(`export ${asyncKeyword}function ${camel}(payload: ${paramType}${optional}): ${signatureReturn} {`)
     } else {
-      lines.push(`export async function ${camel}(): Promise<MiniAppResponse<${returnType}>> {`)
+      lines.push(`export ${asyncKeyword}function ${camel}(): ${signatureReturn} {`)
+    }
+
+    if (oneWay) {
+      if (reqStringify.length > 0) {
+        lines.push("  const _p: any = { ...payload };")
+        reqStringify.forEach(f => {
+          lines.push(`  if (_p.${f} !== undefined) _p.${f} = JSON.stringify(_p.${f});`)
+        })
+        lines.push(`  emitOneWay('${evt.event}', _p);`)
+      } else {
+        lines.push(`  emitOneWay('${evt.event}', ${hasReqFields ? "payload" : "{}"});`)
+      }
+      lines.push("}")
+      lines.push("")
+      return
     }
 
     // Function body
@@ -372,7 +437,10 @@ function genApi(config) {
   lines.push(" * Noi generated API voi MiniApp instance.")
   lines.push(" * Goi 1 lan trong getSharedInstance() hoac constructor cua adapter.")
   lines.push(" */")
-  lines.push("export function wireToMiniApp(app: { sendRaw(msg: MiniAppRequestBase): Promise<any> }): void {")
+  lines.push("export function wireToMiniApp(app: {")
+  lines.push("  sendRaw(msg: MiniAppRequestBase): Promise<any>;")
+  lines.push("  emit?(event: string, data?: any): void;")
+  lines.push("}): void {")
   lines.push("  initMiniAppAPI((msg) => {")
   lines.push("    return app.sendRaw(msg).then((raw): MiniAppResponseBase & Record<string, any> => {")
   lines.push("      if (raw && raw.eventStatus) return raw;")
@@ -388,7 +456,7 @@ function genApi(config) {
   lines.push("        message: '',")
   lines.push("      };")
   lines.push("    });")
-  lines.push("  });")
+  lines.push("  }, app.emit ? (event, payload) => app.emit!(event, payload) : undefined);")
   lines.push("}")
   lines.push("")
 
@@ -466,6 +534,18 @@ function main() {
   console.log("Reading events.json...")
   const config = loadEvents()
   console.log(`Found ${config.events.length} events\n`)
+
+  // Event mot chieu duoc nhan ra bang su VANG MAT cua khoa `response`, nen phai in
+  // ra — go nham mot khoa se doi kieu API tu Promise sang void ma khong loi nao bao.
+  // Doc danh sach nay moi lan sinh la cach duy nhat thay dieu do bang mat.
+  const oneWayEvents = config.events.filter(isOneWay).map(e => e.event)
+  if (oneWayEvents.length > 0) {
+    console.log(
+      `MOT CHIEU (khong co 'response' -> tra void, di bang emit): ${oneWayEvents.length} event`
+    )
+    oneWayEvents.forEach(name => console.log(`  - ${name}`))
+    console.log("")
+  }
 
   if (!fs.existsSync(OUTPUT_DIR)) {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true })

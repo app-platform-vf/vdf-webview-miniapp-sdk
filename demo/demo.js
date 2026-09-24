@@ -400,8 +400,11 @@ ${Object.entries(groups).map(([group, evts]) => {
     if (!fn) return;
     try {
       this.logFor(evt.name, \`> \${evt.name}...\`);
-      const res = await fn();
-      this.logFor(evt.name, \`OK \${evt.name}\`, res);
+      // Promise.resolve boc lai vi ham MOT CHIEU tra ve void: entry khong khai
+      // response trong hop dong thi khong co gi de doi, va goi thang .then tren
+      // mot gia tri undefined la TypeError lam ca trang demo dung lai.
+      const res = await Promise.resolve(fn() as any);
+      this.logFor(evt.name, res === undefined ? \`OK \${evt.name} — MOT CHIEU, khong co tra loi\` : \`OK \${evt.name}\`, res);
     } catch (err) {
       this.logFor(evt.name, \`ERR \${evt.name}\`, err);
     }
@@ -603,8 +606,11 @@ ${fnEntries.join(",\n")},
     if (!fn) return;
     try {
       logFor(evt.name, \`> \${evt.name}...\`);
-      const res = await fn();
-      logFor(evt.name, \`OK \${evt.name}\`, res);
+      // Promise.resolve boc lai vi ham MOT CHIEU tra ve void: entry khong khai
+      // response trong hop dong thi khong co gi de doi, va goi thang .then tren
+      // mot gia tri undefined la TypeError lam ca trang demo dung lai.
+      const res = await Promise.resolve(fn() as any);
+      logFor(evt.name, res === undefined ? \`OK \${evt.name} — MOT CHIEU, khong co tra loi\` : \`OK \${evt.name}\`, res);
     } catch (err: any) {
       logFor(evt.name, \`ERR \${evt.name}\`, err);
     }
@@ -827,8 +833,11 @@ async function runEvent(evt: EventInfo) {
   if (!fn) return;
   try {
     logFor(evt.name, \`> \${evt.name}...\`);
-    const res = await fn();
-    logFor(evt.name, \`OK \${evt.name}\`, res);
+    // Promise.resolve boc lai vi ham MOT CHIEU tra ve void: entry khong khai
+    // response trong hop dong thi khong co gi de doi, va goi thang .then tren
+    // mot gia tri undefined la TypeError lam ca trang demo dung lai.
+    const res = await Promise.resolve(fn() as any);
+    logFor(evt.name, res === undefined ? \`OK \${evt.name} — MOT CHIEU, khong co tra loi\` : \`OK \${evt.name}\`, res);
   } catch (err: any) {
     logFor(evt.name, \`ERR \${evt.name}\`, err);
   }
@@ -1078,8 +1087,11 @@ ${fnEntries.join(",\n")},
       if (!fn) return;
       logFor(evt.name, '> ' + evt.name + '...');
       renderPopup();
-      fn().then(function(res) {
-        logFor(evt.name, 'OK ' + evt.name, res);
+      // Promise.resolve boc lai vi ham MOT CHIEU tra ve void: entry khong khai
+      // response trong hop dong thi khong co gi de doi, va goi thang .then tren
+      // mot gia tri undefined la TypeError lam ca trang demo dung lai.
+      Promise.resolve(fn()).then(function(res) {
+        logFor(evt.name, 'OK ' + evt.name + (res === undefined ? ' — MOT CHIEU, khong co tra loi' : ''), res);
         renderPopup();
       }).catch(function(err) {
         logFor(evt.name, 'ERR ' + evt.name, err);

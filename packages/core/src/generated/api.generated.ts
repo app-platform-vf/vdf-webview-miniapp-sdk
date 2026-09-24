@@ -120,7 +120,9 @@ import type {
   RestoreScreenBrightnessRequest,
   RestoreScreenBrightnessResponse,
   OpenSmsComposerRequest,
-  OpenSmsComposerResponse
+  OpenSmsComposerResponse,
+  SetCurrentPageRequest,
+  SetCurrentPageResponse
 } from './types.generated';
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */
@@ -129,20 +131,44 @@ export function isSuccess(response: MiniAppResponseBase): boolean {
 }
 
 type SendRawFn = (message: MiniAppRequestBase) => Promise<any>;
+type EmitRawFn = (event: string, payload: Record<string, any>) => void;
 
 let _sendRaw: SendRawFn | null = null;
+let _emitRaw: EmitRawFn | null = null;
 
 /**
  * Khoi tao module API voi ham gui message
  * Goi 1 lan khi setup MiniApp SDK
+ *
+ * emitFn la duong MOT CHIEU, danh cho event khong co `response` trong hop dong.
+ * Khong truyen no thi cac ham mot chieu se nem loi thay vi treo im lang.
  */
-export function initMiniAppAPI(sendFn: SendRawFn): void {
+export function initMiniAppAPI(sendFn: SendRawFn, emitFn?: EmitRawFn): void {
   _sendRaw = sendFn;
+  _emitRaw = emitFn || null;
 }
 
 function send<TRes>(event: string, payload: Record<string, any>): Promise<MiniAppResponse<TRes>> {
   if (!_sendRaw) throw new Error('MiniApp API chua duoc khoi tao. Goi wireToMiniApp() truoc.');
   return _sendRaw({ event, sender: '', request_id: '', ...payload }) as Promise<MiniAppResponse<TRes>>;
+}
+
+/**
+ * Gui mot event MOT CHIEU: khong tao yeu cau dang cho, khong co gi de doi.
+ *
+ * Vi sao khong dung chung `send`: `send` di qua `sendRaw`, va `sendRaw` dang ky
+ * mot yeu cau dang cho kem han cho. Mot event khong co `response` thi khong
+ * bao gio co ai tra loi, nen no se treo het han roi bi tu choi — o MOI lan goi.
+ * Build van xanh, kieu van xanh; chi luc chay moi hong.
+ */
+function emitOneWay(event: string, payload: Record<string, any>): void {
+  if (!_emitRaw) {
+    throw new Error(
+      `MiniApp API chua co duong mot chieu. Event '${event}' khong co response trong hop dong ` +
+      'nen no phai di bang emit. Goi wireToMiniApp() (da noi san), hoac initMiniAppAPI(send, emit).'
+    );
+  }
+  _emitRaw(event, payload);
 }
 
 // ============================================================
@@ -684,6 +710,19 @@ export async function openSmsComposer(payload: OpenSmsComposerRequest): Promise<
   return send<OpenSmsComposerResponse>('OPEN_SMS_COMPOSER', payload);
 }
 
+/**
+ * Báo cho app chủ biết trang mini-app vừa chuyển sang page nào. ⚠️ MỘT CHIỀU: entry này KHÔNG khai `response`, nên native không trả lời gì và hàm sinh ra trả về `void` — không có gì để `await`. SDK không đọc, không biến đổi, không gác quyền và không ghi bản ghi nào: event đi thẳng lên app chủ qua điểm mở rộng `intercept`, nên app chủ PHẢI `return true` ở đó. App chủ không nhận thì trang ăn một SDK100 mỗi lần chuyển trang.
+ * Event: SET_CURRENT_PAGE
+ * @param payload.data.pageId (required) Định danh page do chính mini-app đặt, bền qua các lần render [default: "home"]
+ * @param payload.data.pageName (required) Tên page để người đọc hiểu được, dùng cho nhật ký và phân tích [default: "Trang chủ"]
+ *
+ * @note MOT CHIEU — entry nay KHONG khai `response` trong hop dong, nen native
+ *       khong tra loi gi. Ham tra ve `void`, khong co gi de `await`.
+ */
+export function setCurrentPage(payload: SetCurrentPageRequest): void {
+  emitOneWay('SET_CURRENT_PAGE', payload);
+}
+
 // ============================================================
 // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
 // ============================================================
@@ -692,7 +731,10 @@ export async function openSmsComposer(payload: OpenSmsComposerRequest): Promise<
  * Noi generated API voi MiniApp instance.
  * Goi 1 lan trong getSharedInstance() hoac constructor cua adapter.
  */
-export function wireToMiniApp(app: { sendRaw(msg: MiniAppRequestBase): Promise<any> }): void {
+export function wireToMiniApp(app: {
+  sendRaw(msg: MiniAppRequestBase): Promise<any>;
+  emit?(event: string, data?: any): void;
+}): void {
   initMiniAppAPI((msg) => {
     return app.sendRaw(msg).then((raw): MiniAppResponseBase & Record<string, any> => {
       if (raw && raw.eventStatus) return raw;
@@ -708,7 +750,7 @@ export function wireToMiniApp(app: { sendRaw(msg: MiniAppRequestBase): Promise<a
         message: '',
       };
     });
-  });
+  }, app.emit ? (event, payload) => app.emit!(event, payload) : undefined);
 }
 
 // ============================================================
@@ -830,6 +872,8 @@ export const MiniAppAPI = {
   restoreScreenBrightness,
   /** Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. ⚠️ Mở thành công trả về mã SDK852, KHÔNG phải SDK000, nên `isSuccess()` trả false và Promise bị REJECT dù mọi thứ đúng: hãy đọc kết quả trong nhánh `catch`, giá trị nhận được là nguyên response (đọc `data.terminal_state`). Đây là hành vi đã biết và được chấp nhận, không phải lỗi. Trên iOS còn một nhịp thứ hai mang kết cục thật, và nhịp đó KHÔNG đến qua Promise — phải nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`. */
   openSmsComposer,
+  /** Báo cho app chủ biết trang mini-app vừa chuyển sang page nào. ⚠️ MỘT CHIỀU: entry này KHÔNG khai `response`, nên native không trả lời gì và hàm sinh ra trả về `void` — không có gì để `await`. SDK không đọc, không biến đổi, không gác quyền và không ghi bản ghi nào: event đi thẳng lên app chủ qua điểm mở rộng `intercept`, nên app chủ PHẢI `return true` ở đó. App chủ không nhận thì trang ăn một SDK100 mỗi lần chuyển trang. */
+  setCurrentPage,
   /** Kiem tra response thanh cong */
   isSuccess,
   /** Khoi tao API module */
