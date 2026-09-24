@@ -39,12 +39,20 @@
           "symbol": "currentState()",
           "kind": "function",
           "platforms": ["android", "ios"],
+          "declaredIn": {
+            "android": "vn/viettelpay/miniappsdk/runtime/MiniAppDisplay.kt",
+            "ios": "Runtime/Display/MiniAppDisplay.swift"
+          },
           "replacement": "currentVisibility()"
         },
         {
           "symbol": "observeLifecycle(...)",
           "kind": "function",
           "platforms": ["android", "ios"],
+          "declaredIn": {
+            "android": "vn/viettelpay/miniappsdk/runtime/bridge/HostAppBridge.kt",
+            "ios": "Runtime/Bridge/VDOHostAppBridge.swift"
+          },
           "replacement": null,
           "note": "KHÔNG trỏ trống sang observeVisibility. Hai tín hiệu 'đang khởi tạo' và 'lỗi kèm thông điệp' không có chỗ trên trục năm giá trị, nên cần chúng thì tiếp tục gọi hàm này — nó chạy y nguyên, không có kế hoạch gỡ."
         },
@@ -52,18 +60,21 @@
           "symbol": "MiniAppDisplayState",
           "kind": "type",
           "platforms": ["android"],
+          "declaredIn": { "android": "vn/viettelpay/miniappsdk/runtime/MiniAppDisplay.kt" },
           "replacement": "MiniAppVisibility"
         },
         {
           "symbol": "MiniAppDisplayState",
           "kind": "type",
           "platforms": ["ios"],
+          "declaredIn": { "ios": "Runtime/Display/MiniAppDisplay.swift" },
           "replacement": "MiniAppVisibility"
         },
         {
           "symbol": "MiniAppLifecycle",
           "kind": "type",
           "platforms": ["android"],
+          "declaredIn": { "android": "vn/viettelpay/miniappsdk/common/core/MiniAppLifecycle.kt" },
           "replacement": null,
           "note": "Initialization và Error(msg) không có đường thay."
         },
@@ -71,6 +82,7 @@
           "symbol": "VDOMiniAppLifecycleType",
           "kind": "type",
           "platforms": ["ios"],
+          "declaredIn": { "ios": "Common/Core/VDOMiniAppLifecycle.swift" },
           "replacement": null,
           "note": "initialization và inError không có đường thay."
         }
@@ -79,11 +91,13 @@
         {
           "symbol": "HostAppEventType",
           "platforms": ["android"],
+          "declaredIn": { "android": "vn/viettelpay/miniappsdk/common/core/Type.kt" },
           "reason": "Đi SDK → TRANG MINI-APP, không đi tới app chủ. MiniAppVisibility không thay thế nó; đánh dấu phế thải ở đây là trỏ người đọc sang một API làm việc khác."
         },
         {
           "symbol": "VDOHostAppEventType",
           "platforms": ["ios"],
+          "declaredIn": { "ios": "Common/Core/Type.swift" },
           "reason": "Như trên. Chỉ có 3 case và không tên nào trùng bản Android — đó là một lệch riêng, không thuộc trục này."
         }
       ],

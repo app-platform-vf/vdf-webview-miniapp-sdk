@@ -157,6 +157,25 @@ function validateParityAxes(config) {
         `Ten truc parity '${axis.axis}' trung voi mot kieu sinh tu event.`
       )
     }
+
+    // `declaredIn` khong di vao ma sinh ra — doi tac khong can biet ten cu duoc khai o
+    // tep native nao. No ton tai cho BO DO ben spec repo, va vi the no rat de bi quen
+    // khi them mot dong moi: codegen van xanh, tai lieu van dung, chi co bo do la do —
+    // va bo do thi chay o mot luc khac, tren mot may khac. Chan ngay o day.
+    const requireDeclaredIn = (list, label) => {
+      (list || []).forEach(d => {
+        (d.platforms || []).forEach(p => {
+          if (!(d.declaredIn || {})[p]) {
+            throw new Error(
+              `Truc '${axis.axis}': muc ${label} '${d.symbol}' thieu declaredIn['${p}']. ` +
+              `Bo do parity can duong dan toi CHO KHAI de khoi dem nham cac ten trung.`
+            )
+          }
+        })
+      })
+    }
+    requireDeclaredIn(axis.deprecates, "deprecates")
+    requireDeclaredIn(axis.explicitlyNotDeprecated, "explicitlyNotDeprecated")
   })
 
   return axes
