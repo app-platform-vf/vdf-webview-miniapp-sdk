@@ -1,6 +1,6 @@
 ---
 sidebar_label: 'Get data event'
-sidebar_position: 9
+sidebar_position: 10
 hide_title: false
 title: Get data event
 ---

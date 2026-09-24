@@ -1,6 +1,6 @@
 ---
 sidebar_label: 'Device Check Permission'
-sidebar_position: 6
+sidebar_position: 7
 hide_title: false
 title: Device Check Permission
 ---

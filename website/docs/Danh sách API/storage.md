@@ -1,6 +1,6 @@
 ---
 sidebar_label: 'Storage'
-sidebar_position: 7
+sidebar_position: 8
 hide_title: false
 title: Storage
 ---

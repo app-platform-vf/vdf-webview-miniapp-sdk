@@ -167,7 +167,7 @@ const categoryOrder = [
   "Storage", "Location", "UI", "Get data event"
 ]
 
-function generateMarkdown(events) {
+function generateMarkdown(events, parityAxes = []) {
   const grouped = {}
   events.forEach(ev => {
     // Ưu tiên field `group` trong events.json (R14a group-hint, demo.js đã honor) nếu nó là 1 category
@@ -486,6 +486,73 @@ Tất cả request và response đều kế thừa các trường chung bên dư
     content: getFrontMatter("Giao thức chung", position++) + protocolContent
   })
 
+  // 2b. Trục parity — sinh từ khoá `parityAxes`, KHÔNG viết tay.
+  //
+  // Viết tay trang này là cách chắc chắn nhất để nó cũ đi mà không ai biết: hợp đồng đổi
+  // một giá trị thì trang vẫn nguyên, và người đọc không có cách nào nhìn ra.
+  if (parityAxes.length > 0) {
+    let parityContent = `Trang này liệt kê các **trục parity** của hợp đồng: những danh mục giá trị mà **hai SDK native phải mang y hệt nhau**.
+
+:::warning Đây KHÔNG phải event
+Trang mini-app **không gọi được** và **không nghe được** các trục dưới đây. Chúng đi từ SDK native lên **app chủ**. Tài liệu ghi ra ở đây vì hợp đồng là nơi hai nền tảng đối chiếu với nhau, không chỉ là nơi trang tra cứu.
+:::
+
+`
+    parityAxes.forEach(axis => {
+      parityContent += `## ${axis.axis}\n\n`
+      parityContent += `${axis.description}\n\n`
+      parityContent += `| | |\n|---|---|\n`
+      parityContent += `| Chiều | \`${axis.direction}\` |\n`
+      parityContent += `| Trang mini-app gọi được | ${axis.reachableFromPage ? "có" : "**không**"} |\n`
+      parityContent += `| Số giá trị | ${axis.values.length} |\n\n`
+
+      parityContent += `### Giá trị\n\n| Giá trị | Nghĩa |\n|---|---|\n`
+      axis.values.forEach(v => {
+        parityContent += `| \`${v.value}\` | ${v.description} |\n`
+      })
+      parityContent += `\n`
+
+      if ((axis.semanticsCaveats || []).length > 0) {
+        parityContent += `### Đọc kỹ trước khi dựa vào\n\n`
+        axis.semanticsCaveats.forEach(c => { parityContent += `- ${c}\n` })
+        parityContent += `\n`
+      }
+
+      if ((axis.deprecates || []).length > 0) {
+        parityContent += `### Tên cũ bị đánh dấu phế thải\n\n`
+        parityContent += `Phế thải là **cảnh báo lúc biên dịch**, không phải gỡ — hành vi không đổi, không tên nào biến mất.\n\n`
+        parityContent += `| Tên | Loại | Nền tảng | Dùng gì thay |\n|---|---|---|---|\n`
+        axis.deprecates.forEach(d => {
+          const rep = d.replacement ? `\`${d.replacement}\`` : `**không có đường thay** — ${d.note || ""}`
+          parityContent += `| \`${d.symbol}\` | ${d.kind} | ${(d.platforms || []).join(", ")} | ${rep} |\n`
+        })
+        parityContent += `\n`
+      }
+
+      if ((axis.explicitlyNotDeprecated || []).length > 0) {
+        parityContent += `### Tên trông giống nhưng KHÔNG phế thải\n\n`
+        parityContent += `| Tên | Nền tảng | Vì sao giữ |\n|---|---|---|\n`
+        axis.explicitlyNotDeprecated.forEach(d => {
+          parityContent += `| \`${d.symbol}\` | ${(d.platforms || []).join(", ")} | ${d.reason} |\n`
+        })
+        parityContent += `\n`
+      }
+
+      if ((axis.notes || []).length > 0) {
+        axis.notes.forEach(n => { parityContent += `> ${n}\n>\n` })
+        parityContent += `\n`
+      }
+
+      parityContent += `:::info Trạng thái phép đo\nHợp đồng khai danh sách này, nhưng **chưa có cổng máy nào đối chiếu nó với hai enum native**. Trạng thái đúng là **chưa đo**, không phải "không lệch".\n:::\n\n`
+    })
+
+    docs.push({
+      filename: "parity-axes.md",
+      title: "Trục parity",
+      content: getFrontMatter("Trục parity", position++) + parityContent
+    })
+  }
+
   // 3. Categories
   categoryOrder.filter(c => grouped[c]).forEach(cat => {
     let catContent = ""
@@ -542,7 +609,8 @@ function buildDocs() {
 
   const eventsData = JSON.parse(fs.readFileSync(EVENTS_JSON, "utf8"))
   const events = eventsData.events || []
-  const docs = generateMarkdown(events)
+  const parityAxes = eventsData.parityAxes || []
+  const docs = generateMarkdown(events, parityAxes)
 
   docs.forEach(doc => {
     fs.writeFileSync(path.join(OUTPUT_DIR + (categoryOrder.includes(doc.title) ? '/Danh sách API' : ''), doc.filename), doc.content)

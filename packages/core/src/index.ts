@@ -43,3 +43,11 @@ export type {
 export { EVENT_LIST } from './generated/types.generated';
 export { MINIAPP_EVENTS } from './generated/event-map.generated';
 export type { MiniAppEventMap } from './generated/event-map.generated';
+
+// Truc parity — khai bao ma HAI native phai mang y het nhau, di SDK -> APP CHU.
+// KHONG phai event: trang mini-app khong goi duoc, khong nghe duoc. Xuat ra vi hop dong
+// la noi hai nen tang doi chieu voi nhau, khong chi la noi trang tra cuu.
+//
+// `export *` co y: cac dong tren liet tung ten, nen mot truc parity them vao hop dong
+// se bien dich sach ma khong ai xuat no ra.
+export * from './generated/parity.generated';
