@@ -1245,6 +1245,65 @@ ${fnEntries.join(",\n")},
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    // ---- Catalog ma ket qua ----
+    //
+    // Man nay tra loi mot cau hoi KHONG AI DEMO DUOC BANG TAY: "trang co tra duoc nghia
+    // cua tung ma trong catalog khong?". Kich du tung ay loi that la viec khong lam noi.
+    // Nhung cung khong can: tra cuu la mot ham THUAN TUY tren mot bang huu han, nen duyet
+    // het bang chinh la phep chung minh day du. May duyet, nguoi nhin mot dong ket luan.
+    //
+    // Man nay KHONG phai bang tinh chep tay: no doc thang tu SDK dang chay, bang dung cai
+    // ham ma trang mini-app that se dung. Chep 54 dong vao day se cho ra mot man hinh
+    // LUON DUNG — va mot man hinh luon dung thi khong do duoc gi.
+    function renderErrorCatalog() {
+      var S = window.WebviewSdk || {};
+      if (!S.SDK_ERROR_CODES || !S.describeError) {
+        return '<section><h3 class="section-title">Catalog ma ket qua</h3>'
+          + '<p style="color:#b00">Ban SDK dang nap KHONG mang catalog — day la ban cu hon '
+          + 'ban dau tien cong bo catalog.</p></section>';
+      }
+
+      var codes = S.SDK_ERROR_CODES;
+      var hong = [];
+      for (var i = 0; i < codes.length; i++) {
+        var info = S.describeError(codes[i]);
+        if (!info || !String(info.messageVN || '').trim() || !String(info.messageEN || '').trim()) {
+          hong.push(codes[i]);
+        }
+      }
+      // Chieu thu hai, va la chieu de quen: mot ma LA phai tra ve undefined. Thieu ve nay
+      // thi mot ham tra "Loi khong xac dinh" cho MOI dau vao van hien ra xanh muot.
+      var maLaOk = S.describeError('SDK999999') === undefined;
+
+      var dat = hong.length === 0 && maLaOk;
+      var h = '<section><h3 class="section-title">Catalog ma ket qua</h3>';
+      h += '<p style="margin:4px 0;font-weight:600;color:' + (dat ? '#0a7' : '#b00') + '">'
+        + (dat
+            ? '&#10003; ' + codes.length + '/' + codes.length + ' ma tra ra cau chu VN+EN; ma la tra undefined'
+            : '&#10007; ' + hong.length + ' ma KHONG tra duoc'
+              + (maLaOk ? '' : '; ma la KHONG tra ve undefined'))
+        + '</p>';
+      h += '<p style="margin:0 0 8px;font-size:11px;color:#666">'
+        + 'Doc thang tu SDK dang chay, bang chinh ham describeError() ma trang that dung. '
+        + 'Huy hieu &#9432; nghia la ma do CHI mot nen tang phat ra.</p>';
+      h += '<div style="max-height:320px;overflow:auto;border:1px solid #ddd;border-radius:6px">';
+      h += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+      codes.forEach(function(code, idx) {
+        var info = S.describeError(code) || {};
+        var only = info.emittedBy && info.emittedBy.length === 1 ? info.emittedBy[0] : null;
+        h += '<tr style="background:' + (idx % 2 ? '#fafafa' : '#fff') + '">'
+          + '<td style="padding:4px 6px;font-family:monospace;white-space:nowrap;vertical-align:top">'
+          + escapeHtml(code)
+          + (only ? ' <span style="color:#c60">&#9432;' + escapeHtml(only) + '</span>' : '')
+          + '</td>'
+          + '<td style="padding:4px 6px;vertical-align:top">' + escapeHtml(info.messageVN || '') + '</td>'
+          + '<td style="padding:4px 6px;color:#666;vertical-align:top">' + escapeHtml(info.messageEN || '') + '</td>'
+          + '</tr>';
+      });
+      h += '</table></div></section>';
+      return h;
+    }
+
     function renderApp() {
       var html = '<h1>MiniApp SDK - Demo</h1>';
 
@@ -1259,6 +1318,7 @@ ${fnEntries.join(",\n")},
       html += '<section><h3 class="section-title">Generic invoke()</h3><div class="btn-group">';
       html += '<button class="btn" data-evt="invoke">invoke(input)</button>';
       html += '</div></section>';
+      html += renderErrorCatalog();
       html += '<div style="padding:50px"></div>';
 
       document.getElementById('app').innerHTML = html;

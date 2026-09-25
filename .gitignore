@@ -29,3 +29,11 @@ _site/
 
 # Ket qua dung cua bo kiem goi npm — sinh lai bang `npm run verify:page`
 scripts/verify-npm-consumer/dist-page/
+
+# Ba tep meta do bootstrap sinh ra moi lan `./scripts/bootstrap.sh --refresh`.
+# Chung mang quy trinh NOI BO (duong dan .okf, ten hai code repo, luat pre-commit) va
+# repo nay la PUBLIC. Khong tep nao chua mat khau hay khoa, nen mot phep quet bi mat
+# thong thuong cho qua sach — do la ly do lo suyt lot mot lan 2026-09-25.
+AGENTS.md
+CLAUDE.md
+GEMINI.md

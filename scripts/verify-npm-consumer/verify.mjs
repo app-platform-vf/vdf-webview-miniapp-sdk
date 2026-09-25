@@ -12,7 +12,7 @@
 // Cach chay:  node scripts/verify-npm-consumer/verify.mjs
 
 import { execSync } from "node:child_process"
-import { mkdtempSync, rmSync, cpSync, readFileSync, lstatSync, realpathSync, existsSync } from "node:fs"
+import { mkdtempSync, rmSync, cpSync, readFileSync, writeFileSync, lstatSync, realpathSync, existsSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join, resolve, dirname } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
@@ -107,6 +107,63 @@ try {
         tsErr = String(e.stdout || e.message).split("\n").slice(0, 3).join("\n        ")
     }
     record("API co kieu dung duoc tu ben ngoai — tsc --noEmit", tsOk, tsErr)
+
+    // 6b. Catalog ma ket qua: tra duoc DU moi ma, tu chinh goi da cai.
+    //
+    // Day la nua bang may cua cau hoi "trang co tra duoc nghia cua 54 ma khong".
+    // Khong ai kich duoc 54 loi that, va cung khong can: tra cuu la mot HAM THUAN TUY
+    // tren mot bang huu han, nen duyet het bang la mot phep chung minh day du.
+    //
+    // Hai chieu deu phai dung, va chieu thu hai moi la chieu de quen:
+    //   - moi ma trong catalog PHAI tra ra cau chu khong rong (ca VN lan EN);
+    //   - mot ma LA PHAI tra `undefined`, khong duoc nuot thanh mot cau chu chung.
+    //     Thieu ve nay thi mot ham `describeError` tra ve "Loi khong xac dinh" cho moi
+    //     dau vao van di qua sach, va no vo dung dung luc can nhat.
+    //
+    // ⚠️ HAI dieu phep kiem nay KHONG lam, noi ra vi ca hai deu de bi doc rong hon that:
+    //
+    //   1. No KHONG so catalog voi hai native — no khong voi toi hai repo do. Viec so
+    //      ba nguon thuoc `extract_error_catalog_parity.py` ben spec repo.
+    //   2. No nhap THANG tep catalog chu khong qua diem vao cua goi, vi `import` tu
+    //      diem vao dang HONG tren Node ESM thuan: `dist/index.js` phat `from './MiniApp'`
+    //      khong co duoi `.js`. Do la mot loi DONG GOI co san, khong lien quan catalog,
+    //      va no da nam trong ban 2.1.0 tren registry. Bo dong goi cua webpack/vite nuot
+    //      duoc duong thieu duoi nen doi tac dung bundler khong thay — do la ly do no
+    //      song lau. Muc "dung duoc tu ESM thuan cua Node" ngay tren la cho ghi nhan no.
+    const CATALOG_SUBPATH = `${PKG_NAME}/dist/generated/errors.generated.js`
+    const probe = [
+        `import * as sdk from '${CATALOG_SUBPATH}';`,
+        "const { SDK_ERROR_CODES, describeError, errorCodesEmittedOnlyBy } = sdk;",
+        "const hong = [];",
+        "for (const c of SDK_ERROR_CODES) {",
+        "  const i = describeError(c);",
+        "  if (!i || i.code !== c || !String(i.messageVN || '').trim() || !String(i.messageEN || '').trim()) hong.push(c);",
+        "}",
+        "if (hong.length) { console.error('KHONG tra duoc: ' + hong.join(' ')); process.exit(1); }",
+        "if (describeError('SDK999999') !== undefined) { console.error('ma la KHONG tra ve undefined'); process.exit(1); }",
+        "if (describeError('') !== undefined || describeError(null) !== undefined) { console.error('dau vao rong KHONG tra ve undefined'); process.exit(1); }",
+        "console.log(SDK_ERROR_CODES.length + '|' + errorCodesEmittedOnlyBy('ios').join(' '));",
+    ].join("\n")
+
+    // Ghi ra TEP roi chay, khong nhet qua `-e`: `-e` phai di qua shell, va o do moi lan
+    // xuong dong trong doan ma bien thanh hai ky tu `\` `n` — Node nhan ve ma sai cu phap
+    // va bao mot dong loi khong noi len dieu gi.
+    const probeFile = join(sandbox, "probe-catalog.mjs")
+    writeFileSync(probeFile, probe, "utf8")
+
+    let catOk = true, catDetail = ""
+    try {
+        const out = execSync(`node probe-catalog.mjs`, {
+            cwd: sandbox, stdio: "pipe", encoding: "utf8",
+        }).trim()
+        const [n, chiIos] = out.split("|")
+        catDetail = `${n}/${n} ma tra ra cau chu VN+EN; ma la tra undefined`
+            + (chiIos ? `; chi iOS phat: ${chiIos}` : "")
+    } catch (e) {
+        catOk = false
+        catDetail = String(e.stderr || e.stdout || e.message).trim().split("\n")[0]
+    }
+    record("tra cuu duoc DU moi ma ket qua trong catalog", catOk, catDetail)
 
     // 7. Ban bundle cho trinh duyet: co hay khong, noi ro ra.
     const hasBundle = existsSync(join(installed, "dist", "bundle.js"))

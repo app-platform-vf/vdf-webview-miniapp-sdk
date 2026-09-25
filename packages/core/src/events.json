@@ -109,6 +109,287 @@
       ]
     }
   ],
+  "errorCodes": {
+    "description": "Catalog mã kết quả mà SDK native trả về trong `eventStatus.errorCode` của mọi envelope. 54 mã — hai họ `SDK*` và `MNA*` — trùng khít trên Android và iOS, lệch 0 hai chiều, và cả câu VN lẫn câu EN đều giống nhau từng chữ. ⚠️ `emittedBy` chỉ có mặt ở những mã mà tập nền tảng phát ra ĐÃ ĐƯỢC ĐO: `SDK850` và `SDK851` chỉ iOS phát ra, Android khai mà không bao giờ phát (FR21 + adr/0004, đã ghim bằng phép kiểm ở cả hai nền tảng). Mã KHÔNG mang `emittedBy` nghĩa là CHƯA ĐO theo nền tảng — không phải 'cả hai đều phát'. Đừng suy ngược điều đó.",
+    "codes": [
+      {
+        "code": "MNA0010",
+        "messageVN": "Lỗi giải mã do vấn đề hệ thống",
+        "messageEN": "System-related decryption error"
+      },
+      {
+        "code": "MNA0012",
+        "messageVN": "Lỗi giải mã do vấn đề hệ thống",
+        "messageEN": "System-related decryption error"
+      },
+      {
+        "code": "MNA0095",
+        "messageVN": "Lỗi giải mã do vấn đề hệ thống",
+        "messageEN": "System-related decryption error"
+      },
+      {
+        "code": "SDK000",
+        "messageVN": "Thành công",
+        "messageEN": "Success"
+      },
+      {
+        "code": "SDK001",
+        "messageVN": "Lỗi",
+        "messageEN": "Failure"
+      },
+      {
+        "code": "SDK002",
+        "messageVN": "Lỗi không có thông tin định danh",
+        "messageEN": "No identification information"
+      },
+      {
+        "code": "SDK010",
+        "messageVN": "Lỗi chung trong quá trình đăng nhập",
+        "messageEN": "General login error"
+      },
+      {
+        "code": "SDK011",
+        "messageVN": "Lỗi thông tin đăng nhập không chính xác",
+        "messageEN": "Incorrect login information error"
+      },
+      {
+        "code": "SDK020",
+        "messageVN": "Lỗi kết nối khi đăng nhập",
+        "messageEN": "Connection error during login"
+      },
+      {
+        "code": "SDK030",
+        "messageVN": "Lỗi xác thực đa yếu tố trong đăng nhập",
+        "messageEN": "Multi-factor authentication error in login"
+      },
+      {
+        "code": "SDK040",
+        "messageVN": "Lỗi hết hạn phiên đăng nhập",
+        "messageEN": "Session expiration error"
+      },
+      {
+        "code": "SDK050",
+        "messageVN": "Lỗi quyền truy cập khi đăng nhập",
+        "messageEN": "Access permission error during login"
+      },
+      {
+        "code": "SDK060",
+        "messageVN": "Các lỗi đăng nhập khác",
+        "messageEN": "Other login errors"
+      },
+      {
+        "code": "SDK100",
+        "messageVN": "Event không tra được",
+        "messageEN": "Unknown event"
+      },
+      {
+        "code": "SDK200",
+        "messageVN": "Lỗi mã hóa dữ liệu chung",
+        "messageEN": "General data encryption error"
+      },
+      {
+        "code": "SDK201",
+        "messageVN": "Lỗi không tìm thấy khóa mã hóa",
+        "messageEN": "Encryption key not found error"
+      },
+      {
+        "code": "SDK210",
+        "messageVN": "Lỗi kích thước khóa mã hóa không phù hợp",
+        "messageEN": "Inappropriate encryption key size error"
+      },
+      {
+        "code": "SDK220",
+        "messageVN": "Lỗi trong thuật toán mã hóa",
+        "messageEN": "Encryption algorithm error"
+      },
+      {
+        "code": "SDK230",
+        "messageVN": "Lỗi mã hóa do dữ liệu đầu vào không hợp lệ",
+        "messageEN": "Invalid input data encryption error"
+      },
+      {
+        "code": "SDK240",
+        "messageVN": "Lỗi mã hóa do vấn đề hệ thống",
+        "messageEN": "System-related encryption error"
+      },
+      {
+        "code": "SDK250",
+        "messageVN": "Lỗi bảo mật trong quá trình mã hóa",
+        "messageEN": "Security error during encryption"
+      },
+      {
+        "code": "SDK260",
+        "messageVN": "Lỗi mã hóa khác",
+        "messageEN": "Other encryption errors"
+      },
+      {
+        "code": "SDK300",
+        "messageVN": "Lỗi giải mã dữ liệu chung",
+        "messageEN": "General data decryption error"
+      },
+      {
+        "code": "SDK301",
+        "messageVN": "Lỗi không tìm thấy khóa giải mã",
+        "messageEN": "Decryption key not found error"
+      },
+      {
+        "code": "SDK310",
+        "messageVN": "Lỗi kích thước khóa giải mã không phù hợp",
+        "messageEN": "Inappropriate decryption key size error"
+      },
+      {
+        "code": "SDK320",
+        "messageVN": "Lỗi trong thuật toán giải mã",
+        "messageEN": "Decryption algorithm error"
+      },
+      {
+        "code": "SDK330",
+        "messageVN": "Lỗi giải mã do dữ liệu đầu vào không hợp lệ",
+        "messageEN": "Invalid input data decryption error"
+      },
+      {
+        "code": "SDK340",
+        "messageVN": "Lỗi giải mã do vấn đề hệ thống",
+        "messageEN": "System-related decryption error"
+      },
+      {
+        "code": "SDK350",
+        "messageVN": "Lỗi bảo mật trong quá trình giải mã",
+        "messageEN": "Security error during decryption"
+      },
+      {
+        "code": "SDK360",
+        "messageVN": "Lỗi giải mã khác",
+        "messageEN": "Other decryption errors"
+      },
+      {
+        "code": "SDK400",
+        "messageVN": "Lỗi cấu hình thiết bị chung",
+        "messageEN": "General device configuration error"
+      },
+      {
+        "code": "SDK401",
+        "messageVN": "Lỗi không tìm thấy cấu hình thiết bị",
+        "messageEN": "Device configuration not found error"
+      },
+      {
+        "code": "SDK440",
+        "messageVN": "Lỗi cấu hình thiết bị khác",
+        "messageEN": "Other device configuration errors"
+      },
+      {
+        "code": "SDK500",
+        "messageVN": "Lỗi camera chung",
+        "messageEN": "General camera error"
+      },
+      {
+        "code": "SDK501",
+        "messageVN": "Lỗi không có quyền truy cập camera",
+        "messageEN": "No camera access permission error"
+      },
+      {
+        "code": "SDK510",
+        "messageVN": "Lỗi kỹ thuật camera",
+        "messageEN": "Camera technical error"
+      },
+      {
+        "code": "SDK520",
+        "messageVN": "Lỗi camera do vấn đề phần cứng",
+        "messageEN": "Hardware-related camera error"
+      },
+      {
+        "code": "SDK540",
+        "messageVN": "Lỗi camera do môi trường sử dụng",
+        "messageEN": "Environmental camera error"
+      },
+      {
+        "code": "SDK550",
+        "messageVN": "Lỗi bảo mật camera",
+        "messageEN": "Camera security error"
+      },
+      {
+        "code": "SDK560",
+        "messageVN": "Lỗi camera khác",
+        "messageEN": "Other camera errors"
+      },
+      {
+        "code": "SDK600",
+        "messageVN": "Lỗi danh bạ chung",
+        "messageEN": "General contact error"
+      },
+      {
+        "code": "SDK601",
+        "messageVN": "Lỗi không có quyền truy cập contact",
+        "messageEN": "No contact access permission error"
+      },
+      {
+        "code": "SDK610",
+        "messageVN": "Lỗi danh bạ khác",
+        "messageEN": "Other contact errors"
+      },
+      {
+        "code": "SDK700",
+        "messageVN": "Lỗi định vị chung",
+        "messageEN": "General location error"
+      },
+      {
+        "code": "SDK701",
+        "messageVN": "Lỗi không có quyền truy cập định vị",
+        "messageEN": "No location access permission error"
+      },
+      {
+        "code": "SDK710",
+        "messageVN": "Lỗi định vị khác",
+        "messageEN": "Other location errors"
+      },
+      {
+        "code": "SDK800",
+        "messageVN": "Lỗi giá trị độ sáng màn hình không hợp lệ",
+        "messageEN": "Invalid screen brightness value"
+      },
+      {
+        "code": "SDK801",
+        "messageVN": "Mini-app chưa đăng ký quyền này ở App Center",
+        "messageEN": "This permission is not yet registered on App Center"
+      },
+      {
+        "code": "SDK802",
+        "messageVN": "Người dùng đã từ chối cấp quyền",
+        "messageEN": "User denied the permission"
+      },
+      {
+        "code": "SDK830",
+        "messageVN": "Dữ liệu không hợp lệ",
+        "messageEN": "Invalid payload"
+      },
+      {
+        "code": "SDK840",
+        "messageVN": "Thiết bị không có ứng dụng xử lý",
+        "messageEN": "No application available to handle this request"
+      },
+      {
+        "code": "SDK850",
+        "messageVN": "Người dùng đã huỷ",
+        "messageEN": "User cancelled",
+        "emittedBy": [
+          "ios"
+        ]
+      },
+      {
+        "code": "SDK851",
+        "messageVN": "Gửi thất bại",
+        "messageEN": "Send failed",
+        "emittedBy": [
+          "ios"
+        ]
+      },
+      {
+        "code": "SDK852",
+        "messageVN": "Đã mở trình soạn tin",
+        "messageEN": "Message composer opened"
+      }
+    ]
+  },
   "events": [
     {
       "event": "APP_OPEN_WEBVIEW",

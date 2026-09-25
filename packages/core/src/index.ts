@@ -51,3 +51,12 @@ export type { MiniAppEventMap } from './generated/event-map.generated';
 // `export *` co y: cac dong tren liet tung ten, nen mot truc parity them vao hop dong
 // se bien dich sach ma khong ai xuat no ra.
 export * from './generated/parity.generated';
+
+// Catalog ma ket qua — 54 ma native tra ve trong `eventStatus.errorCode`.
+//
+// Truoc no, trang chi phan biet duoc thanh cong voi that bai: `isSuccess()` so dung mot
+// chuoi. Moi ma con lai ve toi trang duoi dang mot chuoi khong tra cuu duoc o dau.
+// `describeError(code)` bien dieu do thanh doc duoc.
+//
+// `export *` cung ly do voi dong tren.
+export * from './generated/errors.generated';
