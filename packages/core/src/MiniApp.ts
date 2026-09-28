@@ -102,9 +102,16 @@ export class MiniApp {
   /**
    * Gui su kien den native (khong cho response)
    * Tuong tu postMessage mot chieu
+   *
+   * 🔴 `newId()` chu KHONG phai `create()`, va day la ca noi dung cua ban sua 2.1.2.
+   * `create()` dang ky mot muc cho kem cai hen gio; khong ai `await` loi hua do (ham
+   * nay tra `void`) nen het han la mot UNHANDLED REJECTION, moi lan chuyen trang mot
+   * cai. Duong mot chieu theo dinh nghia khong co cau tra loi nao goi ten ma nay, nen
+   * khong duoc phep co muc cho. Doi lai `create()` thi chot chan
+   * "emit mot chieu KHONG de lai yeu cau cho" trong verify.mjs se do.
    */
   emit(event: string, data?: any): void {
-    const { request_id } = this.requestManager.create(this.config.timeout);
+    const request_id = this.requestManager.newId();
     const message: MiniAppRequestBase = {
       event,
       sender: SENDER,

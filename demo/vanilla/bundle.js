@@ -128,6 +128,24 @@ var WebviewSdk = (function (exports) {
         generateRequestId() {
             return `req_${Date.now()}_${Math.random().toString(36).slice(8)}`;
         }
+        /**
+         * Cap MOT MA DINH DANH, KHONG dang ky muc cho nao.
+         *
+         * Danh cho duong MOT CHIEU: event khong khai `response` trong hop dong. Phong bi van
+         * can mot ma de doc nhat ky va de native doi chieu, nhung KHONG duoc co mot muc cho
+         * va mot cai hen gio di kem — vi se khong bao gio co cau tra loi nao goi ten no.
+         *
+         * 🔴 Truoc ban 2.1.2, `emit()` goi thang `create()`. Loi hua no de lai khong ai `await`
+         * (ham sinh ra tra `void`), nen sau `timeout` no bi tu choi va thanh mot
+         * UNHANDLED REJECTION — moi lan chuyen trang mot cai, trong im lang. Dem khong tang
+         * len nhin thay duoc, khong loi bien dich, va tren may ranh thi moi thu van chay dep.
+         * Do la ly do no song qua ca mot vong sua von DA nham dung cho nay: vong do sua BO
+         * SINH MA (ham mot chieu tra `void`, khong `await`), nhung `emit()` ben duoi thi khong
+         * ai dong toi. Trieu chung chi doi dang, tu "treo 90 giay" thanh "no am tham".
+         */
+        newId() {
+            return this.generateRequestId();
+        }
         /** Tao request moi, tra ve request_id */
         create(timeout) {
             const request_id = this.generateRequestId();
@@ -1139,9 +1157,16 @@ var WebviewSdk = (function (exports) {
         /**
          * Gui su kien den native (khong cho response)
          * Tuong tu postMessage mot chieu
+         *
+         * 🔴 `newId()` chu KHONG phai `create()`, va day la ca noi dung cua ban sua 2.1.2.
+         * `create()` dang ky mot muc cho kem cai hen gio; khong ai `await` loi hua do (ham
+         * nay tra `void`) nen het han la mot UNHANDLED REJECTION, moi lan chuyen trang mot
+         * cai. Duong mot chieu theo dinh nghia khong co cau tra loi nao goi ten ma nay, nen
+         * khong duoc phep co muc cho. Doi lai `create()` thi chot chan
+         * "emit mot chieu KHONG de lai yeu cau cho" trong verify.mjs se do.
          */
         emit(event, data) {
-            const { request_id } = this.requestManager.create(this.config.timeout);
+            const request_id = this.requestManager.newId();
             const message = Object.assign(Object.assign({ event, sender: SENDER, request_id: request_id, requestId: request_id }, data), { token: this.config.token || undefined, timestamp: Date.now() });
             this.messageQueue.push(() => {
                 this.middlewareManager.run(message, () => {

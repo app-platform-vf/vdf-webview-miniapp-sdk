@@ -165,6 +165,68 @@ try {
     }
     record("tra cuu duoc DU moi ma ket qua trong catalog", catOk, catDetail)
 
+    // 6c. Event MOT CHIEU khong duoc de lai mot yeu cau dang cho.
+    //
+    // Do dung TRIEU CHUNG NGUOI DUNG THAY, khong do noi bo: dat han cho that ngan roi
+    // goi mot ham mot chieu, doi qua han, va bat unhandledRejection. Do noi bo (dem muc
+    // cho) se doi bo dem thanh mot API cong khai chi de phuc vu phep kiem, va van khong
+    // chung minh duoc dieu ma nguoi dung thuc su gap.
+    //
+    // 🔴 Ban 2.1.1 va truoc do DO o cho nay: `emit()` goi `requestManager.create()`, de
+    //    lai mot loi hua khong ai `await` (ham sinh ra tra `void`) nen het han la mot
+    //    unhandled rejection — MOI LAN CHUYEN TRANG mot cai, trong im lang.
+    //
+    //    Vong sua truoc do da nham dung cho nay nhung sua NUA TREN: bo sinh ma cho ra
+    //    ham `void` di bang `emit`. Nua duoi (`emit` tu no) khong ai dong toi, nen
+    //    trieu chung chi doi dang tu "treo 90 giay" thanh "no am tham". Do la ly do
+    //    chot chan nay do o TANG NGOAI CUNG thay vi tin vao mot dong ma da sua.
+    // Di qua ROLLUP chu khong `import` thang, va ly do la mot rang buoc cua chinh goi
+    // chu khong phai mot so thich: diem vao cua goi KHONG nhap duoc tu Node ESM thuan
+    // (muc ngay tren ghi nhan). Bundler thi phan giai duoc duong thieu duoi, va do cung
+    // la cach MOI doi tac that dang tieu thu goi nay hom nay. Cung ky thuat build-page.mjs
+    // dung, cung lay plugin tu node_modules cua repo.
+    writeFileSync(join(sandbox, "entry-oneway.js"), [
+        `import { createMiniApp, wireToMiniApp, setCurrentPage } from '${PKG_NAME}';`,
+        "const no = [];",
+        "process.on('unhandledRejection', e => no.push(String((e && e.message) || e)));",
+        "globalThis.window = globalThis;",
+        "globalThis.AndroidWebview = { miniappWebviewToSdk() {} };",
+        // Han cho 150ms: du ngan de phep kiem chay nhanh, du dai de khong bat nham mot
+        // nhip dat lich binh thuong.
+        "const app = createMiniApp({ appId: 'probe', timeout: 150 });",
+        "wireToMiniApp(app);",
+        "setCurrentPage({ data: { pageId: 'p', pageName: 'P' } });",
+        "setTimeout(() => {",
+        "  if (no.length) { console.error('CO ' + no.length + ' loi hua bi tu choi ma khong ai bat: ' + no[0]); process.exit(1); }",
+        "  console.log('sach');",
+        "}, 600);",
+    ].join("\n"), "utf8")
+
+    const owCfg = join(sandbox, "rollup.oneway.cjs")
+    writeFileSync(owCfg, `
+const resolvePlugin = require(${JSON.stringify(join(REPO, "node_modules", "@rollup", "plugin-node-resolve"))});
+const commonjs = require(${JSON.stringify(join(REPO, "node_modules", "@rollup", "plugin-commonjs"))});
+module.exports = {
+  input: ${JSON.stringify(join(sandbox, "entry-oneway.js"))},
+  context: "this",
+  output: { file: ${JSON.stringify(join(sandbox, "probe-oneway.cjs"))}, format: "cjs" },
+  plugins: [resolvePlugin(), commonjs()]
+};
+`, "utf8")
+
+    let owOk = true, owDetail = ""
+    try {
+        execSync(`"${join(REPO, "node_modules", ".bin", "rollup")}" -c "${owCfg}"`, {
+            cwd: sandbox, stdio: "pipe",
+        })
+        execSync(`node probe-oneway.cjs`, { cwd: sandbox, stdio: "pipe", encoding: "utf8" })
+        owDetail = "goi setCurrentPage voi han cho 150ms, doi 600ms: 0 loi hua bi tu choi"
+    } catch (e) {
+        owOk = false
+        owDetail = String(e.stderr || e.stdout || e.message).trim().split("\n").filter(Boolean).pop() || ""
+    }
+    record("event MOT CHIEU khong de lai yeu cau dang cho", owOk, owDetail)
+
     // 7. Ban bundle cho trinh duyet: co hay khong, noi ro ra.
     const hasBundle = existsSync(join(installed, "dist", "bundle.js"))
     record(
