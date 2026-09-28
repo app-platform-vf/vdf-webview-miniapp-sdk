@@ -1,6 +1,6 @@
-import { MiniApp } from './MiniApp';
-import { MiniAppConfig, EventCallback } from './types';
-import { wireToMiniApp } from './generated/api.generated';
+import { MiniApp } from './MiniApp.js';
+import { MiniAppConfig, EventCallback } from './types.js';
+import { wireToMiniApp } from './generated/api.generated.js';
 
 let sharedInstance: MiniApp | null = null;
 

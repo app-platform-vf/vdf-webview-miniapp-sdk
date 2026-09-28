@@ -469,6 +469,69 @@ h1 { font-size: 20px; }
       return h;
     }
 
+    // Ve thanh chu ve THU BA cua dong "demoable" o SLICE-4: "doc duoc TRONG CHINH HOP DONG
+    // rang be mat mini-app co nam trang thai MiniAppVisibility ... va rang sau danh muc cu
+    // o lai nhung da danh dau phe thai".
+    //
+    // Truoc bang nay, ve do CHI duoc may chung minh (cong parity + hai hang so trong bundle),
+    // nguoi xem demo khong doc duoc tai cho — mot khoang ho cua MAN DEMO, khong phai cua hop
+    // dong. Cung khuon voi bang catalog, va vi cung mot ly do: doc thang tu SDK dang chay,
+    // khong chep tay. Mot bang chep tay se LUON DUNG, va mot man hinh luon dung khong do
+    // duoc gi.
+    function renderVisibilityContract() {
+      var S = window.WebviewSdk || {};
+      var gt = S.MINI_APP_VISIBILITY_VALUES;
+      var pt = S.MINI_APP_VISIBILITY_DEPRECATES;
+      if (!Array.isArray(gt) || !Array.isArray(pt)) {
+        return '<section><h3 class="section-title">Truc hien thi MiniAppVisibility</h3>'
+          + '<p style="color:#b00">Ban SDK dang nap KHONG mang truc hien thi — day la ban cu hon '
+          + 'ban dau tien cong bo MiniAppVisibility.</p></section>';
+      }
+
+      var dat = gt.length === 5 && pt.length === 6;
+      var h = '<section><h3 class="section-title">Truc hien thi MiniAppVisibility</h3>';
+      h += '<p style="margin:4px 0;font-weight:600;color:' + (dat ? '#0a7' : '#b00') + '">'
+        + (dat ? '&#10003; ' : '&#10007; ')
+        + gt.length + ' gia tri hien thi (cho 5) &middot; '
+        + pt.length + ' danh muc cu danh dau phe thai (cho 6)'
+        + '</p>';
+      h += '<p style="margin:0 0 8px;font-size:11px;color:#666">'
+        + 'Cung ten cung nghia tren Android va iOS. Sau danh muc cu O LAI, khong ten nao bi go: '
+        + 'phe thai la canh bao luc bien dich, hanh vi khong doi.</p>';
+
+      h += '<div style="border:1px solid #ddd;border-radius:6px;overflow:auto;margin-bottom:8px">';
+      h += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+      gt.forEach(function(v, idx) {
+        h += '<tr style="background:' + (idx % 2 ? '#fafafa' : '#fff') + '">'
+          + '<td style="padding:4px 6px;font-family:monospace;white-space:nowrap;vertical-align:top">'
+          + escapeHtml(v.value) + '</td>'
+          + '<td style="padding:4px 6px;vertical-align:top">' + escapeHtml(v.description || '') + '</td>'
+          + '</tr>';
+      });
+      h += '</table></div>';
+
+      h += '<div style="border:1px solid #ddd;border-radius:6px;overflow:auto">';
+      h += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+      pt.forEach(function(d, idx) {
+        // Truong replacement rong nghia la KHONG co duong thay — phai noi ra, vi de doc nham
+        // thanh "chua ai dien" roi co nguoi don dep ten do o luot sau.
+        var thay = d.replacement
+          ? '&rarr; <code>' + escapeHtml(d.replacement) + '</code>'
+          : '<span style="color:#c60">khong co duong thay</span>';
+        h += '<tr style="background:' + (idx % 2 ? '#fafafa' : '#fff') + '">'
+          + '<td style="padding:4px 6px;font-family:monospace;white-space:nowrap;vertical-align:top">'
+          + escapeHtml(d.symbol) + '</td>'
+          + '<td style="padding:4px 6px;color:#666;white-space:nowrap;vertical-align:top">'
+          + escapeHtml(d.kind) + ' &middot; ' + escapeHtml((d.platforms || []).join('+')) + '</td>'
+          + '<td style="padding:4px 6px;vertical-align:top">' + thay
+          + (d.note ? '<div style="color:#666;margin-top:2px">' + escapeHtml(d.note) + '</div>' : '')
+          + '</td>'
+          + '</tr>';
+      });
+      h += '</table></div></section>';
+      return h;
+    }
+
     function renderApp() {
       var html = '<h1>MiniApp SDK - Demo</h1>';
 
@@ -484,6 +547,7 @@ h1 { font-size: 20px; }
       html += '<button class="btn" data-evt="invoke">invoke(input)</button>';
       html += '</div></section>';
       html += renderErrorCatalog();
+      html += renderVisibilityContract();
       html += '<div style="padding:50px"></div>';
 
       document.getElementById('app').innerHTML = html;

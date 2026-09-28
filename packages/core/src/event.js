@@ -641,7 +641,7 @@ function genApi(config) {
     imports.push(`${pascal}Response`)
   })
   lines.push("  " + imports.join(",\n  "))
-  lines.push("} from './types.generated';")
+  lines.push("} from './types.generated.js';")
   lines.push("")
 
   // Check response success
@@ -882,7 +882,7 @@ function genEventMap(config) {
     imports.push(`${pascal}Response`)
   })
   lines.push("  " + imports.join(",\n  "))
-  lines.push("} from './types.generated';")
+  lines.push("} from './types.generated.js';")
   lines.push("")
 
   lines.push("/** Map event name -> [RequestType, ResponseType] */")

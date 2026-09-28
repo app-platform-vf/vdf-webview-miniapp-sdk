@@ -120,7 +120,7 @@ import type {
   OpenSmsComposerResponse,
   SetCurrentPageRequest,
   SetCurrentPageResponse
-} from './types.generated';
+} from './types.generated.js';
 
 /** Map event name -> [RequestType, ResponseType] */
 export interface MiniAppEventMap {

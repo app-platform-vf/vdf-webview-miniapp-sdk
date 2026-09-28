@@ -1,4 +1,4 @@
-import { EventCallback } from '../types';
+import { EventCallback } from '../types.js';
 
 /**
  * He thong pub/sub su kien

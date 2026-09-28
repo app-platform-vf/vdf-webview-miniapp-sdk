@@ -123,7 +123,7 @@ import type {
   OpenSmsComposerResponse,
   SetCurrentPageRequest,
   SetCurrentPageResponse
-} from './types.generated';
+} from './types.generated.js';
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */
 export function isSuccess(response: MiniAppResponseBase): boolean {

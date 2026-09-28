@@ -1,6 +1,6 @@
-import type { MiniAppRequestBase, MiniAppResponseBase } from '../generated/types.generated';
-import { Platform } from '../types';
-import { Logger } from '../utils/logger';
+import type { MiniAppRequestBase, MiniAppResponseBase } from '../generated/types.generated.js';
+import { Platform } from '../types.js';
+import { Logger } from '../utils/logger.js';
 
 declare global {
   interface Window {

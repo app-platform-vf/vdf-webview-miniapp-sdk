@@ -1,4 +1,4 @@
-import type { MiniAppRequestBase } from './generated/types.generated';
+import type { MiniAppRequestBase } from './generated/types.generated.js';
 
 // ============================================================
 // Cau hinh MiniApp

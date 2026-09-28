@@ -5,17 +5,17 @@ import {
   EventCallback,
   LifecycleEvent,
   LifecycleCallback,
-} from './types';
+} from './types.js';
 
-import type { MiniAppRequestBase, MiniAppResponseBase } from './generated/types.generated';
-import { sendToNative, parseNativeMessage, detectPlatform } from './bridge/Transport';
-import { EventBus } from './modules/EventBus';
-import { RequestManager } from './modules/RequestManager';
-import { MessageQueue } from './modules/MessageQueue';
-import { MiddlewareManager } from './modules/MiddlewareManager';
-import { PluginManager } from './plugins/PluginManager';
-import { Logger } from './utils/logger';
-import { isSuccess } from './generated/api.generated';
+import type { MiniAppRequestBase, MiniAppResponseBase } from './generated/types.generated.js';
+import { sendToNative, parseNativeMessage, detectPlatform } from './bridge/Transport.js';
+import { EventBus } from './modules/EventBus.js';
+import { RequestManager } from './modules/RequestManager.js';
+import { MessageQueue } from './modules/MessageQueue.js';
+import { MiddlewareManager } from './modules/MiddlewareManager.js';
+import { PluginManager } from './plugins/PluginManager.js';
+import { Logger } from './utils/logger.js';
+import { isSuccess } from './generated/api.generated.js';
 
 const SENDER = 'MINIAPP_WEBVIEW';
 

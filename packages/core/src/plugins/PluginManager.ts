@@ -1,4 +1,4 @@
-import { MiniAppPlugin } from '../types';
+import { MiniAppPlugin } from '../types.js';
 
 /**
  * Quan ly va cai dat plugin

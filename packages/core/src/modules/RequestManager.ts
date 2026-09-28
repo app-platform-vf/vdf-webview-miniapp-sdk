@@ -1,4 +1,4 @@
-import { PendingRequest } from '../types';
+import { PendingRequest } from '../types.js';
 
 /**
  * Quan ly cac request dang cho response tu native

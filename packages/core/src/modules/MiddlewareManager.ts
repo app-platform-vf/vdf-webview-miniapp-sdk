@@ -1,5 +1,5 @@
-import type { MiniAppRequestBase } from '../generated/types.generated';
-import { MiddlewareFn } from '../types';
+import type { MiniAppRequestBase } from '../generated/types.generated.js';
+import { MiddlewareFn } from '../types.js';
 
 /**
  * Pipeline middleware kieu Koa
