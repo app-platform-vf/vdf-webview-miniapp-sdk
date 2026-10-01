@@ -46,6 +46,18 @@ for (const f of ["index.html", "vconsole.min.js"]) cp(path.join(ROOT, "demo", "v
 cp(path.join(ROOT, "dist", "bundle.js"), path.join(vanillaOut, "bundle.js"));
 built.push({ name: "vanilla", label: "Vanilla JS (HTML thuần + vConsole)" });
 
+// ── 2b. OTP demo (standalone) -> /demo/otp/ ────────────────────────────────────
+const otpSrc = path.join(ROOT, "otp_demo.html");
+if (fs.existsSync(otpSrc)) {
+  const otpOut = path.join(SITE, "demo", "otp");
+  fs.mkdirSync(otpOut, { recursive: true });
+  cp(otpSrc, path.join(otpOut, "index.html"));
+  built.push({ name: "otp", label: "OTP Keyboard Focus (test iOS WKWebView)" });
+  console.log("✅ demo otp copy OK");
+} else {
+  console.warn("⚠️  otp_demo.html không tồn tại — bỏ qua");
+}
+
 // ── 3. SPA demos (resilient) -> /demo/<fw>/ ───────────────────────────────────
 const spas = [
   { name: "react", label: "React (Vite)" },

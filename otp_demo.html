@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>OTP Focus Research</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            padding: 20px
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .3)
+        }
+
+        h1 {
+            font-size: 18px;
+            color: #1a1a2e;
+            margin-bottom: 4px;
+            text-align: center
+        }
+
+        .sub {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            margin-bottom: 16px
+        }
+
+        .sel-box {
+            background: #fff3e0;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px
+        }
+
+        .sel-box label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e65100;
+            display: block;
+            margin-bottom: 6px
+        }
+
+        .sel-box select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ffcc80;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            background: #fff;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%23e65100'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center
+        }
+
+        .sel-box .desc {
+            font-size: 11px;
+            color: #888;
+            margin-top: 6px;
+            line-height: 1.4;
+            min-height: 28px
+        }
+
+        .info {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            text-align: left;
+            display: flex;
+            justify-content: space-between
+        }
+
+        .info .l {
+            font-size: 11px;
+            color: #888
+        }
+
+        .info .v {
+            font-size: 14px;
+            color: #1a1a2e;
+            font-weight: 600
+        }
+
+        .amt {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin: 12px 0;
+            text-align: center
+        }
+
+        .amt span {
+            font-size: 14px;
+            color: #888;
+            font-weight: 400
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            position: relative
+        }
+
+        .btn:active {
+            transform: scale(.97)
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 1000;
+            align-items: flex-end;
+            justify-content: center
+        }
+
+        .overlay.active {
+            display: flex
+        }
+
+        @keyframes su {
+            from {
+                transform: translateY(100%)
+            }
+
+            to {
+                transform: translateY(0)
+            }
+        }
+
+        .popup {
+            background: #fff;
+            border-radius: 24px 24px 0 0;
+            padding: 20px 20px 36px;
+            width: 100%;
+            animation: su .25s ease
+        }
+
+        .ph {
+            width: 40px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            margin: 0 auto 14px
+        }
+
+        .phead {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px
+        }
+
+        .ptitle {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a2e
+        }
+
+        .cbtn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            border: none;
+            font-size: 16px;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .pdesc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px
+        }
+
+        .hl {
+            color: #667eea;
+            font-weight: 600
+        }
+
+        .otp-c {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 16px 0
+        }
+
+        .oi {
+            width: 44px;
+            height: 52px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a2e;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            outline: none;
+            -webkit-appearance: none;
+            caret-color: #667eea
+        }
+
+        .oi:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, .2)
+        }
+
+        .oi.f {
+            border-color: #667eea;
+            background: #f8f9ff
+        }
+
+        .sm {
+            font-size: 12px;
+            margin-top: 8px;
+            min-height: 18px;
+            text-align: center
+        }
+
+        .sm.er {
+            color: #e74c3c
+        }
+
+        .sm.ok {
+            color: #2ecc71
+        }
+
+        .tm {
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 10px
+        }
+
+        .log {
+            margin-top: 12px;
+            padding: 10px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            font-size: 10px;
+            color: #666;
+            text-align: left;
+            line-height: 1.5;
+            max-height: 120px;
+            overflow-y: auto
+        }
+
+        .log .ev {
+            color: #667eea;
+            font-weight: 600
+        }
+
+        .proxy {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            opacity: 0.01;
+            z-index: 999;
+            display: none
+        }
+
+        .btn-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            z-index: 2;
+            font-size: 16px;
+            display: none
+        }
+    </style>
+</head>
+
+<body>
+    <input type="tel" id="proxy" class="proxy" inputmode="numeric">
+    <div class="container">
+        <h1>🔬 OTP Keyboard Focus</h1>
+        <p class="sub">Test các approach focus keyboard trên iOS WKWebView</p>
+        <div class="sel-box">
+            <label>🧪 Chọn approach:</label>
+            <select id="approach">
+                <option value="A">A. Sync focus (không setTimeout)</option>
+                <option value="B">B. Proxy hidden input</option>
+                <option value="C">C. Focus trực tiếp + rAF retry</option>
+                <option value="D">D. Input đè lên button</option>
+                <option value="E">E. Sync + readonly trick</option>
+            </select>
+            <div class="desc" id="adesc">Focus ngay trong click handler, giữ user gesture context</div>
+        </div>
+        <div class="info"><span class="l">Người nhận</span><span class="v">NGUYEN VAN A</span></div>
+        <div class="info"><span class="l">STK</span><span class="v">•••• 1234</span></div>
+        <div class="amt">500,000 <span>VND</span></div>
+        <div style="position:relative"><button class="btn" id="confirmBtn">Xác nhận</button><input type="tel"
+                id="btnInput" class="btn-input" inputmode="numeric"></div>
+        <div class="log">
+            <div class="ev">📋 Log:</div>
+            <div id="lc">Chờ thao tác...</div>
+        </div>
+    </div>
+    <div class="overlay" id="ov">
+        <div class="popup">
+            <div class="ph"></div>
+            <div class="phead"><span class="ptitle">Nhập mã OTP</span><button class="cbtn" onclick="closeP()">✕</button>
+            </div>
+            <p class="pdesc">Mã gửi đến <span class="hl">••••7890</span></p>
+            <div class="otp-c">
+                <input class="oi" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+                    autocomplete="one-time-code" id="o1">
+                <input class="oi" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="o2">
+                <input class="oi" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="o3">
+                <input class="oi" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="o4">
+                <input class="oi" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="o5">
+                <input class="oi" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="o6">
+            </div>
+            <div class="sm" id="sm"></div>
+            <div class="tm" id="tm">Gửi lại sau 60s</div>
+        </div>
+    </div>
+    <script>
+        var ci = null, cd = 60;
+        var descs = { A: 'Focus ngay trong click handler, giữ user gesture context', B: 'Focus proxy input ẩn trước (giữ keyboard) rồi chuyển sang OTP', C: 'Focus trực tiếp + requestAnimationFrame retry', D: 'Input type=tel nằm đè lên button, click=focus input trực tiếp', E: 'Focus đồng bộ + readonly toggle trick cho iOS' };
+        document.getElementById('approach').onchange = function () { document.getElementById('adesc').textContent = descs[this.value]; var bi = document.getElementById('btnInput'); bi.style.display = this.value === 'D' ? 'block' : 'none'; log('Đổi -> Approach ' + this.value) };
+        function log(m) { var e = document.getElementById('lc'), t = new Date().toLocaleTimeString(); e.innerHTML = '<div>[' + t + '] ' + m + '</div>' + e.innerHTML }
+        function reset() { for (var i = 1; i <= 6; i++) { document.getElementById('o' + i).value = ''; document.getElementById('o' + i).classList.remove('f') } document.getElementById('sm').textContent = '' }
+        function showP() { document.getElementById('ov').classList.add('active'); reset(); startCd() }
+        function closeP() { document.getElementById('ov').classList.remove('active'); if (ci) { clearInterval(ci); ci = null } }
+        function startCd() { cd = 60; var t = document.getElementById('tm'); if (ci) clearInterval(ci); ci = setInterval(function () { cd--; t.textContent = 'Gửi lại sau ' + cd + 's'; if (cd <= 0) { clearInterval(ci); ci = null; t.textContent = 'Gửi lại' } }, 1000) }
+        function vfy() { var o = ''; for (var i = 1; i <= 6; i++)o += document.getElementById('o' + i).value; var s = document.getElementById('sm'); if (o === '123456') { s.textContent = '✅ Thành công!'; s.className = 'sm ok' } else { s.textContent = '❌ Sai OTP'; s.className = 'sm er' } }
+        function doA() { log('🅰 Sync focus'); showP(); var f = document.getElementById('o1'); f.focus(); log('focus() sync - active=' + document.activeElement.id) }
+        function doB() { log('🅱 Proxy input'); var p = document.getElementById('proxy'); p.style.display = 'block'; p.focus(); log('⌨️ proxy focused'); showP(); setTimeout(function () { document.getElementById('o1').focus(); p.style.display = 'none'; log('🔄 transfer->o1 active=' + document.activeElement.id) }, 200) }
+        function doC() { log('©️ Focus+rAF'); showP(); var f = document.getElementById('o1'); f.focus(); log('focus() sync'); requestAnimationFrame(function () { if (document.activeElement !== f) { f.focus(); log('rAF retry') } requestAnimationFrame(function () { if (document.activeElement !== f) { f.focus(); log('rAF2 retry') } log('final active=' + document.activeElement.id) }) }) }
+        function doD() { log('🅳 Input đè button'); var bi = document.getElementById('btnInput'); bi.style.display = 'block' }
+        function doE() { log('🅴 Sync+readonly'); showP(); var f = document.getElementById('o1'); f.focus(); log('focus() sync'); f.setAttribute('readonly', 'readonly'); f.removeAttribute('readonly'); f.focus(); log('readonly trick - active=' + document.activeElement.id) }
+        document.getElementById('confirmBtn').addEventListener('click', function () { var a = document.getElementById('approach').value; log('🔘 Xác nhận - Approach ' + a); if (a === 'A') doA(); else if (a === 'B') doB(); else if (a === 'C') doC(); else if (a === 'D') doD(); else if (a === 'E') doE() });
+        document.getElementById('btnInput').addEventListener('focus', function () { log('🅳 btnInput focused'); showP(); var me = this; setTimeout(function () { document.getElementById('o1').focus(); me.style.display = 'none'; log('🔄 transfer->o1 active=' + document.activeElement.id) }, 200) });
+        document.addEventListener('DOMContentLoaded', function () { var ins = document.querySelectorAll('.oi'); ins.forEach(function (el, i) { el.addEventListener('input', function (e) { var v = e.target.value; if (!/^\\d*$/.test(v)) { e.target.value = ''; return } if (v.length === 1) { e.target.classList.add('f'); if (i < ins.length - 1) ins[i + 1].focus(); if (i === ins.length - 1) vfy() } }); el.addEventListener('keydown', function (e) { if (e.key === 'Backspace' && e.target.value === '' && i > 0) { ins[i - 1].focus(); ins[i - 1].value = ''; ins[i - 1].classList.remove('f') } }); el.addEventListener('focus', function () { this.select() }) }); log('✅ Sẵn sàng - chọn approach rồi bấm Xác nhận') });
+    </script>
+</body>
+
+</html>
