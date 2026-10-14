@@ -227,6 +227,189 @@ module.exports = {
     }
     record("event MOT CHIEU khong de lai yeu cau dang cho", owOk, owDetail)
 
+    // 6d. Event HAI CHIEU moi (SUBSCRIBE_TOPIC · UNSUBSCRIBE_TOPIC · CHECK_NOTIFICATION_PERMISSION):
+    //     phong bi RA dung, va Promise resolve/reject dung theo cau tra loi.
+    //
+    // Cung ky thuat 6c va cung ly do: do o TANG NGOAI CUNG (goi da cai + rollup), dong vai
+    // native bang mot `AndroidWebview.miniappWebviewToSdk` gia ghi lai phong bi, roi tra
+    // loi qua `window.miniappSdkToWebview` voi dung `request_id` vua ghi.
+    //
+    // Hai dieu phep kiem nay CO Y chot, noi ra vi ca hai de bi doc nham thanh loi:
+    //   - Phong bi `invoke('SUBSCRIBE_TOPIC', { sender: 'EVIL' })` DI RA voi `sender: EVIL`.
+    //     Web KHONG ghim `sender`; cong chan nam o native (`SDK001` "Invalid sender for …").
+    //     Mot ban sua "ghim sender o web" se lam ca nay do — do la dung y.
+    //   - Ma do APP CHU dat (vd. HOST_TOPIC_404) di thang ve `reject` va `describeError`
+    //     tra `undefined` cho no. Catalog khong duoc nuot ma la.
+    //
+    // Ca kieu: `subscribeTopic({ data: {}, sender: 'X' })` PHAI khong bien dich (excess
+    // property) — duong co kieu khong cho mini-app ghi de `sender`. Tep TS sinh ngay trong
+    // sandbox, khong dung chung consumer.ts, de muc 6 ben tren giu nguyen nghia cua no.
+    const twCases = [
+        // [id, ham, doi so (null = goi KHONG doi so), tra loi (null = khong tra)]
+        ["tc01", "subscribeTopic", { data: { topic_id: "topic_id_001", user_id: "user_id_001", miniapp_key: "demo_miniapp_key" } },
+            { event: "SUBSCRIBE_TOPIC", data: { topic_id: "topic_id_001", subscribed: true, subscribed_at: 1791429300512 }, errorData: null, message: null, eventStatus: { errorCode: "SDK000", errorMessageVN: "Thành công", errorMessageEN: "Success" } }],
+        ["tc02", "unsubscribeTopic", { data: { topic_id: "topic_id_001" } },
+            { event: "UNSUBSCRIBE_TOPIC", data: { topic_id: "topic_id_001", subscribed: false }, errorData: null, message: null, eventStatus: { errorCode: "SDK000", errorMessageVN: "Thành công", errorMessageEN: "Success" } }],
+        ["tc03", "checkNotificationPermission", null,
+            { event: "CHECK_NOTIFICATION_PERMISSION", permissionCode: "NOTIFICATION_PERMISSION", result: "Granted", eventStatus: { errorCode: "SDK000", errorMessageVN: "Thành công", errorMessageEN: "Success" } }],
+        ["tc04", "subscribeTopic", null,
+            { event: "SUBSCRIBE_TOPIC", eventStatus: { errorCode: "SDK000" } }],
+        ["tc05", "subscribeTopic", { data: { a: { b: { c: [1, { d: "Tiếng Việt 🎉 \"q\" \\ \n" }] } }, e: "" } },
+            { event: "SUBSCRIBE_TOPIC", eventStatus: { errorCode: "SDK000" } }],
+        ["tc06", "invoke:SUBSCRIBE_TOPIC", { sender: "EVIL", data: {} },
+            { event: "SUBSCRIBE_TOPIC", message: "Invalid sender for SUBSCRIBE_TOPIC", errorData: null, eventStatus: { errorCode: "SDK001", errorMessageVN: "Lỗi", errorMessageEN: "Failure" } }],
+        ["tc07", "subscribeTopic", { data: {} }, { event: "SUBSCRIBE_TOPIC", eventStatus: { errorCode: "SDK801" } }],
+        ["tc08", "subscribeTopic", { data: {} }, { event: "SUBSCRIBE_TOPIC", result: "PermanentlyDenied", eventStatus: { errorCode: "SDK802" } }],
+        ["tc09", "unsubscribeTopic", { data: {} }, { event: "UNSUBSCRIBE_TOPIC", eventStatus: { errorCode: "SDK100" } }],
+        ["tc13", "subscribeTopic", { data: {} }, { event: "SUBSCRIBE_TOPIC", result: "ServiceNotApplicable", eventStatus: { errorCode: "SDK001" } }],
+        ["tc11", "subscribeTopic", { data: {} }, { event: "SUBSCRIBE_TOPIC", eventStatus: { errorCode: "HOST_TOPIC_404" } }],
+        ["tc12", "checkNotificationPermission", null, { event: "CHECK_NOTIFICATION_PERMISSION", eventStatus: { errorCode: "SDK002" } }],
+        ["tc14", "subscribeTopic", { data: {} }, { event: "SUBSCRIBE_TOPIC", message: "Event is not routable", eventStatus: { errorCode: "SDK100" } }],
+        // tc10 de CUOI: khong tra loi, cho het han.
+        ["tc10", "checkNotificationPermission", null, null],
+    ]
+
+    writeFileSync(join(sandbox, "entry-twoway.js"), [
+        `import * as sdk from '${PKG_NAME}';`,
+        "const CASES = " + JSON.stringify(twCases) + ";",
+        "const no = [];",
+        "process.on('unhandledRejection', e => no.push(String((e && e.message) || e)));",
+        "globalThis.window = globalThis;",
+        "const sent = [];",
+        "globalThis.AndroidWebview = { miniappWebviewToSdk(json) { sent.push(JSON.parse(json)); } };",
+        "const app = sdk.createMiniApp({ appId: 'probe', timeout: 150 });",
+        "sdk.wireToMiniApp(app);",
+        "app.ready();",
+        "const same = (a, b) => {",
+        "  if (a === b) return true;",
+        "  if (typeof a !== 'object' || typeof b !== 'object' || !a || !b) return false;",
+        "  if (Array.isArray(a) !== Array.isArray(b)) return false;",
+        "  const ka = Object.keys(a), kb = Object.keys(b);",
+        "  return ka.length === kb.length && ka.every(k => same(a[k], b[k]));",
+        "};",
+        "const EVENT = { subscribeTopic: 'SUBSCRIBE_TOPIC', unsubscribeTopic: 'UNSUBSCRIBE_TOPIC', checkNotificationPermission: 'CHECK_NOTIFICATION_PERMISSION', 'invoke:SUBSCRIBE_TOPIC': 'SUBSCRIBE_TOPIC' };",
+        "const hong = [];",
+        "const missing = ['subscribeTopic', 'unsubscribeTopic', 'checkNotificationPermission'].filter(n => typeof sdk[n] !== 'function');",
+        "if (missing.length) hong.push('ham chua co trong goi da cai: ' + missing.join(', '));",
+        "if (typeof sdk.describeError !== 'function') hong.push('describeError khong co trong goi');",
+        "const tick = () => new Promise(r => setTimeout(r, 0));",
+        "(async () => {",
+        "  for (const [id, fn, arg, reply] of CASES) {",
+        "    const bad = m => hong.push(id + ' ' + fn + ': ' + m);",
+        "    let p;",
+        "    const before = sent.length;",
+        "    try {",
+        "      if (fn.startsWith('invoke:')) p = app.invoke(fn.slice(7), arg);",
+        "      else if (typeof sdk[fn] !== 'function') { bad('ham chua ton tai'); continue; }",
+        "      else p = arg === null ? sdk[fn]() : sdk[fn](arg);",
+        "    } catch (e) { bad('nem loi dong bo: ' + ((e && e.message) || e)); continue; }",
+        "    const settled = Promise.resolve(p).then(v => ({ ok: true, v }), e => ({ ok: false, e }));",
+        "    await tick();",
+        "    const env = sent[before];",
+        "    if (sent.length !== before + 1 || !env) { bad('khong co dung 1 phong bi ra (' + (sent.length - before) + ')'); }",
+        "    else {",
+        "      if (env.event !== EVENT[fn]) bad('event ra = ' + env.event);",
+        "      const wantSender = id === 'tc06' ? 'EVIL' : 'MINIAPP_WEBVIEW';",
+        "      if (env.sender !== wantSender) bad('sender ra = ' + env.sender + ', can ' + wantSender);",
+        "      if (typeof env.request_id !== 'string' || !env.request_id) bad('request_id rong');",
+        "      if (env.requestId !== env.request_id) bad('requestId khac request_id');",
+        "      if (arg === null || !('data' in arg)) { if ('data' in env) bad('phong bi co khoa data trong khi dau vao khong co'); }",
+        "      else if (!same(env.data, arg.data)) bad('data ra KHONG nguyen van: ' + JSON.stringify(env.data));",
+        "      if (reply) globalThis.miniappSdkToWebview(JSON.stringify({ ...reply, request_id: env.request_id }));",
+        "    }",
+        "    const r = await settled;",
+        "    const code = reply && reply.eventStatus.errorCode;",
+        "    if (!reply) {",
+        "      if (r.ok) bad('resolve du khong ai tra loi');",
+        "      else if (!/timeout/i.test(String((r.e && r.e.message) || r.e))) bad('reject khong phai timeout: ' + ((r.e && r.e.message) || r.e));",
+        "      continue;",
+        "    }",
+        "    if (code === 'SDK000') {",
+        "      if (!r.ok) { bad('reject du SDK000: ' + JSON.stringify(r.e && (r.e.message || r.e.eventStatus))); continue; }",
+        "      if (id === 'tc01' && !(r.v.data && r.v.data.subscribed === true)) bad('res.data.subscribed != true');",
+        "      if (id === 'tc02' && !(r.v.data && r.v.data.subscribed === false)) bad('res.data.subscribed != false');",
+        "      if (id === 'tc03' && !(r.v.result === 'Granted' && r.v.permissionCode === 'NOTIFICATION_PERMISSION')) bad('result/permissionCode sai');",
+        "      continue;",
+        "    }",
+        "    if (r.ok) { bad('resolve du ma ' + code); continue; }",
+        "    const e = r.e || {};",
+        "    if (!env || e.request_id !== env.request_id || !e.eventStatus || e.eventStatus.errorCode !== code) bad('ly do reject KHONG phai nguyen phong bi tra ve');",
+        "    if (reply.message && e.message !== reply.message) bad('message reject = ' + e.message);",
+        "    if (reply.result && e.result !== reply.result) bad('reject mat result');",
+        "    if (typeof sdk.describeError === 'function') {",
+        "      const known = sdk.describeError(code) !== undefined;",
+        "      if (code === 'HOST_TOPIC_404' ? known : !known) bad('describeError(' + code + ') ' + (known ? 'KHONG tra undefined' : 'tra undefined'));",
+        "    }",
+        "  }",
+        "  setTimeout(() => {",
+        "    if (no.length) hong.push('CO ' + no.length + ' loi hua bi tu choi ma khong ai bat: ' + no[0]);",
+        "    if (hong.length) { console.error(hong.length + ' loi | ' + hong.join(' | ')); process.exit(1); }",
+        "    console.log(CASES.length);",
+        "  }, 600);",
+        "})().catch(e => { console.error('probe vo giua chung: ' + ((e && e.message) || e)); process.exit(1); });",
+    ].join("\n"), "utf8")
+
+    const twCfg = join(sandbox, "rollup.twoway.cjs")
+    writeFileSync(twCfg, `
+const resolvePlugin = require(${JSON.stringify(join(REPO, "node_modules", "@rollup", "plugin-node-resolve"))});
+const commonjs = require(${JSON.stringify(join(REPO, "node_modules", "@rollup", "plugin-commonjs"))});
+module.exports = {
+  input: ${JSON.stringify(join(sandbox, "entry-twoway.js"))},
+  context: "this",
+  output: { file: ${JSON.stringify(join(sandbox, "probe-twoway.cjs"))}, format: "cjs" },
+  plugins: [resolvePlugin(), commonjs()]
+};
+`, "utf8")
+
+    // Ca kieu: duong co kieu dung duoc, va KHONG cho ghi de `sender`.
+    writeFileSync(join(sandbox, "consumer-topic.ts"), [
+        `import { subscribeTopic, unsubscribeTopic, checkNotificationPermission } from "${PKG_NAME}"`,
+        "export async function topicFlow(): Promise<void> {",
+        "    const a = await subscribeTopic({ data: { topic_id: \"topic_id_001\" } })",
+        "    const subscribed: unknown = a.data?.subscribed",
+        "    void subscribed",
+        "    await subscribeTopic()",
+        "    await unsubscribeTopic({ data: {} })",
+        "    const c = await checkNotificationPermission()",
+        "    const result: string | undefined = c.result",
+        "    const permissionCode: string | undefined = c.permissionCode",
+        "    void result, permissionCode",
+        "    // @ts-expect-error — `sender` khong thuoc tai trong co kieu: mini-app khong ghi de duoc",
+        "    await subscribeTopic({ data: {}, sender: \"X\" })",
+        "}",
+    ].join("\n"), "utf8")
+    const twTsCfg = JSON.parse(readFileSync(join(HERE, "tsconfig.consumer.json"), "utf8"))
+    twTsCfg.files = ["consumer-topic.ts"]
+    writeFileSync(join(sandbox, "tsconfig.topic.json"), JSON.stringify(twTsCfg), "utf8")
+
+    const twFail = []
+    let twN = 0
+    try {
+        execSync(`"${join(REPO, "node_modules", ".bin", "rollup")}" -c "${twCfg}"`, {
+            cwd: sandbox, stdio: "pipe",
+        })
+        const twOut = execSync(`node probe-twoway.cjs`, { cwd: sandbox, stdio: "pipe", encoding: "utf8" })
+        twN = Number(twOut.trim().split("\n").pop()) || 0
+        // Chot chong do rong: probe phai DI HET moi ca, khong duoc thoat som ma van "xanh".
+        if (twN !== twCases.length) twFail.push(`probe chi bao ${twN}/${twCases.length} ca: ${twOut.trim().slice(-200)}`)
+    } catch (e) {
+        twFail.push(String(e.stderr || e.stdout || e.message).trim().split("\n").filter(Boolean).pop() || "")
+    }
+    try {
+        execSync(`"${join(REPO, "node_modules", ".bin", "tsc")}" --noEmit -p tsconfig.topic.json`, {
+            cwd: sandbox, stdio: "pipe",
+        })
+    } catch (e) {
+        twFail.push("kieu: " + String(e.stdout || e.message).split("\n").filter(Boolean).slice(0, 3).join(" / "))
+    }
+    record(
+        "event HAI CHIEU moi: phong bi + resolve/reject",
+        twFail.length === 0,
+        twFail.length
+            ? twFail.join("\n        ")
+            : `${twN} ca (tc01..tc14): phong bi ra dung, resolve/reject dung, 0 loi hua khong ai bat; sender khong ghi de duoc qua duong co kieu`,
+    )
+
     // 7. Ban bundle cho trinh duyet: co hay khong, noi ro ra.
     const hasBundle = existsSync(join(installed, "dist", "bundle.js"))
     record(

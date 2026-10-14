@@ -164,7 +164,7 @@ title: ${title}
 
 const categoryOrder = [
   "Routing", "UserData Permission", "Device Request Permission", "Device Check Permission",
-  "Storage", "Location", "UI", "Get data event"
+  "Notification", "Storage", "Location", "UI", "Get data event"
 ]
 
 function generateMarkdown(events, parityAxes = []) {
