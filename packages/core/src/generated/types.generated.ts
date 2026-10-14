@@ -655,6 +655,33 @@ export interface SetCurrentPageRequest {
 
 export interface SetCurrentPageResponse {}
 
+/** Đăng ký nhận thông báo theo topic do APP CHỦ sở hữu. SDK native gác quyền thông báo NOTIFICATION_PERMISSION theo thứ tự: đã đăng ký ở App Center (chưa: SDK801) -> sender đúng (khác: SDK001) -> app chủ hỗ trợ push (không: SDK001 + ServiceNotApplicable) -> người dùng đồng ý ở sheet (từ chối: SDK802) -> hộp thoại quyền thông báo của OS (từ chối: SDK802 + Denied/PermanentlyDenied), rồi chuyển NGUYÊN VĂN phong bì cho app chủ; kết quả do APP CHỦ trả về, cùng request_id. ⚠️ `sender` PHẢI là MINIAPP_WEBVIEW — web SDK điền sẵn; mini-app ghi đè `sender` (qua invoke/sendRaw hoặc tự dựng phong bì) thì SDK trả SDK001 'Invalid sender for SUBSCRIBE_TOPIC' và app chủ KHÔNG được gọi. `data` là JSON tự do: thoả thuận giữa app chủ và mini-app, SDK không định nghĩa, không đọc, không ghi log. App chủ không nhận event: SDK100. Mỗi mini-app đúng một topic. */
+export interface SubscribeTopicRequest {
+  data?: Record<string, any>; // Dữ liệu kèm dạng JSON tự do — schema do app chủ và mini-app thoả thuận; SDK chuyển nguyên văn
+}
+
+export interface SubscribeTopicResponse {
+  data?: Record<string, any>; // Kết quả do app chủ trả — schema do app chủ và mini-app thoả thuận
+}
+
+/** Huỷ đăng ký nhận thông báo theo topic do APP CHỦ sở hữu. Không hiện popup. SDK native kiểm: đã đăng ký quyền thông báo ở App Center (chưa: SDK801) -> sender đúng (khác: SDK001), rồi chuyển NGUYÊN VĂN phong bì cho app chủ; kết quả do APP CHỦ trả về, cùng request_id. ⚠️ `sender` PHẢI là MINIAPP_WEBVIEW — web SDK điền sẵn; ghi đè thì SDK trả SDK001 'Invalid sender for UNSUBSCRIBE_TOPIC'. `data` là JSON tự do: thoả thuận giữa app chủ và mini-app. App chủ không nhận event: SDK100. */
+export interface UnsubscribeTopicRequest {
+  data?: Record<string, any>; // Dữ liệu kèm dạng JSON tự do — schema do app chủ và mini-app thoả thuận; SDK chuyển nguyên văn
+}
+
+export interface UnsubscribeTopicResponse {
+  data?: Record<string, any>; // Kết quả do app chủ trả — schema do app chủ và mini-app thoả thuận
+}
+
+/** Kiểm tra quyền thông báo — CHỈ ĐỌC: không popup, không hỏi OS, không đổi cache, không gọi app chủ. Luôn trả SDK000; trạng thái nằm ở `result`, theo thứ tự: chưa đăng ký ở App Center -> NotFound; app chủ không hỗ trợ push -> ServiceNotApplicable; người dùng chưa đồng ý -> Denied; đã đồng ý -> theo OS: Granted / Denied / PermanentlyDenied. ⚠️ `Denied` mang hai nghĩa (chưa đồng ý ở SDK, hoặc OS từ chối). ⚠️ Android: người dùng chặn vĩnh viễn ngoài SDK vẫn trả Denied (giới hạn nền tảng); iOS: thiếu userId trả SDK002. SDK KHÔNG báo mini-app khi người dùng bật/tắt quyền trong màn Quản lý quyền — gọi event này để đồng bộ. */
+export interface CheckNotificationPermissionRequest {}
+
+export interface CheckNotificationPermissionResponse {
+  permissionCode?: string;
+  result?: string;
+  message?: string;
+}
+
 // --- Event name constants ---
 
 export type MiniAppEventName =
@@ -715,7 +742,10 @@ export type MiniAppEventName =
   | 'SET_SCREEN_BRIGHTNESS'
   | 'RESTORE_SCREEN_BRIGHTNESS'
   | 'OPEN_SMS_COMPOSER'
-  | 'SET_CURRENT_PAGE';
+  | 'SET_CURRENT_PAGE'
+  | 'SUBSCRIBE_TOPIC'
+  | 'UNSUBSCRIBE_TOPIC'
+  | 'CHECK_NOTIFICATION_PERMISSION';
 
 /** Danh sach tat ca events voi metadata */
 export const EVENT_LIST = [
@@ -777,4 +807,7 @@ export const EVENT_LIST = [
   { event: 'RESTORE_SCREEN_BRIGHTNESS', method: 'restoreScreenBrightness', description: "Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.", requestType: 'RestoreScreenBrightnessRequest', responseType: 'RestoreScreenBrightnessResponse' },
   { event: 'OPEN_SMS_COMPOSER', method: 'openSmsComposer', description: "Mở trình soạn tin nhắn của hệ điều hành với số nhận và nội dung điền sẵn. SDK KHÔNG gửi tin — người dùng tự bấm gửi trong trình soạn tin. ⚠️ Mở thành công trả về mã SDK852, KHÔNG phải SDK000, nên `isSuccess()` trả false và Promise bị REJECT dù mọi thứ đúng: hãy đọc kết quả trong nhánh `catch`, giá trị nhận được là nguyên response (đọc `data.terminal_state`). Đây là hành vi đã biết và được chấp nhận, không phải lỗi. Trên iOS còn một nhịp thứ hai mang kết cục thật, và nhịp đó KHÔNG đến qua Promise — phải nghe bằng `app.on('OPEN_SMS_COMPOSER', cb)`.", requestType: 'OpenSmsComposerRequest', responseType: 'OpenSmsComposerResponse' },
   { event: 'SET_CURRENT_PAGE', method: 'setCurrentPage', description: "Báo cho app chủ biết trang mini-app vừa chuyển sang page nào. ⚠️ MỘT CHIỀU: entry này KHÔNG khai `response`, nên native không trả lời gì và hàm sinh ra trả về `void` — không có gì để `await`. SDK không đọc, không biến đổi, không gác quyền và không ghi bản ghi nào: event đi thẳng lên app chủ qua điểm mở rộng `intercept`, nên app chủ PHẢI `return true` ở đó. App chủ không nhận thì trang ăn một SDK100 mỗi lần chuyển trang.", requestType: 'SetCurrentPageRequest', responseType: 'SetCurrentPageResponse' },
+  { event: 'SUBSCRIBE_TOPIC', method: 'subscribeTopic', description: "Đăng ký nhận thông báo theo topic do APP CHỦ sở hữu. SDK native gác quyền thông báo NOTIFICATION_PERMISSION theo thứ tự: đã đăng ký ở App Center (chưa: SDK801) -> sender đúng (khác: SDK001) -> app chủ hỗ trợ push (không: SDK001 + ServiceNotApplicable) -> người dùng đồng ý ở sheet (từ chối: SDK802) -> hộp thoại quyền thông báo của OS (từ chối: SDK802 + Denied/PermanentlyDenied), rồi chuyển NGUYÊN VĂN phong bì cho app chủ; kết quả do APP CHỦ trả về, cùng request_id. ⚠️ `sender` PHẢI là MINIAPP_WEBVIEW — web SDK điền sẵn; mini-app ghi đè `sender` (qua invoke/sendRaw hoặc tự dựng phong bì) thì SDK trả SDK001 'Invalid sender for SUBSCRIBE_TOPIC' và app chủ KHÔNG được gọi. `data` là JSON tự do: thoả thuận giữa app chủ và mini-app, SDK không định nghĩa, không đọc, không ghi log. App chủ không nhận event: SDK100. Mỗi mini-app đúng một topic.", requestType: 'SubscribeTopicRequest', responseType: 'SubscribeTopicResponse' },
+  { event: 'UNSUBSCRIBE_TOPIC', method: 'unsubscribeTopic', description: "Huỷ đăng ký nhận thông báo theo topic do APP CHỦ sở hữu. Không hiện popup. SDK native kiểm: đã đăng ký quyền thông báo ở App Center (chưa: SDK801) -> sender đúng (khác: SDK001), rồi chuyển NGUYÊN VĂN phong bì cho app chủ; kết quả do APP CHỦ trả về, cùng request_id. ⚠️ `sender` PHẢI là MINIAPP_WEBVIEW — web SDK điền sẵn; ghi đè thì SDK trả SDK001 'Invalid sender for UNSUBSCRIBE_TOPIC'. `data` là JSON tự do: thoả thuận giữa app chủ và mini-app. App chủ không nhận event: SDK100.", requestType: 'UnsubscribeTopicRequest', responseType: 'UnsubscribeTopicResponse' },
+  { event: 'CHECK_NOTIFICATION_PERMISSION', method: 'checkNotificationPermission', description: "Kiểm tra quyền thông báo — CHỈ ĐỌC: không popup, không hỏi OS, không đổi cache, không gọi app chủ. Luôn trả SDK000; trạng thái nằm ở `result`, theo thứ tự: chưa đăng ký ở App Center -> NotFound; app chủ không hỗ trợ push -> ServiceNotApplicable; người dùng chưa đồng ý -> Denied; đã đồng ý -> theo OS: Granted / Denied / PermanentlyDenied. ⚠️ `Denied` mang hai nghĩa (chưa đồng ý ở SDK, hoặc OS từ chối). ⚠️ Android: người dùng chặn vĩnh viễn ngoài SDK vẫn trả Denied (giới hạn nền tảng); iOS: thiếu userId trả SDK002. SDK KHÔNG báo mini-app khi người dùng bật/tắt quyền trong màn Quản lý quyền — gọi event này để đồng bộ.", requestType: 'CheckNotificationPermissionRequest', responseType: 'CheckNotificationPermissionResponse' },
 ] as const;

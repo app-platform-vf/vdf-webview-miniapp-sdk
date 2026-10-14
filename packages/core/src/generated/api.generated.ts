@@ -122,7 +122,13 @@ import type {
   OpenSmsComposerRequest,
   OpenSmsComposerResponse,
   SetCurrentPageRequest,
-  SetCurrentPageResponse
+  SetCurrentPageResponse,
+  SubscribeTopicRequest,
+  SubscribeTopicResponse,
+  UnsubscribeTopicRequest,
+  UnsubscribeTopicResponse,
+  CheckNotificationPermissionRequest,
+  CheckNotificationPermissionResponse
 } from './types.generated.js';
 
 /** Kiem tra response co thanh cong khong (errorCode === 'SDK000') */
@@ -723,6 +729,30 @@ export function setCurrentPage(payload: SetCurrentPageRequest): void {
   emitOneWay('SET_CURRENT_PAGE', payload);
 }
 
+/**
+ * Đăng ký nhận thông báo theo topic do APP CHỦ sở hữu. SDK native gác quyền thông báo NOTIFICATION_PERMISSION theo thứ tự: đã đăng ký ở App Center (chưa: SDK801) -> sender đúng (khác: SDK001) -> app chủ hỗ trợ push (không: SDK001 + ServiceNotApplicable) -> người dùng đồng ý ở sheet (từ chối: SDK802) -> hộp thoại quyền thông báo của OS (từ chối: SDK802 + Denied/PermanentlyDenied), rồi chuyển NGUYÊN VĂN phong bì cho app chủ; kết quả do APP CHỦ trả về, cùng request_id. ⚠️ `sender` PHẢI là MINIAPP_WEBVIEW — web SDK điền sẵn; mini-app ghi đè `sender` (qua invoke/sendRaw hoặc tự dựng phong bì) thì SDK trả SDK001 'Invalid sender for SUBSCRIBE_TOPIC' và app chủ KHÔNG được gọi. `data` là JSON tự do: thoả thuận giữa app chủ và mini-app, SDK không định nghĩa, không đọc, không ghi log. App chủ không nhận event: SDK100. Mỗi mini-app đúng một topic.
+ * Event: SUBSCRIBE_TOPIC
+ */
+export async function subscribeTopic(payload: SubscribeTopicRequest = {} as any): Promise<MiniAppResponse<SubscribeTopicResponse>> {
+  return send<SubscribeTopicResponse>('SUBSCRIBE_TOPIC', payload);
+}
+
+/**
+ * Huỷ đăng ký nhận thông báo theo topic do APP CHỦ sở hữu. Không hiện popup. SDK native kiểm: đã đăng ký quyền thông báo ở App Center (chưa: SDK801) -> sender đúng (khác: SDK001), rồi chuyển NGUYÊN VĂN phong bì cho app chủ; kết quả do APP CHỦ trả về, cùng request_id. ⚠️ `sender` PHẢI là MINIAPP_WEBVIEW — web SDK điền sẵn; ghi đè thì SDK trả SDK001 'Invalid sender for UNSUBSCRIBE_TOPIC'. `data` là JSON tự do: thoả thuận giữa app chủ và mini-app. App chủ không nhận event: SDK100.
+ * Event: UNSUBSCRIBE_TOPIC
+ */
+export async function unsubscribeTopic(payload: UnsubscribeTopicRequest = {} as any): Promise<MiniAppResponse<UnsubscribeTopicResponse>> {
+  return send<UnsubscribeTopicResponse>('UNSUBSCRIBE_TOPIC', payload);
+}
+
+/**
+ * Kiểm tra quyền thông báo — CHỈ ĐỌC: không popup, không hỏi OS, không đổi cache, không gọi app chủ. Luôn trả SDK000; trạng thái nằm ở `result`, theo thứ tự: chưa đăng ký ở App Center -> NotFound; app chủ không hỗ trợ push -> ServiceNotApplicable; người dùng chưa đồng ý -> Denied; đã đồng ý -> theo OS: Granted / Denied / PermanentlyDenied. ⚠️ `Denied` mang hai nghĩa (chưa đồng ý ở SDK, hoặc OS từ chối). ⚠️ Android: người dùng chặn vĩnh viễn ngoài SDK vẫn trả Denied (giới hạn nền tảng); iOS: thiếu userId trả SDK002. SDK KHÔNG báo mini-app khi người dùng bật/tắt quyền trong màn Quản lý quyền — gọi event này để đồng bộ.
+ * Event: CHECK_NOTIFICATION_PERMISSION
+ */
+export async function checkNotificationPermission(): Promise<MiniAppResponse<CheckNotificationPermissionResponse>> {
+  return send<CheckNotificationPermissionResponse>('CHECK_NOTIFICATION_PERMISSION', {});
+}
+
 // ============================================================
 // wireToMiniApp — Goi 1 lan trong framework adapter (React/Vue/Angular)
 // ============================================================
@@ -874,6 +904,12 @@ export const MiniAppAPI = {
   openSmsComposer,
   /** Báo cho app chủ biết trang mini-app vừa chuyển sang page nào. ⚠️ MỘT CHIỀU: entry này KHÔNG khai `response`, nên native không trả lời gì và hàm sinh ra trả về `void` — không có gì để `await`. SDK không đọc, không biến đổi, không gác quyền và không ghi bản ghi nào: event đi thẳng lên app chủ qua điểm mở rộng `intercept`, nên app chủ PHẢI `return true` ở đó. App chủ không nhận thì trang ăn một SDK100 mỗi lần chuyển trang. */
   setCurrentPage,
+  /** Đăng ký nhận thông báo theo topic do APP CHỦ sở hữu. SDK native gác quyền thông báo NOTIFICATION_PERMISSION theo thứ tự: đã đăng ký ở App Center (chưa: SDK801) -> sender đúng (khác: SDK001) -> app chủ hỗ trợ push (không: SDK001 + ServiceNotApplicable) -> người dùng đồng ý ở sheet (từ chối: SDK802) -> hộp thoại quyền thông báo của OS (từ chối: SDK802 + Denied/PermanentlyDenied), rồi chuyển NGUYÊN VĂN phong bì cho app chủ; kết quả do APP CHỦ trả về, cùng request_id. ⚠️ `sender` PHẢI là MINIAPP_WEBVIEW — web SDK điền sẵn; mini-app ghi đè `sender` (qua invoke/sendRaw hoặc tự dựng phong bì) thì SDK trả SDK001 'Invalid sender for SUBSCRIBE_TOPIC' và app chủ KHÔNG được gọi. `data` là JSON tự do: thoả thuận giữa app chủ và mini-app, SDK không định nghĩa, không đọc, không ghi log. App chủ không nhận event: SDK100. Mỗi mini-app đúng một topic. */
+  subscribeTopic,
+  /** Huỷ đăng ký nhận thông báo theo topic do APP CHỦ sở hữu. Không hiện popup. SDK native kiểm: đã đăng ký quyền thông báo ở App Center (chưa: SDK801) -> sender đúng (khác: SDK001), rồi chuyển NGUYÊN VĂN phong bì cho app chủ; kết quả do APP CHỦ trả về, cùng request_id. ⚠️ `sender` PHẢI là MINIAPP_WEBVIEW — web SDK điền sẵn; ghi đè thì SDK trả SDK001 'Invalid sender for UNSUBSCRIBE_TOPIC'. `data` là JSON tự do: thoả thuận giữa app chủ và mini-app. App chủ không nhận event: SDK100. */
+  unsubscribeTopic,
+  /** Kiểm tra quyền thông báo — CHỈ ĐỌC: không popup, không hỏi OS, không đổi cache, không gọi app chủ. Luôn trả SDK000; trạng thái nằm ở `result`, theo thứ tự: chưa đăng ký ở App Center -> NotFound; app chủ không hỗ trợ push -> ServiceNotApplicable; người dùng chưa đồng ý -> Denied; đã đồng ý -> theo OS: Granted / Denied / PermanentlyDenied. ⚠️ `Denied` mang hai nghĩa (chưa đồng ý ở SDK, hoặc OS từ chối). ⚠️ Android: người dùng chặn vĩnh viễn ngoài SDK vẫn trả Denied (giới hạn nền tảng); iOS: thiếu userId trả SDK002. SDK KHÔNG báo mini-app khi người dùng bật/tắt quyền trong màn Quản lý quyền — gọi event này để đồng bộ. */
+  checkNotificationPermission,
   /** Kiem tra response thanh cong */
   isSuccess,
   /** Khoi tao API module */

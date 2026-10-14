@@ -61,6 +61,9 @@ import {
   restoreScreenBrightness,
   openSmsComposer,
   setCurrentPage,
+  subscribeTopic,
+  unsubscribeTopic,
+  checkNotificationPermission,
 } from 'vdf-webview-miniapp-sdk';
 
 const app = getSharedMiniApp({ debug: true });
@@ -238,6 +241,9 @@ const fns: Record<string, () => Promise<any>> = {
   'restoreScreenBrightness': () => restoreScreenBrightness(getInputFor('restoreScreenBrightness') || {'data':{}}),
   'openSmsComposer': () => openSmsComposer(getInputFor('openSmsComposer') || {'data':{'recipient':'+84987654321','body':'Xin chao tu mini-app'}}),
   'setCurrentPage': () => setCurrentPage(getInputFor('setCurrentPage') || {'data':{'pageId':'home','pageName':'Trang chủ'}}),
+  'subscribeTopic': () => subscribeTopic(getInputFor('subscribeTopic') || {'data':{}}),
+  'unsubscribeTopic': () => unsubscribeTopic(getInputFor('unsubscribeTopic') || {'data':{}}),
+  'checkNotificationPermission': () => checkNotificationPermission(),
   'invoke': () => app.invoke(getInputFor('invoke')?.event || 'GET_LOCATION', getInputFor('invoke')),
 };
 
@@ -305,7 +311,8 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'checkDocumentPermission', event: 'CHECK_DOCUMENT_PERMISSION', desc: 'Kiểm tra quyền truy cập file tài liệu', hasParams: false, defaultData: '', responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
       { name: 'checkPaymentPermission', event: 'CHECK_PAYMENT_PERMISSION', desc: '', hasParams: false, defaultData: '', responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
       { name: 'checkLoginPermission', event: 'CHECK_LOGIN_PERMISSION', desc: '', hasParams: false, defaultData: '', responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
-      { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: '', responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" }
+      { name: 'checkLocalAuthenticationPermission', event: 'CHECK_LOCAL_AUTHENTICATION_PERMISSION', desc: 'kiểm tra quyền xác thực sinh trắc học (vân tay, Face ID).', hasParams: false, defaultData: '', responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" },
+      { name: 'checkNotificationPermission', event: 'CHECK_NOTIFICATION_PERMISSION', desc: 'Kiểm tra quyền thông báo — CHỈ ĐỌC: không popup, không hỏi OS, không đổi cache, không gọi app chủ. Luôn trả SDK000; trạng thái nằm ở `result`, theo thứ tự: chưa đăng ký ở App Center -> NotFound; app chủ không hỗ trợ push -> ServiceNotApplicable; người dùng chưa đồng ý -> Denied; đã đồng ý -> theo OS: Granted / Denied / PermanentlyDenied. ⚠️ `Denied` mang hai nghĩa (chưa đồng ý ở SDK, hoặc OS từ chối). ⚠️ Android: người dùng chặn vĩnh viễn ngoài SDK vẫn trả Denied (giới hạn nền tảng); iOS: thiếu userId trả SDK002. SDK KHÔNG báo mini-app khi người dùng bật/tắt quyền trong màn Quản lý quyền — gọi event này để đồng bộ.', hasParams: false, defaultData: '', responseSample: "{\"permissionCode\":\"...\",\"result\":\"...\",\"message\":\"...\"}" }
   ] },
   { title: 'Storage', events: [
       { name: 'saveStringValue', event: 'SAVE_STRING_VALUE', desc: 'Lưu giá trị kiểu string.', hasParams: true, defaultData: '{"data":{"key":"user_preference","value":"dark_mode"}}', responseSample: null },
@@ -324,6 +331,10 @@ const groups: { title: string; events: EventInfo[] }[] = [
       { name: 'updateMiniAppTheme', event: 'UPDATE_MINI_APP_THEME', desc: 'Update mini app theme', hasParams: true, defaultData: '{"data":{"headerColor":"#FFFFFF","headerTitle":"Mini App","textColor":"#EE0033","leftButton":"back","actionButtonThemeType":"light","hideAndroidBottomNavigationBar":false,"hideIOSSafeAreaBottom":false,"toolbarMode":"normal"}}', responseSample: null },
       { name: 'setScreenBrightness', event: 'SET_SCREEN_BRIGHTNESS', desc: 'Đặt độ sáng màn hình (screen-scoped) cho màn hình mini-app đang hiển thị. Tự khôi phục khi rời màn/nền.', hasParams: true, defaultData: '{"data":{"value":0.8}}', responseSample: "{\"data\":{\"success\":true}}" },
       { name: 'restoreScreenBrightness', event: 'RESTORE_SCREEN_BRIGHTNESS', desc: 'Khôi phục độ sáng về giá trị đã lưu gần nhất theo session mini-app.', hasParams: true, defaultData: '{"data":{}}', responseSample: "{\"data\":{\"success\":true}}" }
+  ] },
+  { title: 'Notification', events: [
+      { name: 'subscribeTopic', event: 'SUBSCRIBE_TOPIC', desc: 'Đăng ký nhận thông báo theo topic do APP CHỦ sở hữu. SDK native gác quyền thông báo NOTIFICATION_PERMISSION theo thứ tự: đã đăng ký ở App Center (chưa: SDK801) -> sender đúng (khác: SDK001) -> app chủ hỗ trợ push (không: SDK001 + ServiceNotApplicable) -> người dùng đồng ý ở sheet (từ chối: SDK802) -> hộp thoại quyền thông báo của OS (từ chối: SDK802 + Denied/PermanentlyDenied), rồi chuyển NGUYÊN VĂN phong bì cho app chủ; kết quả do APP CHỦ trả về, cùng request_id. ⚠️ `sender` PHẢI là MINIAPP_WEBVIEW — web SDK điền sẵn; mini-app ghi đè `sender` (qua invoke/sendRaw hoặc tự dựng phong bì) thì SDK trả SDK001 \'Invalid sender for SUBSCRIBE_TOPIC\' và app chủ KHÔNG được gọi. `data` là JSON tự do: thoả thuận giữa app chủ và mini-app, SDK không định nghĩa, không đọc, không ghi log. App chủ không nhận event: SDK100. Mỗi mini-app đúng một topic.', hasParams: true, defaultData: '{"data":{}}', responseSample: "{\"data\":{}}" },
+      { name: 'unsubscribeTopic', event: 'UNSUBSCRIBE_TOPIC', desc: 'Huỷ đăng ký nhận thông báo theo topic do APP CHỦ sở hữu. Không hiện popup. SDK native kiểm: đã đăng ký quyền thông báo ở App Center (chưa: SDK801) -> sender đúng (khác: SDK001), rồi chuyển NGUYÊN VĂN phong bì cho app chủ; kết quả do APP CHỦ trả về, cùng request_id. ⚠️ `sender` PHẢI là MINIAPP_WEBVIEW — web SDK điền sẵn; ghi đè thì SDK trả SDK001 \'Invalid sender for UNSUBSCRIBE_TOPIC\'. `data` là JSON tự do: thoả thuận giữa app chủ và mini-app. App chủ không nhận event: SDK100.', hasParams: true, defaultData: '{"data":{}}', responseSample: "{\"data\":{}}" }
   ] }
 ];
 

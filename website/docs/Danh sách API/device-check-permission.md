@@ -496,3 +496,48 @@ if (WebviewSdk.isSuccess(res)) {
 
 
 
+### 12. checkNotificationPermission()
+
+**Event Code:** `CHECK_NOTIFICATION_PERMISSION` - Kiểm tra quyền thông báo — CHỈ ĐỌC: không popup, không hỏi OS, không đổi cache, không gọi app chủ. Luôn trả SDK000; trạng thái nằm ở `result`, theo thứ tự: chưa đăng ký ở App Center -> NotFound; app chủ không hỗ trợ push -> ServiceNotApplicable; người dùng chưa đồng ý -> Denied; đã đồng ý -> theo OS: Granted / Denied / PermanentlyDenied. ⚠️ `Denied` mang hai nghĩa (chưa đồng ý ở SDK, hoặc OS từ chối). ⚠️ Android: người dùng chặn vĩnh viễn ngoài SDK vẫn trả Denied (giới hạn nền tảng); iOS: thiếu userId trả SDK002. SDK KHÔNG báo mini-app khi người dùng bật/tắt quyền trong màn Quản lý quyền — gọi event này để đồng bộ.
+
+**Request**
+
+*No request parameters*
+
+**Response**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `permissionCode` | `string` | *optional* |  |
+| `result` | `string` | *optional* |  |
+| `message` | `string` | *optional* |  |
+
+
+**Ví dụ sử dụng (npm package)**
+
+```typescript
+import { checkNotificationPermission, isSuccess } from 'vdf-webview-miniapp-sdk'
+
+const res = await checkNotificationPermission()
+if (isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+**Sử dụng với bundle.js**
+
+```javascript
+const res = await WebviewSdk.checkNotificationPermission()
+if (WebviewSdk.isSuccess(res)) {
+  console.log(res.permissionCode)
+  console.log(res.result)
+  console.log(res.message)
+}
+```
+
+---
+
+
+

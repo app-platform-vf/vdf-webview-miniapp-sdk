@@ -1938,6 +1938,63 @@
           }
         }
       }
+    },
+    {
+      "event": "SUBSCRIBE_TOPIC",
+      "description": "Đăng ký nhận thông báo theo topic do APP CHỦ sở hữu. SDK native gác quyền thông báo NOTIFICATION_PERMISSION theo thứ tự: đã đăng ký ở App Center (chưa: SDK801) -> sender đúng (khác: SDK001) -> app chủ hỗ trợ push (không: SDK001 + ServiceNotApplicable) -> người dùng đồng ý ở sheet (từ chối: SDK802) -> hộp thoại quyền thông báo của OS (từ chối: SDK802 + Denied/PermanentlyDenied), rồi chuyển NGUYÊN VĂN phong bì cho app chủ; kết quả do APP CHỦ trả về, cùng request_id. ⚠️ `sender` PHẢI là MINIAPP_WEBVIEW — web SDK điền sẵn; mini-app ghi đè `sender` (qua invoke/sendRaw hoặc tự dựng phong bì) thì SDK trả SDK001 'Invalid sender for SUBSCRIBE_TOPIC' và app chủ KHÔNG được gọi. `data` là JSON tự do: thoả thuận giữa app chủ và mini-app, SDK không định nghĩa, không đọc, không ghi log. App chủ không nhận event: SDK100. Mỗi mini-app đúng một topic.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "description": "Dữ liệu kèm dạng JSON tự do — schema do app chủ và mini-app thoả thuận; SDK chuyển nguyên văn"
+        }
+      },
+      "response": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "description": "Kết quả do app chủ trả — schema do app chủ và mini-app thoả thuận"
+        }
+      },
+      "group": "Notification"
+    },
+    {
+      "event": "UNSUBSCRIBE_TOPIC",
+      "description": "Huỷ đăng ký nhận thông báo theo topic do APP CHỦ sở hữu. Không hiện popup. SDK native kiểm: đã đăng ký quyền thông báo ở App Center (chưa: SDK801) -> sender đúng (khác: SDK001), rồi chuyển NGUYÊN VĂN phong bì cho app chủ; kết quả do APP CHỦ trả về, cùng request_id. ⚠️ `sender` PHẢI là MINIAPP_WEBVIEW — web SDK điền sẵn; ghi đè thì SDK trả SDK001 'Invalid sender for UNSUBSCRIBE_TOPIC'. `data` là JSON tự do: thoả thuận giữa app chủ và mini-app. App chủ không nhận event: SDK100.",
+      "request": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "description": "Dữ liệu kèm dạng JSON tự do — schema do app chủ và mini-app thoả thuận; SDK chuyển nguyên văn"
+        }
+      },
+      "response": {
+        "data": {
+          "meta_data": "object",
+          "required": false,
+          "description": "Kết quả do app chủ trả — schema do app chủ và mini-app thoả thuận"
+        }
+      },
+      "group": "Notification"
+    },
+    {
+      "event": "CHECK_NOTIFICATION_PERMISSION",
+      "description": "Kiểm tra quyền thông báo — CHỈ ĐỌC: không popup, không hỏi OS, không đổi cache, không gọi app chủ. Luôn trả SDK000; trạng thái nằm ở `result`, theo thứ tự: chưa đăng ký ở App Center -> NotFound; app chủ không hỗ trợ push -> ServiceNotApplicable; người dùng chưa đồng ý -> Denied; đã đồng ý -> theo OS: Granted / Denied / PermanentlyDenied. ⚠️ `Denied` mang hai nghĩa (chưa đồng ý ở SDK, hoặc OS từ chối). ⚠️ Android: người dùng chặn vĩnh viễn ngoài SDK vẫn trả Denied (giới hạn nền tảng); iOS: thiếu userId trả SDK002. SDK KHÔNG báo mini-app khi người dùng bật/tắt quyền trong màn Quản lý quyền — gọi event này để đồng bộ.",
+      "request": {},
+      "response": {
+        "permissionCode": {
+          "meta_data": "string",
+          "required": false
+        },
+        "result": {
+          "meta_data": "string",
+          "required": false
+        },
+        "message": {
+          "meta_data": "string",
+          "required": false
+        }
+      }
     }
   ]
 }
