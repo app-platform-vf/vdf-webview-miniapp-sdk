@@ -1367,8 +1367,108 @@ ${fnEntries.join(",\n")},
       return h;
     }
 
+    // ---- Test chon file (<input type="file">) ----
+    //
+    // Khong phai event cua hop dong: WebView goi onShowFileChooser cua SDK native, SDK mo
+    // picker / camera roi tra URI ve cho WebView. Trang chi nhin thay ket qua qua
+    // input.files, nen man nay ve dung cai trang that nhan duoc: so tep, ten, kieu, dung
+    // luong, va so byte DOC DUOC THAT (tep 0 byte hoac URI khong doc duoc lo ra o day).
+    //
+    // Moi nut bam mot input AN, giong cach trang that lam (vd Smart Police). Khong co ca
+    // "input khong khai accept": tren SDK Android cu ca do lam WebView treo moi lan chon
+    // tep sau do cho toi khi tai lai trang.
+    var FILE_CASES = [
+      { id: 'img-1', label: 'Anh (1 tep)', attrs: { accept: 'image/*' } },
+      { id: 'img-n', label: 'Anh (nhieu tep)', attrs: { accept: 'image/*', multiple: '' } },
+      { id: 'media-n', label: 'Anh/video (nhieu tep)', attrs: { accept: 'image/*,video/*', multiple: '' } },
+      { id: 'camera', label: 'Chup anh (camera)', attrs: { accept: 'image/*', capture: 'environment' } }
+    ];
+    var fileResults = [];
+
+    function renderFilePickerTest() {
+      var h = '<section><h3 class="section-title">Test chon file (input type=file)</h3>';
+      h += '<p style="margin:4px 0 0;font-size:11px;color:#666">'
+        + 'Chon nhieu tep: nhan giu tep dau trong picker roi cham them. '
+        + 'Ket qua la cai trang nhan duoc qua input.files.</p>';
+      h += '<div class="btn-group">';
+      FILE_CASES.forEach(function(c) {
+        h += '<button class="btn" data-file-case="' + c.id + '">' + escapeHtml(c.label) + '</button>';
+      });
+      h += '<button class="btn" id="file-test-clear">Clear</button>';
+      h += '</div>';
+      FILE_CASES.forEach(function(c) {
+        h += '<input type="file" id="file-input-' + c.id + '" style="display:none">';
+      });
+      h += '<div id="file-test-results" style="margin-top:8px"></div>';
+      h += '</section>';
+      return h;
+    }
+
+    function renderFileResults() {
+      var box = document.getElementById('file-test-results');
+      if (!box) return;
+      box.innerHTML = fileResults.map(function(r) {
+        var ok = r.files.length > 0 && r.files.every(function(f) { return f.size > 0 && f.readBytes === f.size; });
+        var h = '<div style="border:1px solid #ddd;border-radius:6px;padding:6px 8px;margin-bottom:6px;background:#fff;font-size:11px">';
+        h += '<div style="font-weight:600;color:' + (ok ? '#0a7' : '#b00') + '">'
+          + (ok ? '&#10003; ' : '&#10007; ') + escapeHtml(r.time + ' ' + r.label) + ' — ' + r.files.length + ' tep'
+          + (r.note ? ' (' + escapeHtml(r.note) + ')' : '') + '</div>';
+        h += '<div style="color:#666;font-family:monospace">' + escapeHtml(r.attrs) + '</div>';
+        r.files.forEach(function(f) {
+          var bad = f.size === 0 || f.readBytes !== f.size;
+          h += '<div style="display:flex;gap:6px;align-items:center;margin-top:4px">';
+          if (f.thumb) h += '<img src="' + f.thumb + '" style="width:40px;height:40px;object-fit:cover;border-radius:4px">';
+          h += '<span style="word-break:break-all' + (bad ? ';color:#b00' : '') + '">' + escapeHtml(f.name)
+            + ' &middot; ' + escapeHtml(f.type || 'khong ro kieu') + ' &middot; ' + f.size + ' B &middot; doc=' + escapeHtml(String(f.readBytes)) + '</span>';
+          h += '</div>';
+        });
+        return h + '</div>';
+      }).join('');
+    }
+
+    function bindFilePickerTest() {
+      FILE_CASES.forEach(function(c) {
+        var input = document.getElementById('file-input-' + c.id);
+        var btn = document.querySelector('[data-file-case="' + c.id + '"]');
+        Object.keys(c.attrs).forEach(function(k) { input.setAttribute(k, c.attrs[k]); });
+        var attrs = Object.keys(c.attrs).map(function(k) { return c.attrs[k] ? k + '="' + c.attrs[k] + '"' : k; }).join(' ');
+
+        function record(files, note) {
+          fileResults.unshift({ time: new Date().toLocaleTimeString(), label: c.label, attrs: attrs, files: files, note: note });
+          console.log('[FilePickerTest] ' + c.label + ': ' + files.length + ' tep' + (note ? ' (' + note + ')' : ''), files);
+          renderFileResults();
+        }
+
+        btn.addEventListener('click', function() {
+          // Xoa gia tri cu de chon lai CUNG tep van phat 'change'.
+          input.value = '';
+          input.click();
+        });
+        // 'cancel' chi co tren WebView moi; WebView cu huy picker thi khong phat gi.
+        input.addEventListener('cancel', function() { record([], 'huy picker'); });
+        input.addEventListener('change', function() {
+          var list = Array.prototype.slice.call(input.files || []);
+          if (!list.length) { record([], 'change nhung khong co tep'); return; }
+          Promise.all(list.map(function(f) {
+            var read = f.arrayBuffer
+              ? f.arrayBuffer().then(function(b) { return b.byteLength; }, function(e) { return 'LOI: ' + e.message; })
+              : Promise.resolve('khong ho tro');
+            return read.then(function(n) {
+              var isImg = /^image\\//.test(f.type) && f.size > 0;
+              return { name: f.name, type: f.type, size: f.size, readBytes: n, thumb: isImg ? URL.createObjectURL(f) : null };
+            });
+          })).then(function(files) { record(files); });
+        });
+      });
+      document.getElementById('file-test-clear').addEventListener('click', function() {
+        fileResults = [];
+        renderFileResults();
+      });
+    }
+
     function renderApp() {
       var html = '<h1>MiniApp SDK - Demo</h1>';
+      html += renderFilePickerTest();
 
       groups.forEach(function(g) {
         html += '<section><h3 class="section-title">' + escapeHtml(g.title) + '</h3><div class="btn-group">';
@@ -1386,6 +1486,7 @@ ${fnEntries.join(",\n")},
       html += '<div style="padding:50px"></div>';
 
       document.getElementById('app').innerHTML = html;
+      bindFilePickerTest();
 
       // Bind buttons
       var allEvts = groups.reduce(function(a, g) { return a.concat(g.events); }, []);
